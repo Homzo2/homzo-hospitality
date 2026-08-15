@@ -1,0 +1,11 @@
+﻿"ID",Name,Description,Console_Type,Is_System_Default,Created_By,Created_At
+1,CEO,"Full access, all modules, all consoles",Admin,true,system,2026-07-19T19:52:10.355Z
+2,COO,"Management Console, ops-level approval authority, all cities",Management,true,system,2026-07-19T19:52:10.355Z
+3,CTO,"Developer Console, full technical access, zero business-data edit rights",Developer,true,system,2026-07-19T19:52:10.355Z
+4,CMO,"Management Console, Marketing & Promo full control, other modules view-only",Management,true,system,2026-07-19T19:52:10.355Z
+5,City Manager,"Management Console, City-Specific scope, propose-only on strategic items",Management,true,system,2026-07-19T19:52:10.355Z
+6,Quality Manager,"Management Console, Quality & Inspections full control",Management,true,system,2026-07-19T19:52:10.355Z
+7,Guest Relations,"Management Console, Booking + Guest Management full control",Management,true,system,2026-07-19T19:52:10.355Z
+8,Finance Manager,"Management Console, Revenue & Payouts control with CEO approval threshold",Management,true,system,2026-07-19T19:52:10.355Z
+9,General Admin,"Management Console, data-entry-level access only, no approval rights",Management,true,system,2026-07-19T19:52:10.355Z
+10,Developer,"Developer Console, technical modules only, no business data access",Developer,true,system,2026-07-19T19:52:10.355Z

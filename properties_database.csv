@@ -1,0 +1,17 @@
+"ID",Name,Location,Type,Price,Beds,Baths,Area,Image,Status,Date_Added,Inventory,Rating,Reviews,Latitude,Longitude
+1,Mumbai Premier Hotel 1,Mumbai,couples,3000,2,2,350,couple_room.png,Signed,2026-07-19T20:44:14.022Z,10,4.8,124,19.1001,72.8251
+2,Mumbai Premier Hotel 2,Mumbai,couples,3000,2,2,350,couple_room.png,Signed,2026-07-19T20:44:14.022Z,10,4.5,98,19.1023,72.8284
+3,Mumbai Family Haven,Mumbai,families,2500,3,2,750,family_room.png,Signed,2026-07-19T20:44:14.022Z,10,4.7,210,19.1055,72.8312
+4,Mumbai Grand Family Suite,Mumbai,families,4500,3,3,950,family_room.png,Signed,2026-07-19T20:44:14.022Z,10,4.9,35,19.1082,72.8345
+5,Mumbai Premier Hotel 5,Mumbai,couples,3000,2,2,350,couple_room.png,Signed,2026-07-19T20:44:14.022Z,10,4.6,76,19.1105,72.8378
+6,Mumbai Premier Hotel 6,Mumbai,couples,3000,2,2,350,couple_room.png,Signed,2026-07-19T20:44:14.022Z,10,4.3,42,19.1134,72.8402
+7,Mumbai Premier Hotel 7,Mumbai,couples,3000,2,2,350,couple_room.png,Signed,2026-07-19T20:44:14.022Z,10,4.7,112,19.1158,72.8431
+8,Mumbai Premier Hotel 8,Mumbai,couples,3000,2,2,350,couple_room.png,Signed,2026-07-19T20:44:14.022Z,10,4.4,63,19.1189,72.8465
+9,Delhi Residency 1,Delhi,tourists,2500,2,2,320,tourist_room.png,Signed,2026-07-19T20:44:14.022Z,10,4.8,175,28.6210,77.2150
+10,Delhi Residency 2,Delhi,tourists,2500,2,2,320,tourist_room.png,Signed,2026-07-19T20:44:14.022Z,10,4.6,88,28.6235,77.2185
+11,Delhi Scholar Nest,Delhi,students,4200,1,1,220,student_room.png,Signed,2026-07-19T20:44:14.022Z,10,4.9,132,28.6262,77.2210
+12,Delhi Campus Pad,Delhi,students,5000,1,1,260,student_room.png,Signed,2026-07-19T20:44:14.022Z,10,4.5,91,28.6288,77.2245
+13,Delhi International Inn,Delhi,foreigners,35,1,1,380,foreigner_room.png,Signed,2026-07-19T20:44:14.022Z,10,4.7,55,28.6315,77.2280
+14,Delhi Global Residency,Delhi,foreigners,45,2,2,550,foreigner_room.png,Signed,2026-07-19T20:44:14.022Z,10,4.9,64,28.6342,77.2315
+15,Bangalore Suites 1,Bangalore,employees,3500,2,2,400,employee_room.png,Signed,2026-07-19T20:44:14.022Z,10,4.8,110,12.9345,77.6101
+16,Bangalore Suites 2,Bangalore,employees,3500,2,2,400,employee_room.png,Signed,2026-07-19T20:44:14.022Z,10,4.7,85,12.9380,77.6145

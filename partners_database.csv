@@ -1,0 +1,2 @@
+﻿"ID",Name,Email,Password,Phone,Assigned_Properties,Status,GST,PAN,Bank_Account,Bank_IFSC,Verification_Status,Date_Created
+1,Default Partner,partner@homzo.in,d4e870198339c045e84f416cc6a1f15c30f010f68e14c637a9d35366f2e35ba6,+91 98765 43210,1,active,27AAAAA1111A1Z1,ABCDE1234F,123456789012,HDFC0000123,verified,2026-07-19T19:52:10.320Z

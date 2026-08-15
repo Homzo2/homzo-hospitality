@@ -1,0 +1,1704 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HOMZO – Find Your Perfect Stay</title>
+  <meta name="description" content="HOMZO offers premium, affordable accommodations for students, employees, tourists, and international guests across India. Book your stay today.">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="client.css">
+  <link rel="stylesheet" href="booking_theme.css">
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Flatpickr Datepicker -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+</head>
+<body>
+
+<!-- ════════════════ NAVBAR ════════════════ -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="#" class="nav-logo">
+      <img src="homzo_logo.png" alt="HOMZO Logo" class="brand-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+      <span style="display: none; font-family: 'Sora', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--primary); letter-spacing: 1px;">HOMZO</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#hero" class="nav-link active">Home</a></li>
+      <li><a href="about.html" class="nav-link">About</a></li>
+      <li><a href="#categories" class="nav-link">Categories</a></li>
+      <li><a href="#properties" class="nav-link">Properties</a></li>
+      <li><a href="#amenities" class="nav-link">Amenities</a></li>
+      <li><a href="#testimonials" class="nav-link">Reviews</a></li>
+      <li><a href="/careers" class="nav-link">Careers</a></li>
+      <li><a href="#contact" class="nav-link">Contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="advertise-your-homes.html" class="btn btn-ghost btn-sm hide-mobile"><i class="fa-solid fa-hotel"></i> Partner with Us</a>
+      <div id="customerAuthWidget" class="nav-profile-dropdown">
+        <button class="btn btn-primary btn-sm" id="custSignInBtn"><i class="fa-solid fa-user-lock"></i> Sign In</button>
+        <div id="custProfileDropdown" class="dropdown-menu-list">
+          <button class="dropdown-item-btn" id="myStaysBtn"><i class="fa-solid fa-calendar-days"></i> My Stays</button>
+          <button class="dropdown-item-btn text-danger" id="custSignOutBtn"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</button>
+        </div>
+      </div>
+      <button class="nav-hamburger hide-desktop" id="hamburger"><i class="fa-solid fa-bars"></i></button>
+    </div>
+  </div>
+</nav>
+
+<!-- ════════════════ HERO ════════════════ -->
+<section class="hero" id="hero">
+  <div class="hero-bg">
+    <img src="hero_room.png" alt="Premium hotel room" class="hero-img loaded" id="heroBg">
+    <div class="hero-overlay"></div>
+    <!-- animated particles -->
+    <div class="particle p1"></div>
+    <div class="particle p2"></div>
+    <div class="particle p3"></div>
+  </div>
+
+  <div class="hero-content">
+    <div class="hero-badge">
+      <i class="fa-solid fa-star"></i> India's Trusted Stay Platform
+    </div>
+    <h1 class="hero-title">
+      Reliable <span class="grad-text">Comfort,</span><br>Wherever You Go
+    </h1>
+    <p class="hero-sub">Premium stays for students, employees, tourists &amp; international guests. Comfort meets affordability — wherever your journey takes you.</p>
+
+    <div class="hero-stats">
+      <div class="stat"><span style="font-size: 0.95rem; font-weight: 500; color: var(--text-primary);">Launching Soon in Multiple Cities</span></div>
+      <div class="stat-div"></div>
+      <div class="stat"><span style="font-size: 0.95rem; font-weight: 500; color: var(--text-primary);">Partnering with Property Owners Across India</span></div>
+      <div class="stat-div"></div>
+      <div class="stat"><span style="font-size: 0.95rem; font-weight: 500; color: var(--text-primary);">Be Among Our First Guests</span></div>
+    </div>
+  </div>
+
+  <!-- Search Box -->
+  <div class="search-box glass" id="searchBox" style="display: block;">
+    <div class="search-tabs">
+      <button class="stab active" data-tab="all">All Stays</button>
+      <button class="stab" data-tab="students">Students</button>
+      <button class="stab" data-tab="employees">Employees</button>
+      <button class="stab" data-tab="tourists">Tourists</button>
+      <button class="stab" data-tab="foreigners">Foreigners</button>
+      <button class="stab" data-tab="couples">Couples</button>
+      <button class="stab" data-tab="families">Families</button>
+    </div>
+    <div class="search-fields">
+      <div class="sf">
+        <label><i class="fa-solid fa-location-dot"></i> Location</label>
+        <select class="form-control" id="searchLocation">
+          <option value="">Select City</option>
+          <option>Mumbai</option><option>Delhi</option><option>Bengaluru</option>
+          <option>Hyderabad</option><option>Chennai</option><option>Pune</option>
+          <option>Kolkata</option><option>Jaipur</option><option>Ahmedabad</option>
+          <option>Goa</option>
+        </select>
+      </div>
+      <div class="sf">
+        <label><i class="fa-solid fa-calendar"></i> Check-In</label>
+        <input type="text" class="form-control flatpickr-input" id="searchCheckin" placeholder="Select check-in" readonly="readonly">
+      </div>
+      <div class="sf">
+        <label><i class="fa-solid fa-calendar-xmark"></i> Check-Out</label>
+        <input type="text" class="form-control flatpickr-input" id="searchCheckout" placeholder="Select check-out" readonly="readonly">
+      </div>
+      <div class="sf">
+        <label><i class="fa-solid fa-user-group"></i> Guests</label>
+        <select class="form-control" id="searchGuests">
+          <option>1 Guest</option><option>2 Guests</option><option>3 Guests</option>
+          <option>4 Guests</option><option>5+ Guests</option>
+        </select>
+      </div>
+      <button class="btn btn-primary search-btn" id="searchBtn">
+        <i class="fa-solid fa-magnifying-glass"></i> Search
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ── Launching Soon Banner (Show only when 0 properties onboarded) ── -->
+<section class="section launching-soon-section" id="launchingSoonSection" style="display:none; padding: 80px 0; background: linear-gradient(180deg, rgba(10, 17, 24, 0.95) 0%, rgba(5, 9, 13, 0.98) 100%); border-bottom: 1px solid var(--border);">
+  <div class="container" style="text-align: center; max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; align-items: center;">
+    <div class="coming-soon-badge" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(212,175,55,0.1); border: 1px solid rgba(212,175,55,0.3); padding: 8px 16px; border-radius: 30px; margin-bottom: 24px; animation: pulse 2s infinite;">
+      <div style="width: 8px; height: 8px; background: #d4af37; border-radius: 50%;"></div>
+      <span style="color: #d4af37; font-size: 0.85rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">Launching Soon</span>
+    </div>
+    
+    <h2 style="font-family: 'Sora', sans-serif; font-size: 2.8rem; font-weight: 800; line-height: 1.25; margin-bottom: 16px; color: #fff;">
+      Launching Soon in <br><span style="background: linear-gradient(135deg, #d4af37, #aa7c11); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Multiple Cities</span>
+    </h2>
+    
+    <p style="font-size: 1.15rem; color: var(--text-secondary); margin-bottom: 32px; font-weight: 500; max-width: 600px; line-height: 1.5;">
+      Partnering with Property Owners Across India. Be Among Our First Guests.
+    </p>
+
+    <!-- Call to Actions -->
+    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin-bottom: 40px;">
+      <a href="advertise-your-homes.html" class="btn btn-primary" style="padding: 12px 24px; font-weight: 700; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px;">
+        <i class="fa-solid fa-handshake"></i> List Your Property (Owners)
+      </a>
+      <a href="#contact" class="btn btn-ghost" style="padding: 12px 24px; font-weight: 700; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--border); color: #fff;">
+        <i class="fa-solid fa-envelope"></i> Contact Our Team
+      </a>
+    </div>
+
+    <!-- Notify Me Form -->
+    <div style="background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 16px; padding: 24px 32px; width: 100%; max-width: 480px; text-align: left; box-sizing: border-box;">
+      <h4 style="color: var(--text-primary); margin-bottom: 8px; font-weight: 700; font-size: 1rem; margin-top: 0;">Get Notified on Launch</h4>
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px; line-height: 1.4;">We will send you a one-time invitation with a special introductory discount code.</p>
+      
+      <form id="notifyLaunchForm" style="display: flex; gap: 10px; width: 100%;" data-listener-attached="true">
+        <input type="email" id="notifyEmail" class="form-control" placeholder="Enter your email" required="" style="flex: 1; padding: 10px 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 8px; color: #fff; outline: none; font-size: 0.88rem;">
+        <button type="submit" class="btn btn-primary" style="padding: 10px 20px; white-space: nowrap; border-radius: 8px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center;">Notify Me</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ WHO WE SERVE ════════════════ -->
+<section class="section categories-section" id="categories" style="display: block;">
+  <div class="container">
+    <div style="text-align:center; margin-bottom:56px;">
+      <span class="section-label"><i class="fa-solid fa-users"></i> Who We Serve</span>
+      <h2 class="section-title">Stays Tailored for <span>Everyone</span></h2>
+      <p class="section-sub" style="margin: 0 auto;">From short-term college stays to long corporate rentals, we have a perfect plan for every type of guest.</p>
+    </div>
+    <div class="cat-grid">
+
+      <!-- Students -->
+      <div class="cat-card reveal" id="cat-students" onclick="openCategoryModal('students')" style="transition-delay: 0s;">
+        <div class="cat-img-wrap">
+          <img src="student_room.png" alt="Student accommodation">
+          <div class="cat-badge"><i class="fa-solid fa-graduation-cap"></i></div>
+        </div>
+        <div class="cat-body">
+          <h3>Students</h3>
+          <p>Affordable PGs &amp; shared rooms near colleges. High-speed Wi-Fi, study spaces, and monthly meal plans included.</p>
+          <div class="cat-features">
+            <span><i class="fa-solid fa-wifi"></i> High-Speed WiFi</span>
+            <span><i class="fa-solid fa-book"></i> Study Zone</span>
+            <span><i class="fa-solid fa-utensils"></i> Meal Plans</span>
+            <span><i class="fa-solid fa-shield-halved"></i> 24/7 Security</span>
+          </div>
+          <div class="cat-footer">
+            <div class="cat-price">From <strong>₹3,500</strong><span>/month</span></div>
+            <button class="btn btn-primary btn-sm">Explore <i class="fa-solid fa-arrow-right"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Employees -->
+      <div class="cat-card featured-cat reveal" id="cat-employees" onclick="openCategoryModal('employees')" style="transition-delay: 0.08s;">
+        <div class="cat-tag">Most Popular</div>
+        <div class="cat-img-wrap">
+          <img src="employee_room.png" alt="Corporate accommodation">
+          <div class="cat-badge" style="background: var(--info)"><i class="fa-solid fa-briefcase"></i></div>
+        </div>
+        <div class="cat-body">
+          <h3>Employees</h3>
+          <p>Corporate-grade service apartments for professionals on assignment. Business amenities, flexible lease terms.</p>
+          <div class="cat-features">
+            <span><i class="fa-solid fa-desktop"></i> Work Desk</span>
+            <span><i class="fa-solid fa-dumbbell"></i> Gym Access</span>
+            <span><i class="fa-solid fa-car"></i> Parking</span>
+            <span><i class="fa-solid fa-handshake"></i> Corp. Billing</span>
+          </div>
+          <div class="cat-footer">
+            <div class="cat-price">From <strong>₹9,000</strong><span>/month</span></div>
+            <button class="btn btn-primary btn-sm">Explore <i class="fa-solid fa-arrow-right"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tourists -->
+      <div class="cat-card reveal" id="cat-tourists" onclick="openCategoryModal('tourists')" style="transition-delay: 0.16s;">
+        <div class="cat-img-wrap">
+          <img src="tourist_room.png" alt="Tourist accommodation">
+          <div class="cat-badge" style="background:#22c55e"><i class="fa-solid fa-umbrella-beach"></i></div>
+        </div>
+        <div class="cat-body">
+          <h3>Tourists</h3>
+          <p>Cozy rooms for vacationers at prime tourist spots. Daily housekeeping, local experience packages included.</p>
+          <div class="cat-features">
+            <span><i class="fa-solid fa-map"></i> Local Guides</span>
+            <span><i class="fa-solid fa-broom"></i> Housekeeping</span>
+            <span><i class="fa-solid fa-van-shuttle"></i> Cab Service</span>
+            <span><i class="fa-solid fa-star"></i> Tours</span>
+          </div>
+          <div class="cat-footer">
+            <div class="cat-price">From <strong>₹1,200</strong><span>/night</span></div>
+            <button class="btn btn-primary btn-sm">Explore <i class="fa-solid fa-arrow-right"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Foreigners -->
+      <div class="cat-card reveal" id="cat-foreigners" onclick="openCategoryModal('foreigners')" style="transition-delay: 0.24s;">
+        <div class="cat-img-wrap">
+          <img src="foreigner_room.png" alt="International guest accommodation">
+          <div class="cat-badge" style="background:#a855f7"><i class="fa-solid fa-globe"></i></div>
+        </div>
+        <div class="cat-body">
+          <h3>Foreigners</h3>
+          <p>International-standard suites with multi-lingual support, visa assistance, and global payment options.</p>
+          <div class="cat-features">
+            <span><i class="fa-solid fa-language"></i> Multi-lingual</span>
+            <span><i class="fa-solid fa-credit-card"></i> Intl. Payments</span>
+            <span><i class="fa-solid fa-id-card"></i> Visa Help</span>
+            <span><i class="fa-solid fa-concierge-bell"></i> Concierge</span>
+          </div>
+          <div class="cat-footer">
+            <div class="cat-price">From <strong>$25</strong><span>/night</span></div>
+            <button class="btn btn-primary btn-sm">Explore <i class="fa-solid fa-arrow-right"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Couples -->
+      <div class="cat-card reveal" id="cat-couples" onclick="openCategoryModal('couples')" style="transition-delay: 0.32s;">
+        <div class="cat-img-wrap">
+          <img src="couple_room.png" alt="Couple accommodation">
+          <div class="cat-badge" style="background:#ef4444"><i class="fa-solid fa-heart"></i></div>
+        </div>
+        <div class="cat-body">
+          <h3>Couples</h3>
+          <p>Private, romantic stays with absolute privacy and hassle-free check-ins for couples. Verified and secure.</p>
+          <div class="cat-features">
+            <span><i class="fa-solid fa-user-shield"></i> Safe &amp; Secure</span>
+            <span><i class="fa-solid fa-clock"></i> Quick Check-in</span>
+            <span><i class="fa-solid fa-ban"></i> No Questions</span>
+            <span><i class="fa-solid fa-bed"></i> Cozy Comfort</span>
+          </div>
+          <div class="cat-footer">
+            <div class="cat-price">From <strong>₹1,500</strong><span>/night</span></div>
+            <button class="btn btn-primary btn-sm">Explore <i class="fa-solid fa-arrow-right"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Families & Groups -->
+      <div class="cat-card reveal" id="cat-families" onclick="openCategoryModal('families')" style="transition-delay: 0.4s;">
+        <div class="cat-img-wrap">
+          <img src="family_room.png" alt="Family accommodation">
+          <div class="cat-badge" style="background:#06b6d4"><i class="fa-solid fa-people-roof"></i></div>
+        </div>
+        <div class="cat-body">
+          <h3>Families</h3>
+          <p>Spacious suites and interconnected rooms. Child-safe layouts, kitchen access, and laundry services included.</p>
+          <div class="cat-features">
+            <span><i class="fa-solid fa-child-reaching"></i> Child-Safe</span>
+            <span><i class="fa-solid fa-kitchen-set"></i> Kitchen Access</span>
+            <span><i class="fa-solid fa-jug-detergent"></i> Laundry Help</span>
+            <span><i class="fa-solid fa-person-shelter"></i> Extra Beds</span>
+          </div>
+          <div class="cat-footer">
+            <div class="cat-price">From <strong>₹2,500</strong><span>/night</span></div>
+            <button class="btn btn-primary btn-sm">Explore <i class="fa-solid fa-arrow-right"></i></button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ SEARCH RESULTS SECTION ════════════════ -->
+<section class="section search-results-section" id="searchResults">
+  <div class="container">
+    <div class="results-wrapper">
+      
+      <!-- Left Filters Sidebar -->
+      <aside class="filter-sidebar">
+        <div class="filter-group">
+          <h5><i class="fa-solid fa-sliders"></i> Filters</h5>
+          <button class="btn btn-ghost btn-sm" id="clearFiltersBtn" style="width:100%; margin-top:8px">Clear All</button>
+        </div>
+        
+        <div class="filter-group">
+          <h5><i class="fa-solid fa-indian-rupee-sign"></i> Max Price</h5>
+          <input type="range" id="priceFilterSlider" min="500" max="20000" step="500" value="20000" style="width:100%">
+          <div class="price-slider-info">
+            <span>₹500</span>
+            <span id="priceSliderValue" style="color:var(--primary); font-weight:700">₹20,000</span>
+          </div>
+        </div>
+        
+        <div class="filter-group">
+          <h5><i class="fa-solid fa-house-chimney"></i> Stay Type</h5>
+          <label class="filter-checkbox-label">
+            <input type="checkbox" class="stay-type-chk" value="students"> Students
+          </label>
+          <label class="filter-checkbox-label">
+            <input type="checkbox" class="stay-type-chk" value="employees"> Employees
+          </label>
+          <label class="filter-checkbox-label">
+            <input type="checkbox" class="stay-type-chk" value="tourists"> Tourists
+          </label>
+          <label class="filter-checkbox-label">
+            <input type="checkbox" class="stay-type-chk" value="foreigners"> Foreigners
+          </label>
+          <label class="filter-checkbox-label">
+            <input type="checkbox" class="stay-type-chk" value="couples"> Couples
+          </label>
+          <label class="filter-checkbox-label">
+            <input type="checkbox" class="stay-type-chk" value="families"> Families
+          </label>
+        </div>
+        
+        <div class="filter-group">
+          <h5><i class="fa-solid fa-wifi"></i> Amenities</h5>
+          <label class="filter-checkbox-label">
+            <input type="checkbox" class="amenity-chk" value="wifi"> Free Wi-Fi
+          </label>
+          <label class="filter-checkbox-label">
+            <input type="checkbox" class="amenity-chk" value="ac"> Air Conditioning
+          </label>
+          <label class="filter-checkbox-label">
+            <input type="checkbox" class="amenity-chk" value="meal"> Meals Included
+          </label>
+          <label class="filter-checkbox-label">
+            <input type="checkbox" class="amenity-chk" value="gym"> Gym Access
+          </label>
+        </div>
+      </aside>
+      
+      <!-- Right Results Container -->
+      <div class="results-container">
+        <div class="results-header-bar">
+          <div class="results-title-info">
+            <h3 id="resultsTitleCount">0 Stays Available</h3>
+            <p id="resultsSubtext">Please search or select filters</p>
+          </div>
+          <div class="sort-select-wrapper">
+            <label for="resultsSortSelect">Sort by:</label>
+            <select id="resultsSortSelect" class="form-control" style="width:160px; padding:6px 12px; font-size:0.85rem">
+              <option value="popular">Popularity</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="prop-grid" id="searchResultsGrid">
+          <!-- Dynamically populated available property cards -->
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ FEATURED PROPERTIES ════════════════ -->
+<section class="section" id="properties" style="display: block;">
+  <div class="container">
+    <div class="section-header-row">
+      <div>
+        <span class="section-label"><i class="fa-solid fa-building"></i> Available Now</span>
+        <h2 class="section-title">Featured <span>Properties</span></h2>
+      </div>
+      <div class="filter-row">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="students">Students</button>
+        <button class="filter-btn" data-filter="employees">Employees</button>
+        <button class="filter-btn" data-filter="tourists">Tourists</button>
+        <button class="filter-btn" data-filter="foreigners">Foreigners</button>
+        <button class="filter-btn" data-filter="couples">Couples</button>
+      </div>
+    </div>
+    <div class="prop-grid" id="propGrid"><div class="prop-card reveal" data-type="couples" style="animation-delay: 0s;">
+      <div class="prop-img-wrap">
+        <img src="couple_room.png" alt="Mumbai Premier Hotel 1" loading="lazy">
+        <div class="prop-tag badge badge-danger">couples</div>
+        <button class="prop-fav " onclick="toggleFav(1, this)">
+          <i class="fa-regular fa-heart"></i>
+        </button>
+      </div>
+      <div class="prop-body">
+        <div class="prop-location"><i class="fa-solid fa-location-dot"></i> Mumbai</div>
+        <div class="prop-name">Mumbai Premier Hotel 1</div>
+        <div class="prop-meta">
+          <span><i class="fa-solid fa-bed"></i> 2 Bed</span>
+          <span><i class="fa-solid fa-bath"></i> 2 Bath</span>
+          <span><i class="fa-solid fa-vector-square"></i> 350 sq.ft</span>
+        </div>
+        <div class="prop-footer">
+          <div class="prop-price"><strong>₹3,000</strong><span>/night</span></div>
+        </div>
+        <button class="btn btn-primary" style="width:100%; margin-top:14px" onclick="bookProperty('Mumbai Premier Hotel 1')">
+          <i class="fa-solid fa-calendar-check"></i> Book Now
+        </button>
+      </div></div><div class="prop-card reveal" data-type="couples" style="animation-delay: 0.08s;">
+      <div class="prop-img-wrap">
+        <img src="couple_room.png" alt="Mumbai Premier Hotel 2" loading="lazy">
+        <div class="prop-tag badge badge-danger">couples</div>
+        <button class="prop-fav " onclick="toggleFav(2, this)">
+          <i class="fa-regular fa-heart"></i>
+        </button>
+      </div>
+      <div class="prop-body">
+        <div class="prop-location"><i class="fa-solid fa-location-dot"></i> Mumbai</div>
+        <div class="prop-name">Mumbai Premier Hotel 2</div>
+        <div class="prop-meta">
+          <span><i class="fa-solid fa-bed"></i> 2 Bed</span>
+          <span><i class="fa-solid fa-bath"></i> 2 Bath</span>
+          <span><i class="fa-solid fa-vector-square"></i> 350 sq.ft</span>
+        </div>
+        <div class="prop-footer">
+          <div class="prop-price"><strong>₹3,000</strong><span>/night</span></div>
+        </div>
+        <button class="btn btn-primary" style="width:100%; margin-top:14px" onclick="bookProperty('Mumbai Premier Hotel 2')">
+          <i class="fa-solid fa-calendar-check"></i> Book Now
+        </button>
+      </div></div><div class="prop-card reveal" data-type="families" style="animation-delay: 0.16s;">
+      <div class="prop-img-wrap">
+        <img src="family_room.png" alt="Mumbai Family Haven" loading="lazy">
+        <div class="prop-tag badge badge-primary">families</div>
+        <button class="prop-fav " onclick="toggleFav(3, this)">
+          <i class="fa-regular fa-heart"></i>
+        </button>
+      </div>
+      <div class="prop-body">
+        <div class="prop-location"><i class="fa-solid fa-location-dot"></i> Mumbai</div>
+        <div class="prop-name">Mumbai Family Haven</div>
+        <div class="prop-meta">
+          <span><i class="fa-solid fa-bed"></i> 3 Bed</span>
+          <span><i class="fa-solid fa-bath"></i> 2 Bath</span>
+          <span><i class="fa-solid fa-vector-square"></i> 750 sq.ft</span>
+        </div>
+        <div class="prop-footer">
+          <div class="prop-price"><strong>₹2,500</strong><span>/night</span></div>
+        </div>
+        <button class="btn btn-primary" style="width:100%; margin-top:14px" onclick="bookProperty('Mumbai Family Haven')">
+          <i class="fa-solid fa-calendar-check"></i> Book Now
+        </button>
+      </div></div><div class="prop-card reveal" data-type="families" style="animation-delay: 0.24s;">
+      <div class="prop-img-wrap">
+        <img src="family_room.png" alt="Mumbai Grand Family Suite" loading="lazy">
+        <div class="prop-tag badge badge-primary">families</div>
+        <button class="prop-fav " onclick="toggleFav(4, this)">
+          <i class="fa-regular fa-heart"></i>
+        </button>
+      </div>
+      <div class="prop-body">
+        <div class="prop-location"><i class="fa-solid fa-location-dot"></i> Mumbai</div>
+        <div class="prop-name">Mumbai Grand Family Suite</div>
+        <div class="prop-meta">
+          <span><i class="fa-solid fa-bed"></i> 3 Bed</span>
+          <span><i class="fa-solid fa-bath"></i> 3 Bath</span>
+          <span><i class="fa-solid fa-vector-square"></i> 950 sq.ft</span>
+        </div>
+        <div class="prop-footer">
+          <div class="prop-price"><strong>₹4,500</strong><span>/night</span></div>
+        </div>
+        <button class="btn btn-primary" style="width:100%; margin-top:14px" onclick="bookProperty('Mumbai Grand Family Suite')">
+          <i class="fa-solid fa-calendar-check"></i> Book Now
+        </button>
+      </div></div><div class="prop-card reveal" data-type="couples" style="animation-delay: 0.32s;">
+      <div class="prop-img-wrap">
+        <img src="couple_room.png" alt="Mumbai Premier Hotel 5" loading="lazy">
+        <div class="prop-tag badge badge-danger">couples</div>
+        <button class="prop-fav " onclick="toggleFav(5, this)">
+          <i class="fa-regular fa-heart"></i>
+        </button>
+      </div>
+      <div class="prop-body">
+        <div class="prop-location"><i class="fa-solid fa-location-dot"></i> Mumbai</div>
+        <div class="prop-name">Mumbai Premier Hotel 5</div>
+        <div class="prop-meta">
+          <span><i class="fa-solid fa-bed"></i> 2 Bed</span>
+          <span><i class="fa-solid fa-bath"></i> 2 Bath</span>
+          <span><i class="fa-solid fa-vector-square"></i> 350 sq.ft</span>
+        </div>
+        <div class="prop-footer">
+          <div class="prop-price"><strong>₹3,000</strong><span>/night</span></div>
+        </div>
+        <button class="btn btn-primary" style="width:100%; margin-top:14px" onclick="bookProperty('Mumbai Premier Hotel 5')">
+          <i class="fa-solid fa-calendar-check"></i> Book Now
+        </button>
+      </div></div><div class="prop-card reveal" data-type="couples" style="animation-delay: 0.4s;">
+      <div class="prop-img-wrap">
+        <img src="couple_room.png" alt="Mumbai Premier Hotel 6" loading="lazy">
+        <div class="prop-tag badge badge-danger">couples</div>
+        <button class="prop-fav " onclick="toggleFav(6, this)">
+          <i class="fa-regular fa-heart"></i>
+        </button>
+      </div>
+      <div class="prop-body">
+        <div class="prop-location"><i class="fa-solid fa-location-dot"></i> Mumbai</div>
+        <div class="prop-name">Mumbai Premier Hotel 6</div>
+        <div class="prop-meta">
+          <span><i class="fa-solid fa-bed"></i> 2 Bed</span>
+          <span><i class="fa-solid fa-bath"></i> 2 Bath</span>
+          <span><i class="fa-solid fa-vector-square"></i> 350 sq.ft</span>
+        </div>
+        <div class="prop-footer">
+          <div class="prop-price"><strong>₹3,000</strong><span>/night</span></div>
+        </div>
+        <button class="btn btn-primary" style="width:100%; margin-top:14px" onclick="bookProperty('Mumbai Premier Hotel 6')">
+          <i class="fa-solid fa-calendar-check"></i> Book Now
+        </button>
+      </div></div></div>
+    <div style="text-align:center; margin-top:40px;">
+      <button class="btn btn-ghost" id="loadMoreBtn" style="display: inline-flex;"><i class="fa-solid fa-layer-group"></i> Load More Properties</button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ WHY HOMZO ════════════════ -->
+<section class="section why-section">
+  <div class="container">
+    <div style="text-align:center; margin-bottom:56px;">
+      <span class="section-label"><i class="fa-solid fa-trophy"></i> Why Choose Us</span>
+      <h2 class="section-title">The <span>HOMZO</span> Difference</h2>
+    </div>
+    <div class="why-grid">
+      <div class="why-card reveal" style="transition-delay: 0s;">
+        <div class="why-icon" style="background: rgba(255,92,53,0.12); color: var(--primary)"><i class="fa-solid fa-shield-halved"></i></div>
+        <h4>Verified Properties</h4>
+        <p>Every listing is physically inspected and quality-certified by our team before listing.</p>
+      </div>
+      <div class="why-card reveal" style="transition-delay: 0.08s;">
+        <div class="why-icon" style="background: rgba(59,130,246,0.12); color: var(--info)"><i class="fa-solid fa-headset"></i></div>
+        <h4>24/7 Support</h4>
+        <p>Round-the-clock customer care via chat, call, and email in 8 languages.</p>
+      </div>
+      <div class="why-card reveal" style="transition-delay: 0.16s;">
+        <div class="why-icon" style="background: rgba(34,197,94,0.12); color: var(--success)"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+        <h4>Best Price Guarantee</h4>
+        <p>Find the same property cheaper elsewhere? We'll match it + give 10% off.</p>
+      </div>
+      <div class="why-card reveal" style="transition-delay: 0.24s;">
+        <div class="why-icon" style="background: rgba(168,85,247,0.12); color:#a855f7"><i class="fa-solid fa-bolt"></i></div>
+        <h4>Instant Booking</h4>
+        <p>Book in under 60 seconds. Instant confirmation, no waiting for approvals.</p>
+      </div>
+      <div class="why-card reveal" style="transition-delay: 0.32s;">
+        <div class="why-icon" style="background: rgba(245,158,11,0.12); color: var(--warning)"><i class="fa-solid fa-calendar-xmark"></i></div>
+        <h4>Flexible Cancellation</h4>
+        <p>Plans change! Free cancellation up to 24 hours before check-in on most properties.</p>
+      </div>
+      <div class="why-card reveal" style="transition-delay: 0.4s;">
+        <div class="why-icon" style="background: rgba(255,92,53,0.12); color: var(--primary)"><i class="fa-solid fa-mobile-screen"></i></div>
+        <h4>Easy Management</h4>
+        <p>Manage your booking, invoices, and requests all from one seamless dashboard.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ AMENITIES ════════════════ -->
+<section class="section amenities-section" id="amenities">
+  <div class="container">
+    <div style="text-align:center; margin-bottom:56px;">
+      <span class="section-label"><i class="fa-solid fa-star"></i> What's Included</span>
+      <h2 class="section-title">World-Class <span>Amenities</span></h2>
+    </div>
+    <div class="amenity-grid">
+      <div class="amenity-item reveal" style="transition-delay: 0s;"><i class="fa-solid fa-wifi"></i><span>High-Speed WiFi</span></div>
+      <div class="amenity-item reveal" style="transition-delay: 0.08s;"><i class="fa-solid fa-temperature-half"></i><span>AC / Heating</span></div>
+      <div class="amenity-item reveal" style="transition-delay: 0.16s;"><i class="fa-solid fa-tv"></i><span>Smart TV</span></div>
+      <div class="amenity-item reveal" style="transition-delay: 0.24s;"><i class="fa-solid fa-utensils"></i><span>Kitchen Access</span></div>
+      <div class="amenity-item reveal" style="transition-delay: 0.32s;"><i class="fa-solid fa-dumbbell"></i><span>Gym</span></div>
+      <div class="amenity-item reveal" style="transition-delay: 0.4s;"><i class="fa-solid fa-person-swimming"></i><span>Swimming Pool</span></div>
+      <div class="amenity-item reveal" style="transition-delay: 0s;"><i class="fa-solid fa-car"></i><span>Parking</span></div>
+      <div class="amenity-item reveal" style="transition-delay: 0.08s;"><i class="fa-solid fa-broom"></i><span>Housekeeping</span></div>
+      <div class="amenity-item reveal" style="transition-delay: 0.16s;"><i class="fa-solid fa-lock"></i><span>Smart Lock</span></div>
+      <div class="amenity-item reveal" style="transition-delay: 0.24s;"><i class="fa-solid fa-camera"></i><span>CCTV 24/7</span></div>
+      <div class="amenity-item reveal" style="transition-delay: 0.32s;"><i class="fa-solid fa-mug-hot"></i><span>Café / Canteen</span></div>
+      <div class="amenity-item reveal" style="transition-delay: 0.4s;"><i class="fa-solid fa-bolt-lightning"></i><span>Power Backup</span></div>
+      <div class="amenity-item reveal" style="transition-delay: 0s;"><i class="fa-solid fa-soap"></i><span>Self Laundry / Washer</span></div>
+      <div class="amenity-item reveal" style="transition-delay: 0.08s;"><i class="fa-solid fa-laptop-code"></i><span>Dedicated Workspaces</span></div>
+      <div class="amenity-item reveal" style="transition-delay: 0.16s;"><i class="fa-solid fa-kit-medical"></i><span>First Aid Kit</span></div>
+      <div class="amenity-item reveal" style="transition-delay: 0.24s;"><i class="fa-solid fa-fire-extinguisher"></i><span>Fire &amp; Smoke Safety</span></div>
+      <div class="amenity-item reveal" style="transition-delay: 0.32s;"><i class="fa-solid fa-paw"></i><span>Pet Friendly Stays</span></div>
+      <div class="amenity-item reveal" style="transition-delay: 0.4s;"><i class="fa-solid fa-credit-card"></i><span>Digital Payments</span></div>
+      <div class="amenity-item reveal" style="transition-delay: 0s;"><i class="fa-solid fa-eye-slash"></i><span>Spy Camera Detector</span></div>
+      <div class="amenity-item reveal" style="transition-delay: 0.08s;"><i class="fa-solid fa-taxi"></i><span>Cab Facilities</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ TESTIMONIALS ════════════════ -->
+<section class="section" id="testimonials" style="display: block;">
+  <div class="container">
+    <div style="text-align:center; margin-bottom:56px;">
+      <span class="section-label"><i class="fa-solid fa-quote-left"></i> Guest Stories</span>
+      <h2 class="section-title">Be among the first to experience Homzo and <span>share your review</span></h2>
+    </div>
+
+    <!-- Dynamic Reviews Panel -->
+    <div class="ratings-dashboard reveal">
+      <!-- Summary Box -->
+      <div class="rating-summary-box">
+        <h3 id="avgRatingNum">4.8</h3>
+        <div class="rating-stars" id="avgRatingStars"><i class="fa-solid fa-star" style="color:#ff5c35"></i><i class="fa-solid fa-star" style="color:#ff5c35"></i><i class="fa-solid fa-star" style="color:#ff5c35"></i><i class="fa-solid fa-star" style="color:#ff5c35"></i><i class="fa-solid fa-star-half-stroke" style="color:#ff5c35"></i></div>
+        <p id="totalReviewsCount">Based on 5 reviews</p>
+        <button class="btn btn-primary" id="writeReviewBtn" style="margin-top: 16px;">
+          <i class="fa-solid fa-pen-to-square"></i> Write a Review
+        </button>
+      </div>
+
+      <!-- Rating Breakdown Bars -->
+      <div class="rating-breakdown-box">
+        <div class="breakdown-row">
+          <span>5 <i class="fa-solid fa-star" style="color:var(--primary)"></i></span>
+          <div class="progress-bar-wrap"><div class="progress-bar-fill" id="bar5" style="width: 80%;"></div></div>
+          <span class="breakdown-pct" id="pct5">80%</span>
+        </div>
+        <div class="breakdown-row">
+          <span>4 <i class="fa-solid fa-star" style="color:var(--primary)"></i></span>
+          <div class="progress-bar-wrap"><div class="progress-bar-fill" id="bar4" style="width: 20%;"></div></div>
+          <span class="breakdown-pct" id="pct4">20%</span>
+        </div>
+        <div class="breakdown-row">
+          <span>3 <i class="fa-solid fa-star" style="color:var(--primary)"></i></span>
+          <div class="progress-bar-wrap"><div class="progress-bar-fill" id="bar3" style="width: 0%;"></div></div>
+          <span class="breakdown-pct" id="pct3">0%</span>
+        </div>
+        <div class="breakdown-row">
+          <span>2 <i class="fa-solid fa-star" style="color:var(--primary)"></i></span>
+          <div class="progress-bar-wrap"><div class="progress-bar-fill" id="bar2" style="width: 0%;"></div></div>
+          <span class="breakdown-pct" id="pct2">0%</span>
+        </div>
+        <div class="breakdown-row">
+          <span>1 <i class="fa-solid fa-star" style="color:var(--primary)"></i></span>
+          <div class="progress-bar-wrap"><div class="progress-bar-fill" id="bar1" style="width: 0%;"></div></div>
+          <span class="breakdown-pct" id="pct1">0%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Public Reviews Grid -->
+    <div class="reviews-grid-container reveal" id="reviewsGridContainer" style="display: block; margin-top: 40px;">
+      <div class="reviews-grid" id="publicReviewsGrid"><div class="review-card reveal" style="animation-delay: 0s;">
+      <div class="review-header">
+        <div class="review-avatar">Q</div>
+        <div class="review-meta">
+          <div class="review-author">QA Reviewer</div>
+          <div class="review-date">Jul 27, 2026</div>
+        </div>
+        <div class="review-rating"><i class="fa-solid fa-star" style="color:#ff5c35; font-size:12px; margin-right:2px"></i><i class="fa-solid fa-star" style="color:#ff5c35; font-size:12px; margin-right:2px"></i><i class="fa-solid fa-star" style="color:#ff5c35; font-size:12px; margin-right:2px"></i><i class="fa-solid fa-star" style="color:#ff5c35; font-size:12px; margin-right:2px"></i><i class="fa-solid fa-star" style="color:#ff5c35; font-size:12px; margin-right:2px"></i></div>
+      </div>
+      <div class="review-body">
+        <p>Excellent rooms and hospitality, highly recommended E2E!</p>
+      </div>
+      
+    </div><div class="review-card reveal" style="animation-delay: 0.08s;">
+      <div class="review-header">
+        <div class="review-avatar">R</div>
+        <div class="review-meta">
+          <div class="review-author">Rohan Sharma</div>
+          <div class="review-date">Jul 20, 2026</div>
+        </div>
+        <div class="review-rating"><i class="fa-solid fa-star" style="color:#ff5c35; font-size:12px; margin-right:2px"></i><i class="fa-solid fa-star" style="color:#ff5c35; font-size:12px; margin-right:2px"></i><i class="fa-solid fa-star" style="color:#ff5c35; font-size:12px; margin-right:2px"></i><i class="fa-solid fa-star" style="color:#ff5c35; font-size:12px; margin-right:2px"></i><i class="fa-solid fa-star" style="color:#ff5c35; font-size:12px; margin-right:2px"></i></div>
+      </div>
+      <div class="review-body">
+        <p>I stayed at HOMZO Scholar Nest in Andheri for 6 months. Best PG experience ever! High-speed WiFi made my online classes seamless, and the study zone is very quiet.</p>
+      </div>
+      
+        <div class="review-reply">
+          <div class="reply-header">
+            <div class="reply-avatar-mini"><i class="fa-solid fa-user-shield"></i></div>
+            <div class="reply-author">HOMZO Team Response</div>
+          </div>
+          <div class="reply-body">
+            <p>Thank you Rohan! We are glad you loved the study facilities.</p>
+          </div>
+        </div>
+      
+    </div><div class="review-card reveal" style="animation-delay: 0.16s;">
+      <div class="review-header">
+        <div class="review-avatar">J</div>
+        <div class="review-meta">
+          <div class="review-author">Jessica Miller</div>
+          <div class="review-date">Jul 19, 2026</div>
+        </div>
+        <div class="review-rating"><i class="fa-solid fa-star" style="color:#ff5c35; font-size:12px; margin-right:2px"></i><i class="fa-solid fa-star" style="color:#ff5c35; font-size:12px; margin-right:2px"></i><i class="fa-solid fa-star" style="color:#ff5c35; font-size:12px; margin-right:2px"></i><i class="fa-solid fa-star" style="color:#ff5c35; font-size:12px; margin-right:2px"></i><i class="fa-solid fa-star" style="color:#ff5c35; font-size:12px; margin-right:2px"></i></div>
+      </div>
+      <div class="review-body">
+        <p>As an international traveler, I was skeptical about booking stays in Delhi. But the HOMZO Global Residency was outstanding. The multi-lingual staff and visa help were a lifesaver!</p>
+      </div>
+      
+        <div class="review-reply">
+          <div class="reply-header">
+            <div class="reply-avatar-mini"><i class="fa-solid fa-user-shield"></i></div>
+            <div class="reply-author">HOMZO Team Response</div>
+          </div>
+          <div class="reply-body">
+            <p>Thanks Jessica! Safe travels and welcome back anytime.</p>
+          </div>
+        </div>
+      
+    </div></div>
+      <div style="text-align: center; margin-top: 24px;">
+        <button class="btn btn-ghost btn-sm" id="loadMoreReviewsBtn" style="display: inline-flex;">
+          Load More Reviews
+        </button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════ CONTACT ════════════════ -->
+<section class="section contact-section" id="contact">
+  <div class="container">
+    <div class="contact-grid">
+      <div class="contact-info">
+        <span class="section-label"><i class="fa-solid fa-envelope"></i> Get In Touch</span>
+        <h2 class="section-title">We'd Love to <span>Help You</span></h2>
+        <p class="section-sub">Have questions? Our team is available 24/7 to assist you find the perfect stay.</p>
+        <div class="contact-items">
+          <div class="contact-item">
+            <div class="ci-icon"><i class="fa-solid fa-phone"></i></div>
+            <div><strong>Call Us</strong><span>+91 7887090020</span></div>
+          </div>
+          <div class="contact-item">
+            <div class="ci-icon"><i class="fa-brands fa-whatsapp"></i></div>
+            <div><strong>WhatsApp</strong><span>7887090020</span></div>
+          </div>
+          <div class="contact-item">
+            <div class="ci-icon"><i class="fa-solid fa-envelope"></i></div>
+            <div><strong>Email</strong><span>supporhomzo@gmail.com</span></div>
+          </div>
+          <div class="contact-item">
+            <div class="ci-icon"><i class="fa-solid fa-location-dot"></i></div>
+            <div><strong>HQ</strong><span>Mumbai, Maharashtra, India</span></div>
+          </div>
+        </div>
+      </div>
+      <form class="contact-form card" id="contactForm">
+        <h3>Send a Message</h3>
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" class="form-control" placeholder="Your full name" id="cfName">
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" class="form-control" placeholder="you@example.com" id="cfEmail">
+        </div>
+        <div class="form-group">
+          <label>Guest Type</label>
+          <select class="form-control" id="cfType">
+            <option>Select type</option>
+            <option>Student</option><option>Employee</option>
+            <option>Tourist</option><option>Foreigner</option><option>Couple</option><option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Message</label>
+          <textarea class="form-control" rows="4" placeholder="Tell us how we can help…" id="cfMessage"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%"><i class="fa-solid fa-paper-plane"></i> Send Message</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ FOOTER ════════════════ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#" class="nav-logo">
+          <img src="homzo_logo.png" alt="HOMZO Logo" class="brand-logo footer-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+          <span style="display: none; font-family: 'Sora', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--primary); letter-spacing: 1px;">HOMZO</span>
+        </a>
+        <p>Your trusted accommodation partner across India. Quality stays for every type of traveler.</p>
+        <div class="social-links">
+          <a href="https://www.facebook.com/share/1P3xbf5bP3/" target="_blank" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="https://www.instagram.com/homzo_official" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#" onclick="event.preventDefault();" title="Coming Soon" aria-label="Twitter" style="opacity: 0.5; cursor: not-allowed;"><i class="fa-brands fa-x-twitter"></i></a>
+          <a href="#" onclick="event.preventDefault();" title="Coming Soon" aria-label="LinkedIn" style="opacity: 0.5; cursor: not-allowed;"><i class="fa-brands fa-linkedin-in"></i></a>
+        </div>
+      </div>
+      <div class="footer-links">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="support.html">Support</a></li>
+          <li><a href="official-homzo-blog.html">Official Homzo Blog</a></li>
+          <li><a href="investor-relations.html">Investor Relations</a></li>
+          <li><a href="homzo-circle.html">Homzo Circle</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h5>Policies &amp; Safety</h5>
+        <ul>
+          <li><a href="guest-policy.html">Guest Policy</a></li>
+          <li><a href="trust-and-safety.html">Trust &amp; Safety</a></li>
+          <li><a href="Homzo_Privacy_Policy.pdf" target="_blank">Privacy Policy</a></li>
+          <li><a href="term%20of%20service.pdf" target="_blank">Terms of Service</a></li>
+          <li><a href="responsible-disclosure.html">Responsible Disclosure</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h5>Partner With Us</h5>
+        <ul>
+          <li><a href="advertise-your-homes.html">List Your Property</a></li>
+          <li><a href="homzo-frames.html">Homzo Frames</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 HOMZO. All rights reserved. Built with ❤️ in India.</span>
+      <span>GST No: 27AAGCH1234A1ZS</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ════════════════ CUSTOMER AUTH MODAL ════════════════ -->
+<div class="modal-overlay" id="customerAuthModal" style="display:none;">
+  <div class="modal-box" style="max-width: 390px; padding: 20px 24px; max-height: 95vh; overflow-y: auto;">
+    <button class="modal-close" onclick="closeModal('customerAuthModal')"><i class="fa-solid fa-xmark"></i></button>
+    <div class="booking-form-panel" style="width:100%; padding:0">
+      <div class="card-logo-header" style="margin-bottom: 12px;">
+        <div class="logo-icon-wrap" style="width: 44px; height: 44px; background: var(--primary-glow); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+          <i class="fa-solid fa-key" style="color: var(--primary); font-size: 1.25rem;"></i>
+        </div>
+      </div>
+      
+      <!-- Tabs for Login / Register -->
+      <div class="auth-tabs" style="display: flex; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 30px; padding: 4px; margin-bottom: 18px;">
+        <button class="auth-tab-btn active" id="authTabLogin" style="flex: 1; padding: 8px 12px; background: var(--primary); border: none; border-radius: 26px; color: #051A24; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: var(--transition);">Log In</button>
+        <button class="auth-tab-btn" id="authTabSignUp" style="flex: 1; padding: 8px 12px; background: transparent; border: none; border-radius: 26px; color: var(--text-secondary); font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: var(--transition);">Register</button>
+      </div>
+      
+      <!-- Login View -->
+      <div id="custLoginView">
+        <h2 style="font-size: 1.25rem; text-align: center; font-family: 'Sora', sans-serif;"><i class="fa-solid fa-hotel" style="color:var(--primary); margin-right:6px; font-size:1.05rem;"></i>Guest <span>Login</span></h2>
+        <p class="subtitle" style="text-align: center; margin-bottom: 14px; font-size: 0.78rem;">Access your stays and verified property bookings.</p>
+        
+        <div class="form-group" style="margin-bottom: 10px;">
+          <label style="font-size: 0.7rem;">Email Address</label>
+          <div class="input-icon-wrap">
+            <i class="fa-solid fa-envelope"></i>
+            <input type="email" class="form-control" placeholder="you@example.com" id="custLogEmail" style="padding: 10px 14px 10px 42px;">
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom: 10px;">
+          <label style="font-size: 0.7rem;">Password</label>
+          <div class="input-icon-wrap">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" class="form-control" placeholder="••••••••" id="custLogPassword" style="padding: 10px 14px 10px 42px;">
+          </div>
+        <button class="btn btn-primary btn-sm" style="width:100%; margin-top:8px; justify-content: center; padding: 10px;" id="custLoginSubmitBtn"><i class="fa-solid fa-right-to-bracket"></i> Secure Check-In</button>
+        <div style="text-align: right; margin-top: 10px; margin-bottom: -4px;">
+          <a href="#" id="custForgotPasswordBtn" style="color: var(--primary); font-size: 0.75rem; text-decoration: none; font-weight: 600;">Forgot Password?</a>
+        </div>
+        <p style="text-align:center; margin-top:14px; font-size:0.78rem; color:var(--text-secondary)">
+          Don't have a profile? <a href="#" id="toSignUpBtn" style="color:var(--primary); font-weight:700">Register Now</a>
+        </p>
+      </div>
+      
+      <!-- SignUp View -->
+      <div id="custSignUpView" style="display:none;">
+        <h2 style="font-size: 1.25rem; text-align: center; font-family: 'Sora', sans-serif;"><i class="fa-solid fa-address-card" style="color:var(--primary); margin-right:6px; font-size:1.05rem;"></i>Guest <span>Profile</span></h2>
+        <p class="subtitle" style="text-align: center; margin-bottom: 14px; font-size: 0.78rem;">Create a profile for quick booking and stays.</p>
+        
+        <div class="form-group" style="margin-bottom: 10px;">
+          <label style="font-size: 0.7rem;">Full Name</label>
+          <div class="input-icon-wrap">
+            <i class="fa-solid fa-user"></i>
+            <input type="text" class="form-control" placeholder="Enter full name" id="custRegName" style="padding: 10px 14px 10px 42px;">
+          </div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group" style="margin-bottom: 10px;">
+            <label style="font-size: 0.7rem;">Email</label>
+            <div class="input-icon-wrap">
+              <i class="fa-solid fa-envelope" style="left: 14px;"></i>
+              <input type="email" class="form-control" placeholder="Email" id="custRegEmail" style="padding: 10px 10px 10px 34px; font-size: 0.82rem;">
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom: 10px;">
+            <label style="font-size: 0.7rem;">Phone</label>
+            <div class="input-icon-wrap">
+              <i class="fa-solid fa-phone" style="left: 14px;"></i>
+              <input type="tel" class="form-control" placeholder="Phone" id="custRegPhone" style="padding: 10px 10px 10px 34px; font-size: 0.82rem;">
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-group" style="margin-bottom: 10px;">
+          <label style="font-size: 0.7rem;">Password</label>
+          <div class="input-icon-wrap">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" class="form-control" placeholder="Minimum 6 characters" id="custRegPassword" style="padding: 10px 14px 10px 42px;">
+          </div>
+        </div>
+        <button class="btn btn-primary btn-sm" style="width:100%; margin-top:8px; justify-content: center; padding: 10px;" id="custSignUpSubmitBtn"><i class="fa-solid fa-user-plus"></i> Create Profile</button>
+        <p style="text-align:center; margin-top:10px; font-size:0.78rem; color:var(--text-secondary)">
+          Already registered? <a href="#" id="toLogInBtn" style="color:var(--primary); font-weight:700">Log In</a>
+        </p>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ MY STAYS / BOOKINGS PORTAL ════════════════ -->
+<div class="modal-overlay" id="myStaysModal" style="display:none;">
+  <div class="modal-box" style="max-width: 600px;">
+    <button class="modal-close" onclick="closeModal('myStaysModal')"><i class="fa-solid fa-xmark"></i></button>
+    <div class="booking-form-panel" style="width:100%; padding:0">
+      <h2>My <span>Homzo Stays</span></h2>
+      <p class="subtitle">View and manage your upcoming &amp; past hotel reservations.</p>
+      
+      <div id="myStaysEmptyState" style="text-align:center; padding:30px 0; display:none">
+        <i class="fa-solid fa-hotel" style="font-size:3rem; color:var(--text-muted); margin-bottom:14px"></i>
+        <p style="color:var(--text-secondary)">You don't have any bookings yet.</p>
+      </div>
+      
+      <div class="booking-history-list" id="myStaysListContainer">
+        <!-- Dyn generated items -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ MULTI-PROVIDER PAYMENT GATEWAY ════════════════ -->
+<div class="modal-overlay" id="paymentModal" style="display:none;">
+  <div class="payment-modal-card">
+    <div class="payment-header">
+      <div class="payment-header-title">
+        <i class="fa-solid fa-shield-halved"></i>
+        <div>
+          <h4>Homzo Secure Payment</h4>
+          <span>Choose a checkout provider to complete reservation</span>
+        </div>
+      </div>
+      <button class="modal-close" style="position:static; padding:4px" onclick="closeModal('paymentModal')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    
+    <div class="payment-body">
+      <!-- Summary details -->
+      <div class="payment-summary-box">
+        <div class="payment-summary-row">
+          <span>Property</span>
+          <span id="paySummaryProp" style="font-weight:700">HOMZO Scholar Nest</span>
+        </div>
+        <div class="payment-summary-row">
+          <span>Dates</span>
+          <span id="paySummaryDates">2026-07-20 to 2026-07-22</span>
+        </div>
+        <div class="payment-summary-row">
+          <span>Subtotal</span>
+          <span id="paySummarySub">₹8,400</span>
+        </div>
+        <div class="payment-summary-row">
+          <span>GST &amp; Service Charges</span>
+          <span id="paySummaryFees">₹1,932</span>
+        </div>
+        <div class="payment-summary-row total-row">
+          <span>Total Amount</span>
+          <span id="paySummaryTotal" style="color:var(--primary)">₹10,332</span>
+        </div>
+      </div>
+      
+      <!-- Processing Screen (Hidden by default) -->
+      <div id="payProcessingScreen" class="pay-spinner-box" style="display:none;">
+        <i class="fa-solid fa-spinner fa-spin" style="font-size:2.5rem; color:#528ff0; margin-bottom:16px"></i>
+        <h4>Authorizing Transaction...</h4>
+        <p style="font-size:0.85rem; color:#8f9bb3; margin-top:6px">Please do not refresh or close the checkout window.</p>
+      </div>
+      
+      <!-- Success Screen (Hidden by default) -->
+      <div id="paySuccessScreen" class="pay-spinner-box" style="display:none;">
+        <div class="pay-success-icon"><i class="fa-solid fa-check"></i></div>
+        <h4 style="color:#22c55e">Payment Successful!</h4>
+        <p style="font-size:0.85rem; color:#8f9bb3; margin-top:6px" id="paySuccessTxt">Booking BKG1001 paid &amp; confirmed.</p>
+        <button class="btn btn-primary btn-sm" style="margin-top:20px; width:120px" onclick="closeModal('paymentModal')">Close</button>
+      </div>
+      
+      <!-- Standard Checkout flow -->
+      <div id="payCheckoutFlow">
+        <div class="payment-tabs">
+          <div class="payment-tab-btn active" data-pay-provider="razorpay">
+            <i class="fa-brands fa-cc-visa"></i>
+            <span>Razorpay</span>
+          </div>
+          <div class="payment-tab-btn" data-pay-provider="paytm">
+            <i class="fa-solid fa-wallet"></i>
+            <span>Paytm</span>
+          </div>
+          <div class="payment-tab-btn" data-pay-provider="phonepe">
+            <i class="fa-solid fa-mobile-screen"></i>
+            <span>PhonePe</span>
+          </div>
+        </div>
+        
+        <!-- Razorpay Content -->
+        <div class="payment-tab-content active" id="payContentRazorpay">
+          <div class="form-group">
+            <label style="font-size:0.8rem; color:#a6b1c2">Card Number</label>
+            <div class="input-icon-wrap" style="background:#1a1e28; border-color:#232833">
+              <i class="fa-solid fa-credit-card" style="color:#8f9bb3"></i>
+              <input type="text" class="form-control" style="color:#fff" placeholder="4111 2222 3333 4444" id="payRazorCardNum">
+            </div>
+          </div>
+          <div class="form-grid" style="margin-top:12px">
+            <div class="form-group">
+              <label style="font-size:0.8rem; color:#a6b1c2">Expiry (MM/YY)</label>
+              <input type="text" class="form-control" style="color:#fff; background:#1a1e28; border-color:#232833" placeholder="12/28" id="payRazorExpiry">
+            </div>
+            <div class="form-group">
+              <label style="font-size:0.8rem; color:#a6b1c2">CVV</label>
+              <input type="password" class="form-control" style="color:#fff; background:#1a1e28; border-color:#232833" placeholder="123" maxlength="3" id="payRazorCVV">
+            </div>
+          </div>
+        </div>
+        
+        <!-- Paytm Content -->
+        <div class="payment-tab-content" id="payContentPaytm">
+          <div class="pay-qr-box">
+            <p style="font-size:0.8rem; color:#a6b1c2; margin-bottom:12px">Scan QR Code using Paytm App to pay instantly</p>
+            <div class="pay-qr-code">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&amp;data=upi://pay?pa=homzo@paytm&amp;pn=HomzoStays" alt="Paytm QR Code">
+            </div>
+            <span style="font-size:0.75rem; color:#8f9bb3">Merchant: HOMZO HOSPITALITY</span>
+          </div>
+        </div>
+        
+        <!-- PhonePe Content -->
+        <div class="payment-tab-content" id="payContentPhonepe">
+          <div class="form-group">
+            <label style="font-size:0.8rem; color:#a6b1c2">Enter PhonePe UPI ID</label>
+            <div class="input-icon-wrap" style="background:#1a1e28; border-color:#232833">
+              <i class="fa-solid fa-at" style="color:#8f9bb3"></i>
+              <input type="text" class="form-control" style="color:#fff" placeholder="yourname@ybl" id="payPhonepeUPI">
+            </div>
+          </div>
+          <p style="font-size:0.78rem; color:#8f9bb3; margin-top:8px; text-align:center">A payment request will be sent to your PhonePe app.</p>
+        </div>
+        
+        <button class="btn btn-primary" style="width:100%; margin-top:10px" id="paySubmitBtn">Confirm &amp; Pay Now</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ BOOKING MODAL ════════════════ -->
+<div class="modal-overlay" id="bookingModal" style="display:none;">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('bookingModal')"><i class="fa-solid fa-xmark"></i></button>
+    
+    <!-- Left Panel: Room Visual Background -->
+    <div class="booking-lobby-panel"></div>
+    
+    <!-- Right Panel: Form Fields -->
+    <div class="booking-form-panel">
+      <!-- Logo Header -->
+      <div class="card-logo-header">
+        <div class="logo-icon-wrap">
+          <img src="homzo_logo.png" alt="HOMZO Logo" class="theme-logo-img">
+        </div>
+        <div class="gold-heart">💛</div>
+      </div>
+      <h2>Your Stay <span>Starts Here</span></h2>
+      <p class="subtitle">Comfortable rooms. Warm hospitality. Memorable experiences.</p>
+      
+      <!-- Selected Property -->
+      <div class="form-group">
+        <label>Selected Property / Booking Option</label>
+        <div class="input-icon-wrap">
+          <i class="fa-solid fa-hotel"></i>
+          <input type="text" class="form-control" id="bkProperty" readonly="">
+        </div>
+      </div>
+      
+      <!-- Full Name -->
+      <div class="form-group">
+        <label>Full Name</label>
+        <div class="input-icon-wrap">
+          <i class="fa-solid fa-user"></i>
+          <input type="text" class="form-control" placeholder="Enter your full name" id="bkName">
+        </div>
+      </div>
+      
+      <!-- Email Address & Phone Number (side by side) -->
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Email Address</label>
+          <div class="input-icon-wrap">
+            <i class="fa-solid fa-envelope"></i>
+            <input type="email" class="form-control" placeholder="you@example.com" id="bkEmail">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <div class="input-icon-wrap">
+            <i class="fa-solid fa-phone"></i>
+            <input type="tel" class="form-control" placeholder="+91 XXXXX XXXXX" id="bkPhone">
+          </div>
+        </div>
+      </div>
+      
+      <!-- Guest Type & DOB (side by side) -->
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Guest Type</label>
+          <div class="input-icon-wrap">
+            <i class="fa-solid fa-users"></i>
+            <select class="form-control" id="bkType" style="padding-left: 42px;">
+              <option>Student</option>
+              <option>Employee</option>
+              <option>Tourist</option>
+              <option>Foreigner</option>
+              <option>Couple</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Date of Birth</label>
+          <div class="input-icon-wrap">
+            <i class="fa-solid fa-cake-candles"></i>
+            <input type="date" class="form-control" id="bkDOB" max="2008-07-29">
+          </div>
+        </div>
+      </div>
+      
+      <!-- Check-In & Check-Out (side by side) -->
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Check-In Date</label>
+          <div class="input-icon-wrap">
+            <i class="fa-solid fa-calendar-days"></i>
+            <input type="text" class="form-control flatpickr-input" id="bkCheckin" placeholder="Select check-in" readonly="readonly">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Check-Out Date</label>
+          <div class="input-icon-wrap">
+            <i class="fa-solid fa-calendar-days"></i>
+            <input type="text" class="form-control flatpickr-input" id="bkCheckout" placeholder="Select check-out" readonly="readonly">
+          </div>
+        </div>
+      </div>
+      
+      <!-- Number of Persons -->
+      <div class="form-group">
+        <label>Number of Persons</label>
+        <div class="input-icon-wrap">
+          <i class="fa-solid fa-person-circle-plus"></i>
+          <input type="number" class="form-control" id="bkPersons" min="1" max="10" value="1">
+        </div>
+      </div>
+      
+      <!-- Special Requests -->
+      <div class="form-group">
+        <label>Special Requests</label>
+        <div class="input-icon-wrap">
+          <i class="fa-solid fa-message"></i>
+          <textarea class="form-control" rows="2" placeholder="Any special requirements…" id="bkNotes" style="padding-left: 42px;"></textarea>
+        </div>
+      </div>
+      
+      <button class="theme-btn-book" id="confirmBookBtn">
+        <i class="fa-solid fa-arrow-right"></i> Book Your Room
+      </button>
+      
+      <!-- Footer Icons bar matching mockup bottom bar -->
+      <div class="form-footer-icons">
+        <div class="footer-icon-item">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span>Safe &amp; Secure</span>
+        </div>
+        <div class="footer-icon-item">
+          <i class="fa-solid fa-award"></i>
+          <span>Best Price</span>
+        </div>
+        <div class="footer-icon-item">
+          <i class="fa-solid fa-headset"></i>
+          <span>24/7 Support</span>
+        </div>
+        <div class="footer-icon-item">
+          <i class="fa-solid fa-bolt"></i>
+          <span>Easy Booking</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Booking Confirmation Modal -->
+<div class="modal-overlay" id="bookingConfirmModal" style="display:none;">
+  <div class="modal-box" style="position:relative; max-width:500px; text-align: center; max-height: 90vh; overflow-y: auto;">
+    <button class="modal-close" onclick="closeModal('bookingConfirmModal')"><i class="fa-solid fa-xmark"></i></button>
+    <div style="font-size: 3rem; color: var(--success); margin-bottom: 16px;">
+      <i class="fa-solid fa-circle-check"></i>
+    </div>
+    <h2 style="margin-bottom: 8px;">Booking Confirmed!</h2>
+    <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">Your reservation details are shown below. A confirmation has been simulated in the server log.</p>
+    
+    <div id="confirmDetailsContent" style="text-align: left; background: var(--bg-secondary); border-radius: 8px; padding: 16px; margin-bottom: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px;">
+      <!-- Details will be injected here -->
+    </div>
+    
+    <button class="btn btn-primary" style="width: 100%;" onclick="closeModal('bookingConfirmModal')">Done</button>
+  </div>
+</div>
+
+<!-- Category Detail Modal -->
+<div class="modal-overlay" id="categoryModal" style="display:none;">
+  <div class="modal-box" style="position:relative; max-width:560px;" id="categoryModalContent">
+    <button class="modal-close" onclick="closeModal('categoryModal')"><i class="fa-solid fa-xmark"></i></button>
+    <!-- JS injected -->
+  </div>
+</div>
+
+<!-- ════════════════ WRITE A REVIEW MODAL ════════════════ -->
+<div class="modal-overlay" id="reviewModal" style="display:none;">
+  <div class="modal-box" style="position:relative; max-width:500px; max-height: 90vh; overflow-y: auto;">
+    <button class="modal-close" onclick="closeModal('reviewModal')"><i class="fa-solid fa-xmark"></i></button>
+    <h2><i class="fa-solid fa-star" style="color:var(--primary); margin-right:10px"></i>Write a Guest Review</h2>
+    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 20px;">
+      Share your experience with Homzo. Your feedback helps us keep improving!
+    </p>
+    <form id="submitReviewForm" onsubmit="event.preventDefault();">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" class="form-control" placeholder="Enter your name" id="rvName" required="">
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" class="form-control" placeholder="you@example.com" id="rvEmail" required="">
+      </div>
+      <div class="form-group">
+        <label>Rating</label>
+        <div class="star-rating-selector" id="starRatingSelector">
+          <i class="fa-regular fa-star" data-value="1"></i>
+          <i class="fa-regular fa-star" data-value="2"></i>
+          <i class="fa-regular fa-star" data-value="3"></i>
+          <i class="fa-regular fa-star" data-value="4"></i>
+          <i class="fa-regular fa-star" data-value="5"></i>
+        </div>
+        <input type="hidden" id="rvRating" value="0">
+      </div>
+      <div class="form-group">
+        <label>Review Description</label>
+        <textarea class="form-control" rows="4" placeholder="How was your stay? Talk about cleanliness, location, services..." id="rvContent" required=""></textarea>
+      </div>
+      <button class="btn btn-primary" style="width:100%; margin-top:10px" id="confirmReviewBtn">
+        <i class="fa-solid fa-paper-plane"></i> Submit Review
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Toast container placeholder removed (original at bottom of page) -->
+
+<!-- Privacy Policy Modal -->
+<div class="modal-overlay" id="privacyModal" style="display:none;">
+  <div class="modal-box" style="position:relative; max-width:800px; max-height:85vh; overflow-y:auto; padding:30px; text-align:left;">
+    <button class="modal-close" onclick="closeModal('privacyModal')"><i class="fa-solid fa-xmark"></i></button>
+    <h2 style="margin-bottom: 20px;"><i class="fa-solid fa-shield-halved" style="color:var(--primary); margin-right:10px"></i>Privacy Policy</h2>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: var(--text-secondary); white-space: pre-wrap;">HOMZO HOSPITALITY
+Privacy Policy
+Effective Date: 1st January 2025 | Last Updated: April 2025
+Applicable to: Website &amp; Mobile Application
+
+1. Introduction
+Welcome to Homzo Hospitality ("Homzo", "we", "our", or "us"). We are committed to protecting and respecting your personal privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our mobile application (collectively, the "Platform").
+Homzo Hospitality operates as a technology-enabled hospitality platform offering hotel and accommodation booking services as well as food delivery and restaurant discovery services within India. This Policy applies to all users of our Platform, including guests, registered members, and visitors.
+By accessing or using our Platform, you consent to the practices described in this Privacy Policy. If you do not agree with the terms of this Policy, please discontinue use of our Platform.
+
+2. Information We Collect
+We collect various types of information in connection with your use of our services:
+2.1 Personal Identification Information
+Full name, email address, phone number
+Date of birth and gender (where provided)
+Government-issued identification (for hotel check-in verification purposes)
+Profile photograph (if uploaded by the user)
+
+2.2 Booking &amp; Transaction Information
+Hotel reservation details including check-in/check-out dates, room preferences, and guest counts
+Food orders, delivery address, restaurant preferences, and order history
+Payment information including billing address (Note: full card details are processed by our secure third-party payment gateway and are not stored on our servers)
+Transaction IDs, invoice records, and cancellation/refund data
+
+2.3 Device &amp; Usage Information
+IP address, browser type and version, operating system
+Device identifiers, mobile hardware model, and unique device IDs
+Access times, pages viewed, links clicked, and session duration
+Crash reports and performance diagnostics
+
+2.4 Location Data
+Precise GPS location (with your permission) for delivery tracking and nearby property/restaurant discovery
+Approximate location derived from your IP address
+
+2.5 Communications Data
+Messages, reviews, feedback, and support tickets submitted through our Platform
+Communication preferences and notifications settings
+
+3. How We Use Your Information
+We use the information we collect for the following purposes:
+3.1 Service Delivery
+To process hotel and accommodation bookings and confirm reservations
+To facilitate food delivery orders and communicate estimated delivery times
+To process payments, issue invoices, and manage refunds
+To enable check-in/check-out processes and coordinate with partner hotels
+
+3.2 Account Management
+To create and manage your user account
+To authenticate your identity and ensure account security
+To provide personalized service recommendations based on your preferences and history
+
+3.3 Communications
+To send booking confirmations, order updates, and transactional notifications via SMS, email, or push notifications
+To respond to your queries, complaints, or support requests
+To send promotional offers, newsletters, and marketing materials (only with your consent)
+
+3.4 Platform Improvement
+To analyze usage patterns and improve the functionality and user experience of our Platform
+To conduct internal research, data analytics, and business intelligence
+To detect, prevent, and address technical issues, fraud, and security breaches
+
+3.5 Legal &amp; Regulatory Compliance
+To comply with applicable Indian laws, regulations, court orders, and governmental requests
+To enforce our Terms of Service and other legal agreements
+To protect the rights, property, and safety of Homzo, our users, and the public
+
+4. Disclosure of Your Information
+We do not sell or rent your personal data to third parties. However, we may share your information in the following circumstances:
+4.1 Service Partners
+We share necessary booking and contact information with our partner hotels, restaurants, and delivery partners solely for the purpose of fulfilling your service requests. These partners are contractually bound to use your data only as required to deliver the service.
+
+4.2 Payment Processors
+Payment information is shared with our authorized payment gateway partners (such as Razorpay, PayU, or similar) who are compliant with Payment Card Industry Data Security Standards (PCI-DSS) and applicable RBI guidelines.
+
+4.3 Legal Authorities
+We may disclose your information to law enforcement agencies, regulatory authorities, or courts when required by law, legal process, or to protect the rights and safety of our users and the public.
+
+4.4 Business Transfers
+In the event of a merger, acquisition, restructuring, or sale of Homzo Hospitality, your information may be transferred to the successor entity, subject to the same privacy protections described in this Policy.
+
+5. Data Storage &amp; Security
+Your data is stored on secure servers located within India, in compliance with the Information Technology Act, 2000, and the Information Technology (Reasonable Security Practices and Procedures and Sensitive Personal Data or Information) Rules, 2011 ("SPDI Rules").
+We implement industry-standard technical and organizational measures to protect your personal data against unauthorized access, alteration, disclosure, or destruction. These include:
+Secure Socket Layer (SSL) / Transport Layer Security (TLS) encryption for data in transit
+AES-256 encryption for sensitive data at rest
+Role-based access controls and multi-factor authentication for internal systems
+Regular security audits, vulnerability assessments, and penetration testing
+Employee training on data privacy and security protocols
+However, no method of transmission over the internet or electronic storage is completely secure. While we strive to use commercially acceptable means to protect your data, we cannot guarantee absolute security.
+
+6. Data Retention
+We retain your personal data for as long as necessary to provide our services, comply with legal obligations, resolve disputes, and enforce our agreements. Specifically:
+Account data is retained for the duration of your active account and up to 3 years after account deletion
+Booking and transaction records are retained for 7 years in accordance with applicable tax and accounting laws in India
+Communication and support records are retained for 2 years from the date of last interaction
+Marketing preferences are retained until you withdraw consent
+Upon expiry of the applicable retention period, your data will be securely deleted, anonymized, or aggregated in a manner that prevents identification.
+
+7. Your Rights as a Data Subject
+As a user of our Platform, you have the following rights with respect to your personal data:
+Right to Access: You may request a copy of the personal data we hold about you
+Right to Rectification: You may request correction of inaccurate or incomplete information
+Right to Deletion: You may request erasure of your personal data, subject to legal retention requirements
+Right to Withdraw Consent: Where processing is based on consent, you may withdraw it at any time
+Right to Object to Marketing: You may opt out of receiving marketing communications at any time via your account settings or by contacting us
+Right to Data Portability: You may request your data in a structured, machine-readable format
+To exercise any of the above rights, please contact our Grievance Officer at the details provided in Section 10 of this Policy. We will respond to your request within 30 days.
+
+8. Cookies &amp; Tracking Technologies
+Our Platform uses cookies, web beacons, pixels, and similar technologies to enhance your experience, analyze usage, and deliver personalized content.
+
+8.1 Types of Cookies We Use
+Essential Cookies: Required for the Platform to function; cannot be disabled
+Performance Cookies: Help us understand how users interact with our Platform
+Functionality Cookies: Remember your preferences such as language and location
+Targeting/Advertising Cookies: Used to deliver relevant ads (only with your consent)
+
+8.2 Managing Cookies
+You can control cookie preferences through your browser settings. Please note that disabling certain cookies may affect the functionality of our Platform. For more information, please refer to our Cookie Policy available on our website.
+
+9. Children's Privacy
+Our Platform is not directed to individuals under the age of 18 years. We do not knowingly collect personal data from minors. If we become aware that a user is under 18 years of age, we will promptly delete their account and associated data. If you are a parent or guardian and believe your child has provided us with personal information, please contact us immediately.
+
+10. Grievance Officer &amp; Contact Information
+In accordance with the Information Technology Act, 2000, and the SPDI Rules, 2011, the name and contact details of our designated Grievance Officer are as follows:
+
+Grievance Officer: [Name of Grievance Officer]
+Organization: Homzo Hospitality
+Email: grievance@homzohospitality.com
+Phone: [Contact Number]
+Address: [Registered Office Address], India
+Working Hours: Monday to Friday, 10:00 AM – 6:00 PM IST
+
+You may also write to us for any privacy-related queries, complaints, or requests at:
+privacy@homzohospitality.com
+
+11. Changes to This Privacy Policy
+We reserve the right to update or modify this Privacy Policy at any time to reflect changes in our practices, technology, legal requirements, or other factors. We will notify you of material changes by:
+Posting the updated Policy on our Platform with a revised 'Last Updated' date
+Sending an email notification to your registered email address
+Displaying an in-app notification upon your next login
+Your continued use of our Platform after the effective date of any changes constitutes your acceptance of the revised Privacy Policy.
+
+12. Governing Law &amp; Jurisdiction
+This Privacy Policy shall be governed by and construed in accordance with the laws of the Republic of India, including the Information Technology Act, 2000, the Consumer Protection Act, 2019, and all applicable rules and regulations thereunder.
+Any disputes arising in connection with this Privacy Policy shall be subject to the exclusive jurisdiction of the courts located in [City], India.
+
+ACKNOWLEDGMENT
+By using the Homzo Hospitality Platform, you acknowledge that you have read, understood, and agree to be bound by this Privacy Policy. If you do not agree to this Privacy Policy, please refrain from using our services.</div>
+  </div>
+</div>
+
+<!-- Floating AI Chat Assistant Widget -->
+<div id="homzoAiAssistantWidget" style="position: fixed; bottom: 25px; right: 25px; z-index: 10000; font-family: 'Outfit', sans-serif;">
+  <!-- Toggle Button -->
+  <button id="homzoAiTriggerBtn" style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #d4af37, #aa7c11); border: none; color: #fff; font-size: 1.3rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; z-index: 10001; animation: pulse-ring 2s infinite;">
+    <i class="fa-solid fa-headset"></i>
+    <span style="position: absolute; top: -2px; right: -2px; background: #ea4335; color: #fff; font-size: 0.6rem; font-weight: 700; padding: 1px 5px; border-radius: 10px; text-transform: uppercase; animation: pulse 2s infinite;">AI</span>
+  </button>
+
+  <!-- Chat Window -->
+  <div id="homzoAiChatWindow" style="display: none; width: 310px; height: 420px; background: rgba(13, 17, 23, 0.88); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); position: absolute; bottom: 70px; right: 0; flex-direction: column; overflow: hidden; backdrop-filter: blur(20px); border-radius: 14px; animation: slideUp 0.3s cubic-bezier(0.165, 0.84, 0.44, 1); z-index: 10000;">
+    <!-- Chat Header -->
+    <div style="background: linear-gradient(135deg, #1b263b 0%, #0c1017 100%); border-bottom: 1px solid rgba(212, 175, 55, 0.25); padding: 10px 15px; display: flex; justify-content: space-between; align-items: center;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <div style="width: 8px; height: 8px; background: #22c55e; border-radius: 50%; box-shadow: 0 0 8px #22c55e;"></div>
+        <div>
+          <h4 style="margin: 0; color: #d4af37; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.3px;">HOMZO Concierge</h4>
+          <span style="font-size: 0.65rem; color: #94a3b8;">Official AI Assistant</span>
+        </div>
+      </div>
+      <button id="homzoAiCloseBtn" style="background: none; border: none; color: #94a3b8; font-size: 1rem; cursor: pointer; transition: color 0.2s;"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <!-- Messages Container -->
+    <div id="homzoAiMessages" style="flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; font-size: 0.8rem; color: #e2e8f0; scroll-behavior: smooth;">
+      <!-- Welcome Message -->
+      <div style="display: flex; flex-direction: column; gap: 4px; align-self: flex-start; max-width: 85%; animation: bubbleFadeIn 0.3s ease;">
+        <div style="background: rgba(255,255,255,0.04); padding: 8px 12px; border-radius: 12px 12px 12px 0; border: 1px solid rgba(255,255,255,0.06); line-height: 1.35;">
+          Hello! I am your <strong>HOMZO Concierge</strong> Assistant. How can I help you today?
+        </div>
+        <span style="font-size: 0.6rem; color: #64748b; margin-left: 4px;">Just now</span>
+      </div>
+    </div>
+
+    <!-- Quick Replies Area -->
+    <div style="padding: 8px 12px; display: flex; flex-wrap: wrap; gap: 4px; border-top: 1px solid rgba(255,255,255,0.04); background: rgba(0,0,0,0.2);">
+      <button class="homzo-quick-reply" onclick="sendQuickReply('How to onboard my property?')" style="background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.25); color: #d4af37; font-size: 0.68rem; padding: 3px 8px; border-radius: 12px; cursor: pointer; transition: all 0.2s;">Onboard Property</button>
+      <button class="homzo-quick-reply" onclick="sendQuickReply('What commission does Homzo take?')" style="background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.25); color: #d4af37; font-size: 0.68rem; padding: 3px 8px; border-radius: 12px; cursor: pointer; transition: all 0.2s;">Commission Rate</button>
+      <button class="homzo-quick-reply" onclick="sendQuickReply('Best monthly stay plan for students?')" style="background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.25); color: #d4af37; font-size: 0.68rem; padding: 3px 8px; border-radius: 12px; cursor: pointer; transition: all 0.2s;">Long Stays</button>
+      <button class="homzo-quick-reply" onclick="sendQuickReply('How to raise a complaint?')" style="background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.25); color: #d4af37; font-size: 0.68rem; padding: 3px 8px; border-radius: 12px; cursor: pointer; transition: all 0.2s;">Complaints</button>
+    </div>
+
+    <!-- Chat Input Form -->
+    <form id="homzoAiInputForm" style="display: flex; border-top: 1px solid rgba(212, 175, 55, 0.25); background: #0c1017; padding: 8px 12px; gap: 6px; align-items: center;">
+      <input type="text" id="homzoAiInput" placeholder="Ask Concierge..." required="" style="flex: 1; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 6px 10px; color: #fff; font-size: 0.78rem; outline: none; transition: border-color 0.2s;">
+      <button type="submit" style="width: 30px; height: 30px; border-radius: 50%; background: #d4af37; border: none; color: #0c1017; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+        <i class="fa-solid fa-paper-plane" style="font-size: 0.75rem;"></i>
+      </button>
+    </form>
+  </div>
+</div>
+
+<style>
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.6); }
+  70% { box-shadow: 0 0 0 12px rgba(212, 175, 55, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+}
+@keyframes slideUp {
+  from { transform: translateY(15px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes bubbleFadeIn {
+  from { transform: translateY(8px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.homzo-quick-reply:hover {
+  background: rgba(212, 175, 55, 0.2) !important;
+  transform: translateY(-1px);
+}
+#homzoAiInput:focus {
+  border-color: rgba(212, 175, 55, 0.8) !important;
+}
+#homzoAiTriggerBtn:hover {
+  transform: scale(1.06);
+  background: linear-gradient(135deg, #aa7c11, #d4af37) !important;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const triggerBtn = document.getElementById('homzoAiTriggerBtn');
+  const chatWindow = document.getElementById('homzoAiChatWindow');
+  const closeBtn = document.getElementById('homzoAiCloseBtn');
+  const inputForm = document.getElementById('homzoAiInputForm');
+  const inputField = document.getElementById('homzoAiInput');
+  const messagesContainer = document.getElementById('homzoAiMessages');
+
+  if (triggerBtn && chatWindow) {
+    triggerBtn.addEventListener('click', () => {
+      const isHidden = chatWindow.style.display === 'none';
+      chatWindow.style.display = isHidden ? 'flex' : 'none';
+    });
+  }
+
+  if (closeBtn && chatWindow) {
+    closeBtn.addEventListener('click', () => {
+      chatWindow.style.display = 'none';
+    });
+  }
+
+  if (inputForm) {
+    inputForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = inputField.value.trim();
+      if (!text) return;
+      
+      inputField.value = '';
+      await appendUserMessage(text);
+    });
+  }
+  async function appendUserMessage(text) {
+    const userMsgDiv = document.createElement('div');
+    userMsgDiv.style.cssText = 'display: flex; flex-direction: column; gap: 4px; align-self: flex-end; max-width: 80%;';
+    userMsgDiv.innerHTML = `
+      <div style="background: linear-gradient(135deg, #d4af37, #aa7c11); color: #0f172a; padding: 10px 14px; border-radius: 12px 12px 0 12px; font-weight: 500;">
+        ${text}
+      </div>
+      <span style="font-size: 0.65rem; color: #64748b; text-align: right; margin-right: 4px;">Just now</span>
+    `;
+    messagesContainer.appendChild(userMsgDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    const typingDiv = document.createElement('div');
+    typingDiv.id = 'homzoAiTyping';
+    typingDiv.style.cssText = 'display: flex; gap: 4px; align-self: flex-start; max-width: 80%;';
+    typingDiv.innerHTML = `
+      <div style="background: rgba(255,255,255,0.05); padding: 10px 14px; border-radius: 12px 12px 12px 0; border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; display:flex; align-items:center; gap:6px;">
+        <i class="fa-solid fa-circle-notch fa-spin"></i> Concierge is typing...
+      </div>
+    `;
+    messagesContainer.appendChild(typingDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    try {
+      const res = await fetch('/api/ai/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text })
+      });
+      const data = await res.json();
+      
+      const typingEl = document.getElementById('homzoAiTyping');
+      if (typingEl) typingEl.remove();
+
+      const botMsgDiv = document.createElement('div');
+      botMsgDiv.style.cssText = 'display: flex; flex-direction: column; gap: 4px; align-self: flex-start; max-width: 80%;';
+      const formattedReply = data.reply
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br>');
+      botMsgDiv.innerHTML = `
+        <div style="background: rgba(255,255,255,0.05); padding: 10px 14px; border-radius: 12px 12px 12px 0; border: 1px solid rgba(255,255,255,0.1); line-height: 1.4;">
+          ${formattedReply}
+        </div>
+        <span style="font-size: 0.65rem; color: #64748b; margin-left: 4px;">Just now &bull; ${data.source}</span>
+      `;
+      messagesContainer.appendChild(botMsgDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    } catch(err) {
+      console.error(err);
+      const typingEl = document.getElementById('homzoAiTyping');
+      if (typingEl) typingEl.remove();
+
+      const errorMsgDiv = document.createElement('div');
+      errorMsgDiv.style.cssText = 'display: flex; gap: 4px; align-self: flex-start; max-width: 80%;';
+      errorMsgDiv.innerHTML = `
+        <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; padding: 10px 14px; border-radius: 12px 12px 12px 0;">
+          Sorry, I failed to connect. Please try again later.
+        </div>
+      `;
+      messagesContainer.appendChild(errorMsgDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+  }
+
+  window.sendQuickReply = function(text) {
+    appendUserMessage(text);
+  };
+});
+</script>
+
+<!-- ── PASSWORD RESET MODAL ── -->
+<div class="modal-overlay" id="passwordResetModal" style="display:none">
+  <div class="modal-box" style="position:relative; max-width:400px; text-align:left; padding:30px;">
+    <button class="modal-close" onclick="closeModal('passwordResetModal')"><i class="fa-solid fa-xmark"></i></button>
+    <h2><i class="fa-solid fa-key" style="color:var(--primary); margin-right:10px;"></i>Reset Password</h2>
+    
+    <div style="display:flex; flex-direction:column; gap:16px; margin-top:20px;">
+      <!-- Step 1: Request OTP -->
+      <div id="resetStep1">
+        <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:14px; line-height:1.4;">
+          Enter your registered email address to receive a verification OTP.
+        </p>
+        <div class="form-group" style="margin-bottom:16px;">
+          <label>Email Address</label>
+          <input type="email" class="form-control" id="resetEmail" placeholder="you@example.com" required="">
+        </div>
+        <button class="btn btn-primary" id="sendOtpBtn" style="width:100%; justify-content:center;">
+          <i class="fa-solid fa-paper-plane"></i> Send OTP Code
+        </button>
+      </div>
+      
+      <!-- Step 2: Verify OTP & Reset -->
+      <div id="resetStep2" style="display:none;">
+        <p style="font-size:0.85rem; color:var(--text-secondary); background:rgba(255,255,255,0.02); padding:10px; border-left:3px solid var(--primary); border-radius:0 4px 4px 0; margin-bottom:14px; line-height:1.4;">
+          OTP code generated. Check the server console log in simulation mode to read the OTP.
+        </p>
+        <div class="form-group" style="margin-bottom:12px;">
+          <label>Verification OTP</label>
+          <input type="text" class="form-control" id="resetOtp" placeholder="6-digit code" required="">
+        </div>
+        <div class="form-group" style="margin-bottom:12px;">
+          <label>New Password</label>
+          <input type="password" class="form-control" id="resetNewPassword" placeholder="Minimum 6 characters" required="">
+        </div>
+        <div class="form-group" style="margin-bottom:16px;">
+          <label>Confirm New Password</label>
+          <input type="password" class="form-control" id="resetConfirmPassword" placeholder="Confirm new password" required="">
+        </div>
+        <button class="btn btn-primary" id="verifyResetBtn" style="width:100%; justify-content:center;">
+          <i class="fa-solid fa-check-double"></i> Update Password
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="client.js?v=5"></script>
+
+
+</div><div class="flatpickr-calendar animate" tabindex="-1"><div class="flatpickr-months"><span class="flatpickr-prev-month flatpickr-disabled"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 17 17"><g></g><path d="M5.207 8.471l7.146 7.147-0.707 0.707-7.853-7.854 7.854-7.853 0.707 0.707-7.147 7.146z"></path></svg></span><div class="flatpickr-month"><div class="flatpickr-current-month"><select class="flatpickr-monthDropdown-months" aria-label="Month" tabindex="-1"><option class="flatpickr-monthDropdown-month" value="6" tabindex="-1">July</option><option class="flatpickr-monthDropdown-month" value="7" tabindex="-1">August</option><option class="flatpickr-monthDropdown-month" value="8" tabindex="-1">September</option><option class="flatpickr-monthDropdown-month" value="9" tabindex="-1">October</option><option class="flatpickr-monthDropdown-month" value="10" tabindex="-1">November</option><option class="flatpickr-monthDropdown-month" value="11" tabindex="-1">December</option></select><div class="numInputWrapper"><input class="numInput cur-year" type="number" tabindex="-1" aria-label="Year" min="2026"><span class="arrowUp"></span><span class="arrowDown"></span></div></div></div><span class="flatpickr-next-month"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 17 17"><g></g><path d="M13.207 8.472l-7.854 7.854-0.707-0.707 7.146-7.146-7.146-7.148 0.707-0.707 7.854 7.854z"></path></svg></span></div><div class="flatpickr-innerContainer"><div class="flatpickr-rContainer"><div class="flatpickr-weekdays"><div class="flatpickr-weekdaycontainer">
+      <span class="flatpickr-weekday">
+        Sun</span><span class="flatpickr-weekday">Mon</span><span class="flatpickr-weekday">Tue</span><span class="flatpickr-weekday">Wed</span><span class="flatpickr-weekday">Thu</span><span class="flatpickr-weekday">Fri</span><span class="flatpickr-weekday">Sat
+      </span>
+      </div></div><div class="flatpickr-days" tabindex="-1"><div class="dayContainer"><span class="flatpickr-day prevMonthDay flatpickr-disabled" aria-label="June 28, 2026">28</span><span class="flatpickr-day prevMonthDay flatpickr-disabled" aria-label="June 29, 2026">29</span><span class="flatpickr-day prevMonthDay flatpickr-disabled" aria-label="June 30, 2026">30</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 1, 2026">1</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 2, 2026">2</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 3, 2026">3</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 4, 2026">4</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 5, 2026">5</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 6, 2026">6</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 7, 2026">7</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 8, 2026">8</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 9, 2026">9</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 10, 2026">10</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 11, 2026">11</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 12, 2026">12</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 13, 2026">13</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 14, 2026">14</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 15, 2026">15</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 16, 2026">16</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 17, 2026">17</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 18, 2026">18</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 19, 2026">19</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 20, 2026">20</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 21, 2026">21</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 22, 2026">22</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 23, 2026">23</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 24, 2026">24</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 25, 2026">25</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 26, 2026">26</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 27, 2026">27</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 28, 2026">28</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 29, 2026">29</span><span class="flatpickr-day today" aria-label="July 30, 2026" aria-current="date" tabindex="-1">30</span><span class="flatpickr-day" aria-label="July 31, 2026" tabindex="-1">31</span><span class="flatpickr-day nextMonthDay" aria-label="August 1, 2026" tabindex="-1">1</span><span class="flatpickr-day nextMonthDay" aria-label="August 2, 2026" tabindex="-1">2</span><span class="flatpickr-day nextMonthDay" aria-label="August 3, 2026" tabindex="-1">3</span><span class="flatpickr-day nextMonthDay" aria-label="August 4, 2026" tabindex="-1">4</span><span class="flatpickr-day nextMonthDay" aria-label="August 5, 2026" tabindex="-1">5</span><span class="flatpickr-day nextMonthDay" aria-label="August 6, 2026" tabindex="-1">6</span><span class="flatpickr-day nextMonthDay" aria-label="August 7, 2026" tabindex="-1">7</span><span class="flatpickr-day nextMonthDay" aria-label="August 8, 2026" tabindex="-1">8</span></div></div></div></div></div><div class="flatpickr-calendar animate" tabindex="-1"><div class="flatpickr-months"><span class="flatpickr-prev-month flatpickr-disabled"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 17 17"><g></g><path d="M5.207 8.471l7.146 7.147-0.707 0.707-7.853-7.854 7.854-7.853 0.707 0.707-7.147 7.146z"></path></svg></span><div class="flatpickr-month"><div class="flatpickr-current-month"><select class="flatpickr-monthDropdown-months" aria-label="Month" tabindex="-1"><option class="flatpickr-monthDropdown-month" value="6" tabindex="-1">July</option><option class="flatpickr-monthDropdown-month" value="7" tabindex="-1">August</option><option class="flatpickr-monthDropdown-month" value="8" tabindex="-1">September</option><option class="flatpickr-monthDropdown-month" value="9" tabindex="-1">October</option><option class="flatpickr-monthDropdown-month" value="10" tabindex="-1">November</option><option class="flatpickr-monthDropdown-month" value="11" tabindex="-1">December</option></select><div class="numInputWrapper"><input class="numInput cur-year" type="number" tabindex="-1" aria-label="Year" min="2026"><span class="arrowUp"></span><span class="arrowDown"></span></div></div></div><span class="flatpickr-next-month"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 17 17"><g></g><path d="M13.207 8.472l-7.854 7.854-0.707-0.707 7.146-7.146-7.146-7.148 0.707-0.707 7.854 7.854z"></path></svg></span></div><div class="flatpickr-innerContainer"><div class="flatpickr-rContainer"><div class="flatpickr-weekdays"><div class="flatpickr-weekdaycontainer">
+      <span class="flatpickr-weekday">
+        Sun</span><span class="flatpickr-weekday">Mon</span><span class="flatpickr-weekday">Tue</span><span class="flatpickr-weekday">Wed</span><span class="flatpickr-weekday">Thu</span><span class="flatpickr-weekday">Fri</span><span class="flatpickr-weekday">Sat
+      </span>
+      </div></div><div class="flatpickr-days" tabindex="-1"><div class="dayContainer"><span class="flatpickr-day prevMonthDay flatpickr-disabled" aria-label="June 28, 2026">28</span><span class="flatpickr-day prevMonthDay flatpickr-disabled" aria-label="June 29, 2026">29</span><span class="flatpickr-day prevMonthDay flatpickr-disabled" aria-label="June 30, 2026">30</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 1, 2026">1</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 2, 2026">2</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 3, 2026">3</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 4, 2026">4</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 5, 2026">5</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 6, 2026">6</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 7, 2026">7</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 8, 2026">8</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 9, 2026">9</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 10, 2026">10</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 11, 2026">11</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 12, 2026">12</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 13, 2026">13</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 14, 2026">14</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 15, 2026">15</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 16, 2026">16</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 17, 2026">17</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 18, 2026">18</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 19, 2026">19</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 20, 2026">20</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 21, 2026">21</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 22, 2026">22</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 23, 2026">23</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 24, 2026">24</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 25, 2026">25</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 26, 2026">26</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 27, 2026">27</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 28, 2026">28</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 29, 2026">29</span><span class="flatpickr-day today" aria-label="July 30, 2026" aria-current="date" tabindex="-1">30</span><span class="flatpickr-day" aria-label="July 31, 2026" tabindex="-1">31</span><span class="flatpickr-day nextMonthDay" aria-label="August 1, 2026" tabindex="-1">1</span><span class="flatpickr-day nextMonthDay" aria-label="August 2, 2026" tabindex="-1">2</span><span class="flatpickr-day nextMonthDay" aria-label="August 3, 2026" tabindex="-1">3</span><span class="flatpickr-day nextMonthDay" aria-label="August 4, 2026" tabindex="-1">4</span><span class="flatpickr-day nextMonthDay" aria-label="August 5, 2026" tabindex="-1">5</span><span class="flatpickr-day nextMonthDay" aria-label="August 6, 2026" tabindex="-1">6</span><span class="flatpickr-day nextMonthDay" aria-label="August 7, 2026" tabindex="-1">7</span><span class="flatpickr-day nextMonthDay" aria-label="August 8, 2026" tabindex="-1">8</span></div></div></div></div></div><div class="flatpickr-calendar animate" tabindex="-1"><div class="flatpickr-months"><span class="flatpickr-prev-month flatpickr-disabled"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 17 17"><g></g><path d="M5.207 8.471l7.146 7.147-0.707 0.707-7.853-7.854 7.854-7.853 0.707 0.707-7.147 7.146z"></path></svg></span><div class="flatpickr-month"><div class="flatpickr-current-month"><select class="flatpickr-monthDropdown-months" aria-label="Month" tabindex="-1"><option class="flatpickr-monthDropdown-month" value="6" tabindex="-1">July</option><option class="flatpickr-monthDropdown-month" value="7" tabindex="-1">August</option><option class="flatpickr-monthDropdown-month" value="8" tabindex="-1">September</option><option class="flatpickr-monthDropdown-month" value="9" tabindex="-1">October</option><option class="flatpickr-monthDropdown-month" value="10" tabindex="-1">November</option><option class="flatpickr-monthDropdown-month" value="11" tabindex="-1">December</option></select><div class="numInputWrapper"><input class="numInput cur-year" type="number" tabindex="-1" aria-label="Year" min="2026"><span class="arrowUp"></span><span class="arrowDown"></span></div></div></div><span class="flatpickr-next-month"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 17 17"><g></g><path d="M13.207 8.472l-7.854 7.854-0.707-0.707 7.146-7.146-7.146-7.148 0.707-0.707 7.854 7.854z"></path></svg></span></div><div class="flatpickr-innerContainer"><div class="flatpickr-rContainer"><div class="flatpickr-weekdays"><div class="flatpickr-weekdaycontainer">
+      <span class="flatpickr-weekday">
+        Sun</span><span class="flatpickr-weekday">Mon</span><span class="flatpickr-weekday">Tue</span><span class="flatpickr-weekday">Wed</span><span class="flatpickr-weekday">Thu</span><span class="flatpickr-weekday">Fri</span><span class="flatpickr-weekday">Sat
+      </span>
+      </div></div><div class="flatpickr-days" tabindex="-1"><div class="dayContainer"><span class="flatpickr-day prevMonthDay flatpickr-disabled" aria-label="June 28, 2026">28</span><span class="flatpickr-day prevMonthDay flatpickr-disabled" aria-label="June 29, 2026">29</span><span class="flatpickr-day prevMonthDay flatpickr-disabled" aria-label="June 30, 2026">30</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 1, 2026">1</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 2, 2026">2</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 3, 2026">3</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 4, 2026">4</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 5, 2026">5</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 6, 2026">6</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 7, 2026">7</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 8, 2026">8</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 9, 2026">9</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 10, 2026">10</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 11, 2026">11</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 12, 2026">12</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 13, 2026">13</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 14, 2026">14</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 15, 2026">15</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 16, 2026">16</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 17, 2026">17</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 18, 2026">18</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 19, 2026">19</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 20, 2026">20</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 21, 2026">21</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 22, 2026">22</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 23, 2026">23</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 24, 2026">24</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 25, 2026">25</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 26, 2026">26</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 27, 2026">27</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 28, 2026">28</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 29, 2026">29</span><span class="flatpickr-day today" aria-label="July 30, 2026" aria-current="date" tabindex="-1">30</span><span class="flatpickr-day" aria-label="July 31, 2026" tabindex="-1">31</span><span class="flatpickr-day nextMonthDay" aria-label="August 1, 2026" tabindex="-1">1</span><span class="flatpickr-day nextMonthDay" aria-label="August 2, 2026" tabindex="-1">2</span><span class="flatpickr-day nextMonthDay" aria-label="August 3, 2026" tabindex="-1">3</span><span class="flatpickr-day nextMonthDay" aria-label="August 4, 2026" tabindex="-1">4</span><span class="flatpickr-day nextMonthDay" aria-label="August 5, 2026" tabindex="-1">5</span><span class="flatpickr-day nextMonthDay" aria-label="August 6, 2026" tabindex="-1">6</span><span class="flatpickr-day nextMonthDay" aria-label="August 7, 2026" tabindex="-1">7</span><span class="flatpickr-day nextMonthDay" aria-label="August 8, 2026" tabindex="-1">8</span></div></div></div></div></div><div class="flatpickr-calendar animate" tabindex="-1"><div class="flatpickr-months"><span class="flatpickr-prev-month flatpickr-disabled"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 17 17"><g></g><path d="M5.207 8.471l7.146 7.147-0.707 0.707-7.853-7.854 7.854-7.853 0.707 0.707-7.147 7.146z"></path></svg></span><div class="flatpickr-month"><div class="flatpickr-current-month"><select class="flatpickr-monthDropdown-months" aria-label="Month" tabindex="-1"><option class="flatpickr-monthDropdown-month" value="6" tabindex="-1">July</option><option class="flatpickr-monthDropdown-month" value="7" tabindex="-1">August</option><option class="flatpickr-monthDropdown-month" value="8" tabindex="-1">September</option><option class="flatpickr-monthDropdown-month" value="9" tabindex="-1">October</option><option class="flatpickr-monthDropdown-month" value="10" tabindex="-1">November</option><option class="flatpickr-monthDropdown-month" value="11" tabindex="-1">December</option></select><div class="numInputWrapper"><input class="numInput cur-year" type="number" tabindex="-1" aria-label="Year" min="2026"><span class="arrowUp"></span><span class="arrowDown"></span></div></div></div><span class="flatpickr-next-month"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 17 17"><g></g><path d="M13.207 8.472l-7.854 7.854-0.707-0.707 7.146-7.146-7.146-7.148 0.707-0.707 7.854 7.854z"></path></svg></span></div><div class="flatpickr-innerContainer"><div class="flatpickr-rContainer"><div class="flatpickr-weekdays"><div class="flatpickr-weekdaycontainer">
+      <span class="flatpickr-weekday">
+        Sun</span><span class="flatpickr-weekday">Mon</span><span class="flatpickr-weekday">Tue</span><span class="flatpickr-weekday">Wed</span><span class="flatpickr-weekday">Thu</span><span class="flatpickr-weekday">Fri</span><span class="flatpickr-weekday">Sat
+      </span>
+      </div></div><div class="flatpickr-days" tabindex="-1"><div class="dayContainer"><span class="flatpickr-day prevMonthDay flatpickr-disabled" aria-label="June 28, 2026">28</span><span class="flatpickr-day prevMonthDay flatpickr-disabled" aria-label="June 29, 2026">29</span><span class="flatpickr-day prevMonthDay flatpickr-disabled" aria-label="June 30, 2026">30</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 1, 2026">1</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 2, 2026">2</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 3, 2026">3</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 4, 2026">4</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 5, 2026">5</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 6, 2026">6</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 7, 2026">7</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 8, 2026">8</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 9, 2026">9</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 10, 2026">10</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 11, 2026">11</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 12, 2026">12</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 13, 2026">13</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 14, 2026">14</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 15, 2026">15</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 16, 2026">16</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 17, 2026">17</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 18, 2026">18</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 19, 2026">19</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 20, 2026">20</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 21, 2026">21</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 22, 2026">22</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 23, 2026">23</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 24, 2026">24</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 25, 2026">25</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 26, 2026">26</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 27, 2026">27</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 28, 2026">28</span><span class="flatpickr-day flatpickr-disabled" aria-label="July 29, 2026">29</span><span class="flatpickr-day today" aria-label="July 30, 2026" aria-current="date" tabindex="-1">30</span><span class="flatpickr-day" aria-label="July 31, 2026" tabindex="-1">31</span><span class="flatpickr-day nextMonthDay" aria-label="August 1, 2026" tabindex="-1">1</span><span class="flatpickr-day nextMonthDay" aria-label="August 2, 2026" tabindex="-1">2</span><span class="flatpickr-day nextMonthDay" aria-label="August 3, 2026" tabindex="-1">3</span><span class="flatpickr-day nextMonthDay" aria-label="August 4, 2026" tabindex="-1">4</span><span class="flatpickr-day nextMonthDay" aria-label="August 5, 2026" tabindex="-1">5</span><span class="flatpickr-day nextMonthDay" aria-label="August 6, 2026" tabindex="-1">6</span><span class="flatpickr-day nextMonthDay" aria-label="August 7, 2026" tabindex="-1">7</span><span class="flatpickr-day nextMonthDay" aria-label="August 8, 2026" tabindex="-1">8</span></div></div></div></div></div></body></html>

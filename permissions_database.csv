@@ -1,0 +1,141 @@
+﻿"ID",Role_ID,Module_ID,Can_View,Can_Add,Can_Edit,Can_Delete,Can_Approve,Scope
+1,1,Operations Dashboard,true,true,true,true,true,Global
+2,1,Property Management,true,true,true,true,true,Global
+3,1,Partner CRM,true,true,true,true,true,Global
+4,1,Booking Management,true,true,true,true,true,Global
+5,1,Guest Management,true,true,true,true,true,Global
+6,1,Revenue & Payouts,true,true,true,true,true,Global
+7,1,Marketing & Promo,true,true,true,true,true,Global
+8,1,Quality & Inspections,true,true,true,true,true,Global
+9,1,City Expansion Strategy,true,true,true,true,true,Global
+10,1,City Expansion Tracker,true,true,true,true,true,Global
+11,1,Notifications,true,true,true,true,true,Global
+12,1,Company Profile,true,true,true,true,true,Global
+13,1,Reports & Analytics,true,true,true,true,true,Global
+14,1,System Settings,true,true,true,true,true,Global
+15,2,Operations Dashboard,true,true,true,false,true,Global
+16,2,Property Management,true,true,true,false,true,Global
+17,2,Partner CRM,true,true,true,false,true,Global
+18,2,Booking Management,true,true,true,false,true,Global
+19,2,Guest Management,true,true,true,false,true,Global
+20,2,Revenue & Payouts,true,true,true,false,true,Global
+21,2,Marketing & Promo,true,true,true,false,true,Global
+22,2,Quality & Inspections,true,true,true,false,true,Global
+23,2,City Expansion Strategy,true,false,false,false,true,Global
+24,2,City Expansion Tracker,true,true,true,false,true,Global
+25,2,Notifications,true,true,true,false,true,Global
+26,2,Company Profile,true,false,false,false,false,Global
+27,2,Reports & Analytics,true,false,false,false,false,Global
+28,2,System Settings,false,false,false,false,false,Global
+29,3,Operations Dashboard,false,false,false,false,false,Global
+30,3,Property Management,false,false,false,false,false,Global
+31,3,Partner CRM,false,false,false,false,false,Global
+32,3,Booking Management,false,false,false,false,false,Global
+33,3,Guest Management,false,false,false,false,false,Global
+34,3,Revenue & Payouts,false,false,false,false,false,Global
+35,3,Marketing & Promo,false,false,false,false,false,Global
+36,3,Quality & Inspections,false,false,false,false,false,Global
+37,3,City Expansion Strategy,false,false,false,false,false,Global
+38,3,City Expansion Tracker,false,false,false,false,false,Global
+39,3,Notifications,true,true,true,false,false,Global
+40,3,Company Profile,false,false,false,false,false,Global
+41,3,Reports & Analytics,false,false,false,false,false,Global
+42,3,System Settings,true,true,true,true,true,Global
+43,4,Operations Dashboard,true,false,false,false,false,Global
+44,4,Property Management,true,false,false,false,false,Global
+45,4,Partner CRM,true,false,false,false,false,Global
+46,4,Booking Management,true,false,false,false,false,Global
+47,4,Guest Management,true,false,false,false,false,Global
+48,4,Revenue & Payouts,true,false,false,false,false,Global
+49,4,Marketing & Promo,true,true,true,true,true,Global
+50,4,Quality & Inspections,true,false,false,false,false,Global
+51,4,City Expansion Strategy,false,false,false,false,false,Global
+52,4,City Expansion Tracker,true,false,false,false,false,Global
+53,4,Notifications,true,true,true,false,false,Global
+54,4,Company Profile,false,false,false,false,false,Global
+55,4,Reports & Analytics,true,false,false,false,false,Global
+56,4,System Settings,false,false,false,false,false,Global
+57,5,Operations Dashboard,true,false,false,false,false,City-Specific
+58,5,Property Management,true,true,true,false,false,City-Specific
+59,5,Partner CRM,true,true,true,false,false,City-Specific
+60,5,Booking Management,true,true,true,false,false,City-Specific
+61,5,Guest Management,true,true,true,false,false,City-Specific
+62,5,Revenue & Payouts,true,false,false,false,false,City-Specific
+63,5,Marketing & Promo,true,false,false,false,false,City-Specific
+64,5,Quality & Inspections,true,true,true,false,false,City-Specific
+65,5,City Expansion Strategy,true,false,false,false,false,City-Specific
+66,5,City Expansion Tracker,true,true,true,false,false,City-Specific
+67,5,Notifications,true,true,true,false,false,City-Specific
+68,5,Company Profile,false,false,false,false,false,City-Specific
+69,5,Reports & Analytics,true,false,false,false,false,City-Specific
+70,5,System Settings,false,false,false,false,false,City-Specific
+71,6,Operations Dashboard,true,false,false,false,false,Global
+72,6,Property Management,true,false,false,false,false,Global
+73,6,Partner CRM,true,false,false,false,false,Global
+74,6,Booking Management,false,false,false,false,false,Global
+75,6,Guest Management,false,false,false,false,false,Global
+76,6,Revenue & Payouts,false,false,false,false,false,Global
+77,6,Marketing & Promo,false,false,false,false,false,Global
+78,6,Quality & Inspections,true,true,true,true,true,Global
+79,6,City Expansion Strategy,false,false,false,false,false,Global
+80,6,City Expansion Tracker,true,false,false,false,false,Global
+81,6,Notifications,true,true,true,false,false,Global
+82,6,Company Profile,false,false,false,false,false,Global
+83,6,Reports & Analytics,true,false,false,false,false,Global
+84,6,System Settings,false,false,false,false,false,Global
+85,7,Operations Dashboard,true,false,false,false,false,Global
+86,7,Property Management,true,false,false,false,false,Global
+87,7,Partner CRM,true,false,false,false,false,Global
+88,7,Booking Management,true,true,true,true,true,Global
+89,7,Guest Management,true,true,true,true,true,Global
+90,7,Revenue & Payouts,false,false,false,false,false,Global
+91,7,Marketing & Promo,false,false,false,false,false,Global
+92,7,Quality & Inspections,false,false,false,false,false,Global
+93,7,City Expansion Strategy,false,false,false,false,false,Global
+94,7,City Expansion Tracker,false,false,false,false,false,Global
+95,7,Notifications,true,true,true,false,false,Global
+96,7,Company Profile,false,false,false,false,false,Global
+97,7,Reports & Analytics,false,false,false,false,false,Global
+98,7,System Settings,false,false,false,false,false,Global
+99,8,Operations Dashboard,true,false,false,false,false,Global
+100,8,Property Management,true,false,false,false,false,Global
+101,8,Partner CRM,true,false,false,false,false,Global
+102,8,Booking Management,true,false,false,false,false,Global
+103,8,Guest Management,false,false,false,false,false,Global
+104,8,Revenue & Payouts,true,true,true,true,true,Global
+105,8,Marketing & Promo,false,false,false,false,false,Global
+106,8,Quality & Inspections,false,false,false,false,false,Global
+107,8,City Expansion Strategy,false,false,false,false,false,Global
+108,8,City Expansion Tracker,false,false,false,false,false,Global
+109,8,Notifications,true,true,true,false,false,Global
+110,8,Company Profile,false,false,false,false,false,Global
+111,8,Reports & Analytics,true,false,false,false,false,Global
+112,8,System Settings,false,false,false,false,false,Global
+113,9,Operations Dashboard,true,false,false,false,false,Global
+114,9,Property Management,true,true,true,false,false,Global
+115,9,Partner CRM,true,true,true,false,false,Global
+116,9,Booking Management,true,true,true,false,false,Global
+117,9,Guest Management,true,true,true,false,false,Global
+118,9,Revenue & Payouts,true,false,false,false,false,Global
+119,9,Marketing & Promo,true,false,false,false,false,Global
+120,9,Quality & Inspections,true,true,true,false,false,Global
+121,9,City Expansion Strategy,false,false,false,false,false,Global
+122,9,City Expansion Tracker,true,false,false,false,false,Global
+123,9,Notifications,true,false,false,false,false,Global
+124,9,Company Profile,false,false,false,false,false,Global
+125,9,Reports & Analytics,true,false,false,false,false,Global
+126,9,System Settings,false,false,false,false,false,Global
+127,10,Operations Dashboard,false,false,false,false,false,Global
+128,10,Property Management,false,false,false,false,false,Global
+129,10,Partner CRM,false,false,false,false,false,Global
+130,10,Booking Management,false,false,false,false,false,Global
+131,10,Guest Management,false,false,false,false,false,Global
+132,10,Revenue & Payouts,false,false,false,false,false,Global
+133,10,Marketing & Promo,false,false,false,false,false,Global
+134,10,Quality & Inspections,false,false,false,false,false,Global
+135,10,City Expansion Strategy,false,false,false,false,false,Global
+136,10,City Expansion Tracker,false,false,false,false,false,Global
+137,10,Notifications,true,true,true,false,false,Global
+138,10,Company Profile,false,false,false,false,false,Global
+139,10,Reports & Analytics,false,false,false,false,false,Global
+140,10,System Settings,true,true,true,true,true,Global

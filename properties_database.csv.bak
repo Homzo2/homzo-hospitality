@@ -1,0 +1,17 @@
+"ID",Name,Location,Type,Price,Beds,Baths,Area,Image,Status,Date_Added,Inventory
+1,Mumbai Premier Hotel 1,Mumbai,couples,3000,2,2,350,couple_room.png,Signed,2026-07-19T20:44:14.022Z,10
+2,Mumbai Premier Hotel 2,Mumbai,couples,3000,2,2,350,couple_room.png,Signed,2026-07-19T20:44:14.022Z,10
+3,Mumbai Family Haven,Mumbai,families,2500,3,2,750,family_room.png,Signed,2026-07-19T20:44:14.022Z,10
+4,Mumbai Grand Family Suite,Mumbai,families,4500,3,3,950,family_room.png,Signed,2026-07-19T20:44:14.022Z,10
+5,Mumbai Premier Hotel 5,Mumbai,couples,3000,2,2,350,couple_room.png,Signed,2026-07-19T20:44:14.022Z,10
+6,Mumbai Premier Hotel 6,Mumbai,couples,3000,2,2,350,couple_room.png,Signed,2026-07-19T20:44:14.022Z,10
+7,Mumbai Premier Hotel 7,Mumbai,couples,3000,2,2,350,couple_room.png,Signed,2026-07-19T20:44:14.022Z,10
+8,Mumbai Premier Hotel 8,Mumbai,couples,3000,2,2,350,couple_room.png,Signed,2026-07-19T20:44:14.022Z,10
+9,Delhi Residency 1,Delhi,tourists,2500,2,2,320,tourist_room.png,Signed,2026-07-19T20:44:14.022Z,10
+10,Delhi Residency 2,Delhi,tourists,2500,2,2,320,tourist_room.png,Signed,2026-07-19T20:44:14.022Z,10
+11,Delhi Scholar Nest,Delhi,students,4200,1,1,220,student_room.png,Signed,2026-07-19T20:44:14.022Z,10
+12,Delhi Campus Pad,Delhi,students,5000,1,1,260,student_room.png,Signed,2026-07-19T20:44:14.022Z,10
+13,Delhi International Inn,Delhi,foreigners,35,1,1,380,foreigner_room.png,Signed,2026-07-19T20:44:14.022Z,10
+14,Delhi Global Residency,Delhi,foreigners,45,2,2,550,foreigner_room.png,Signed,2026-07-19T20:44:14.022Z,10
+15,Bangalore Suites 1,Bangalore,employees,3500,2,2,400,employee_room.png,Signed,2026-07-19T20:44:14.022Z,10
+16,Bangalore Suites 2,Bangalore,employees,3500,2,2,400,employee_room.png,Signed,2026-07-19T20:44:14.022Z,10

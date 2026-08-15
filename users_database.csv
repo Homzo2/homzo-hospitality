@@ -1,0 +1,8 @@
+"ID",Name,Email,Password,Phone,Role_ID,Assigned_City_ID,Status,Created_By,Last_Login
+1,Super Admin / CEO,admin@homzo.in,240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9,9999999999,1,,Active,system,2026-07-19T19:52:10.367Z
+2,Homzo COO,coo@homzo.in,8fd722b7f2b87941be981d0c2923ee3bf2884fbd9447ebad59a862cba0a9d091,9888888888,2,,Active,admin@homzo.in,
+3,Homzo CTO,cto@homzo.in,32b36a0ef23cda2e957675d1d83f851384df13db798378bd8fb51fc5391c9f05,9777777777,3,,Active,admin@homzo.in,
+4,Mumbai Manager,mumbai_mgr@homzo.in,68dc2ec6f4e7d6b3639a995215b55bddebf5172a77e621a4465053a6867ffdc2,9666666666,5,1,Active,admin@homzo.in,
+5,Delhi Manager,delhi_mgr@homzo.in,642875b97b37a4547c4c810b82dc07004ebd2f66f1dbfae46cd61fc3de236e5e,9555555555,5,2,Active,admin@homzo.in,
+6,Operations Staff 1,ops@homzo.in,362e4f232c0f2fb110ac652338b3f20d2b99db1e7c012b7eb3382f27a3086251,9444444444,9,,Active,admin@homzo.in,
+7,Lead Developer,dev@homzo.in,87274af01876341455b32d805946f272871bb42effa6604dccf28bb027afa82b,9333333333,10,,Active,admin@homzo.in,

@@ -1,0 +1,6 @@
+"ID",EmployeeID,Name,Email,Role,Cities,Status,Documents
+1,EMP-2026-0001,Rishabh Kumar Modanwal,admin@homzo.in,Super Admin,Global,active,[]
+2,EMP-2026-0002,Mumbai Manager,mumbai_mgr@homzo.in,City Manager,Mumbai,active,[]
+3,EMP-2026-0003,Delhi Manager,delhi_mgr@homzo.in,City Manager,Delhi,active,[]
+4,EMP-2026-0004,Operations Staff 1,ops@homzo.in,Operations Executive,Global,active,[]
+5,EMP-2026-0005,Lead Developer,dev@homzo.in,Developer,Global,active,[]
