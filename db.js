@@ -402,8 +402,31 @@ function readExcelDb(filePath) {
 
 // Database Seeder
 async function seedFromCSV() {
-  console.log('--- Checking SQLite Database Seeding ---');
+  console.log('--- Checking Database Seeding ---');
+  const isProduction = process.env.NODE_ENV === 'production';
   for (const [csvFile, model] of Object.entries(fileToModelMap)) {
+    if (isProduction) {
+      const transactionalFiles = [
+        'clients_database.csv',
+        'inquiries_database.csv',
+        'reviews_database.csv',
+        'partners_database.csv',
+        'audit_logs_database.csv',
+        'tickets_database.csv',
+        'tasks_database.csv',
+        'payouts_database.csv',
+        'applications_database.csv',
+        'customers_database.csv',
+        'city_status_history_database.csv',
+        'city_approval_queue_database.csv',
+        'permission_changelog_database.csv',
+        'partner_meta_database.csv',
+        'notifications_database.csv'
+      ];
+      if (transactionalFiles.includes(csvFile)) {
+        continue;
+      }
+    }
     const count = await model.count();
     if (count === 0) {
       const csvPath = path.resolve(__dirname, csvFile);
