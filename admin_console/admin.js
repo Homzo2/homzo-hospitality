@@ -6960,8 +6960,6 @@ async function togglePartnerVerification(id, currentStatus) {
   }
 }
 
-}
-
 // ─── PARTNER ONBOARDING REVIEW & LifeCycle MANAGEMENT ───
 let currentReviewProperty = null;
 
