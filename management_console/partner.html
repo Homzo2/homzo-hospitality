@@ -1,0 +1,1560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HOMZO Partner – Property Partner Portal</title>
+  <meta name="description" content="HOMZO Property Partner Portal – Manage your assigned hotels and bookings.">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/admin_console/admin.css">
+  <link rel="stylesheet" href="partner_login.css?v=2">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    /* Custom styles for partner portal */
+    .verification-banner {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px;
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      border-radius: var(--radius-md);
+      margin-bottom: 28px;
+    }
+    .verification-banner.verified {
+      background: rgba(34, 197, 94, 0.08);
+      border-color: rgba(34, 197, 94, 0.25);
+    }
+    .verification-banner.rejected {
+      background: rgba(239, 68, 68, 0.08);
+      border-color: rgba(239, 68, 68, 0.25);
+    }
+    
+    /* Calendar Grid */
+    .calendar-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-top: 16px;
+    }
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+    .calendar-day-label {
+      text-align: center;
+      font-weight: 700;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      padding-bottom: 8px;
+    }
+    .calendar-day {
+      aspect-ratio: 1.2;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .calendar-day:hover {
+      background: rgba(255,255,255,0.06);
+      border-color: var(--primary-glow);
+    }
+    .calendar-day.blocked {
+      background: rgba(239, 68, 68, 0.08);
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+    .calendar-day.blocked .day-status {
+      color: var(--danger);
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+    .calendar-day .day-num {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    .calendar-day .day-status {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-align: right;
+    }
+    
+    /* Ticket Items */
+    .ticket-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .ticket-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      transition: var(--transition);
+    }
+    .ticket-card:hover {
+      border-color: var(--border-strong);
+    }
+    .ticket-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .ticket-reply {
+      background: rgba(255,255,255,0.03);
+      border-left: 3px solid var(--primary);
+      padding: 12px 16px;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin-top: 14px;
+    }
+    
+    /* Document dropzone */
+    .file-dropzone {
+      border: 2px dashed var(--border-strong);
+      border-radius: var(--radius-md);
+      padding: 32px;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      background: rgba(255,255,255,0.01);
+    }
+    .file-dropzone:hover {
+      border-color: var(--primary);
+      background: rgba(255, 92, 53, 0.02);
+    }
+
+    .form-switch-wrap {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 24px;
+      background: rgba(255,255,255,0.03);
+      padding: 6px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+    }
+    .form-switch-btn {
+      flex: 1;
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: none;
+      color: var(--text-secondary);
+      font-weight: 600;
+      font-size: 0.82rem;
+      transition: var(--transition);
+    }
+    .form-switch-btn.active {
+      background: var(--primary);
+      color: #fff;
+    }
+    
+    /* Register form custom styles */
+    #partnerRegisterForm {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      text-align: left;
+    }
+    #partnerRegisterForm .theme-input-group {
+      margin-bottom: 0;
+    }
+    #partnerRegisterForm .theme-input-group.full-width {
+      grid-column: 1 / -1;
+    }
+    #partnerRegisterForm .theme-input-group input,
+    #partnerRegisterForm .theme-input-group textarea {
+      padding: 12px 16px 12px 42px;
+      font-size: 0.85rem;
+      border-radius: 12px;
+      border: 1px solid var(--theme-border);
+      background-color: var(--theme-input-bg);
+      color: var(--theme-navy);
+      width: 100%;
+      font-family: inherit;
+      transition: all 0.3s;
+      outline: none;
+    }
+    #partnerRegisterForm .theme-input-group textarea {
+      resize: none;
+      padding-top: 10px;
+    }
+    #partnerRegisterForm .theme-input-group input:focus,
+    #partnerRegisterForm .theme-input-group textarea:focus {
+      border-color: var(--theme-gold);
+      background-color: #ffffff;
+      box-shadow: 0 0 0 4px rgba(197, 155, 39, 0.1);
+    }
+    #partnerRegisterForm .theme-input-group i {
+      left: 16px;
+      font-size: 14px;
+      color: #888888;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    #partnerRegisterForm .theme-input-group.full-width i {
+      top: 50%;
+    }
+    #partnerRegisterForm .theme-input-group textarea + i,
+    #partnerRegisterForm .theme-input-group i[style*="top: 20px"] {
+      top: 22px !important;
+      transform: none;
+    }
+    #partnerRegisterForm button {
+      grid-column: 1 / -1;
+      padding: 14px;
+      font-size: 0.92rem;
+      border-radius: 12px;
+    }
+    #loginScreen .theme-login-card.register-mode {
+      max-width: 420px;
+    }
+  </style>
+</head>
+<body class="admin-body">
+
+<!-- ════ LOGIN SCREEN ════ -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-theme-wrapper">
+    <!-- Left Column: Lobby Info (visible on desktop) -->
+    <div class="theme-lobby-column"></div>
+    
+    <!-- Right Column: Login Panel -->
+    <div class="theme-card-column">
+      <div class="theme-login-card">
+        <!-- Logo Header -->
+        <div class="card-logo-header">
+          <div class="logo-icon-wrap">
+            <img src="/homzo_logo.png" alt="HOMZO Logo" class="theme-logo-img">
+          </div>
+        </div>
+        
+        <h2 id="loginCardTitle">Welcome Back!</h2>
+        <p class="subtitle" id="loginCardSub">Sign in to continue to your account</p>
+        
+        <form id="partnerLoginForm" onsubmit="return false;">
+          <div class="theme-input-group">
+            <i class="fa-regular fa-user"></i>
+            <input type="email" id="loginEmail" placeholder="Username or Email" value="partner@homzo.in" />
+          </div>
+          
+          <div class="theme-input-group">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" id="loginPassword" placeholder="Password" value="partner123" />
+            <i class="fa-regular fa-eye-slash pw-toggle-icon" id="pwToggleTheme"></i>
+          </div>
+          
+          <div class="form-actions-row">
+            <label class="remember-me">
+              <input type="checkbox" id="rememberMe" />
+              <span>Remember Me</span>
+            </label>
+            <a href="#" id="forgotPasswordBtn" class="gold-link">Forgot Password?</a>
+          </div>
+          
+          <button type="button" class="theme-btn-login" id="loginBtn">
+            <i class="fa-solid fa-right-to-bracket"></i> Login
+          </button>
+        </form>
+
+        <!-- Partner Onboarding Request Form -->
+        <form id="partnerRegisterForm" onsubmit="return false;" style="display:none">
+          <div class="theme-input-group full-width">
+            <i class="fa-regular fa-user"></i>
+            <input type="text" id="regName" placeholder="Full Name / Brand Name" required />
+          </div>
+          <div class="theme-input-group">
+            <i class="fa-regular fa-envelope"></i>
+            <input type="email" id="regEmail" placeholder="Email Address" required />
+          </div>
+          <div class="theme-input-group">
+            <i class="fa-solid fa-phone"></i>
+            <input type="text" id="regPhone" placeholder="Phone Number" required />
+          </div>
+          <div class="theme-input-group full-width">
+            <i class="fa-solid fa-hotel"></i>
+            <input type="text" id="regPropDetails" placeholder="Property Location & Rooms (e.g. Mumbai, 15 Rooms)" required />
+          </div>
+          <div class="theme-input-group full-width" style="margin-bottom: 0;">
+            <i class="fa-solid fa-comment-dots" style="top: 20px;"></i>
+            <textarea id="regMessage" placeholder="Brief details about your property (amenities, rates)..." rows="2" required></textarea>
+          </div>
+          <button type="button" class="theme-btn-login" id="submitRegBtn">
+            <i class="fa-solid fa-paper-plane"></i> Submit Request
+          </button>
+        </form>
+
+        <div style="text-align:center; margin-top:16px; font-size:0.85rem;" id="toggleFormText">
+          <span id="toggleTextLabel">Don't have an account?</span> <a href="#" id="toggleRegisterLink" class="gold-link">Register Property</a>
+        </div>
+
+
+        
+        <div class="secure-login-footer">
+          <i class="fa-solid fa-shield-halved"></i> Secure Login
+        </div>
+        
+        <!-- Back to Website -->
+        <a href="/" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back to Website</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ PARTNER PORTAL LAYOUT ════ -->
+<div class="admin-layout" id="partnerLayout" style="display:none">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <img src="/homzo_logo.png" alt="HOMZO Logo" class="brand-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+      <span style="display: none; font-family: 'Sora', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--primary); letter-spacing: 1px;">HOMZO</span>
+    </div>
+    <div class="sidebar-admin-info">
+      <div class="admin-avatar" id="partnerAvatar">P</div>
+      <div>
+        <strong id="partnerName">Default Partner</strong>
+        <span>Homzo Property Partner</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-group-label">Main</div>
+      <a href="#" class="sidebar-link active" data-page="dashboard">
+        <i class="fa-solid fa-chart-pie"></i> Dashboard
+      </a>
+      <a href="#" class="sidebar-link" data-page="properties">
+        <i class="fa-solid fa-hotel"></i> Property Config
+      </a>
+      <a href="#" class="sidebar-link" data-page="pricing">
+        <i class="fa-solid fa-calendar-days"></i> Pricing & Calendar
+      </a>
+      <a href="#" class="sidebar-link" data-page="bookings">
+        <i class="fa-solid fa-calendar-check"></i> Bookings
+        <span class="nav-badge" id="bkgBadge">0</span>
+      </a>
+      <div class="nav-group-label" style="margin-top:16px">Finance & Legal</div>
+      <a href="#" class="sidebar-link" data-page="revenue">
+        <i class="fa-solid fa-indian-rupee-sign"></i> Payouts & Earnings
+      </a>
+      <a href="#" class="sidebar-link" data-page="verification">
+        <i class="fa-solid fa-file-shield"></i> Verification & KYC
+      </a>
+      <div class="nav-group-label" style="margin-top:16px">Customer Relations</div>
+      <a href="#" class="sidebar-link" data-page="reviews">
+        <i class="fa-solid fa-star-half-stroke"></i> Guest Reviews
+      </a>
+      <a href="#" class="sidebar-link" data-page="support">
+        <i class="fa-solid fa-headset"></i> Support & Help
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="/" class="sidebar-link" style="color:var(--text-muted)">
+        <i class="fa-solid fa-arrow-up-right-from-square"></i> Homzo Portal
+      </a>
+      <button class="sidebar-link" id="logoutBtn" style="color:var(--danger); background:none; border:none; width:100%; text-align:left;">
+        <i class="fa-solid fa-right-from-bracket"></i> Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="admin-main" id="adminMain">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <button class="topbar-hamburger" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
+      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div class="topbar-actions">
+        <!-- Notifications Bell -->
+        <button class="topbar-icon-btn" id="notifBtn" title="Notifications">
+          <i class="fa-solid fa-bell"></i>
+          <span class="notif-dot" style="display:none;" id="notifDot"></span>
+        </button>
+        <div style="font-size:0.8rem; color:var(--text-muted); padding:4px 8px; border:1px solid var(--border); border-radius:var(--radius-sm); font-weight:700;" id="verificationStatusBadge">KYC PENDING</div>
+      </div>
+    </header>
+
+    <!-- Page Content Container -->
+    <div class="page-content" id="pageContent">
+
+      <!-- ─── PARTNER DASHBOARD ─── -->
+      <div class="page active" id="page-dashboard">
+        <div id="kycBanner" class="verification-banner" style="display:none;">
+          <div style="font-size:24px; color:var(--warning);"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          <div style="flex:1;">
+            <strong style="color:var(--text-primary); display:block; margin-bottom:2px;">Complete Property Verification (KYC)</strong>
+            <span style="font-size:0.82rem; color:var(--text-secondary);">Please upload your GST, PAN, and Bank details to enable automatic payouts.</span>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="switchPage('verification')">Verify Now</button>
+        </div>
+
+        <div class="page-header">
+          <h1 id="welcomeHeader">Good evening, Partner! 👋</h1>
+          <p>Here is the overview for your assigned properties.</p>
+        </div>
+
+        <!-- KPI Grid -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:rgba(255,92,53,0.12); color:var(--primary)"><i class="fa-solid fa-calendar-days"></i></div>
+            <div class="kpi-info">
+              <span>Total Bookings</span>
+              <strong id="dashBookings">0</strong>
+              <div class="kpi-change positive"><i class="fa-solid fa-chevron-right"></i> All time bookings</div>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:rgba(59,130,246,0.12); color:var(--info)"><i class="fa-solid fa-bed"></i></div>
+            <div class="kpi-info">
+              <span>Occupancy Rate</span>
+              <strong id="dashOccupancy">0%</strong>
+              <div class="kpi-change positive"><i class="fa-solid fa-arrow-up"></i> 8.4% vs last week</div>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:rgba(34,197,94,0.12); color:var(--success)"><i class="fa-solid fa-wallet"></i></div>
+            <div class="kpi-info">
+              <span>Net Earnings</span>
+              <strong id="dashEarnings">₹0</strong>
+              <div class="kpi-change positive"><i class="fa-solid fa-percent"></i> Deducted 15% fee</div>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:rgba(168,85,247,0.12); color:#a855f7"><i class="fa-solid fa-user-group"></i></div>
+            <div class="kpi-info">
+              <span>Active Guests</span>
+              <strong id="dashGuests">0</strong>
+              <div class="kpi-change positive"><i class="fa-solid fa-arrow-up"></i> In-house guests</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bottom-row" style="margin-top:24px;">
+          <!-- Recent Activity & Checklist -->
+          <div class="recent-table card" style="flex:1;">
+            <div class="table-header">
+              <h4>Upcoming Check-ins / Check-outs</h4>
+              <button class="btn btn-ghost btn-sm" onclick="switchPage('bookings')">View Bookings</button>
+            </div>
+            <table class="data-table" id="upcomingTable">
+              <thead>
+                <tr>
+                  <th>Guest</th><th>Check-In</th><th>Check-Out</th><th>Property</th><th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="upcomingTbody">
+                <tr><td colspan="5" style="text-align:center; color:var(--text-muted);">No upcoming guests today.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Activity History log -->
+          <div class="occupancy-card card" style="flex: 0 0 360px;">
+            <h4>Recent Security Activity</h4>
+            <div style="display:flex; flex-direction:column; gap:16px; margin-top:16px;" id="activityLogContainer">
+              <div style="text-align:center; color:var(--text-muted); padding:20px;">No recent logs.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── PROPERTY ONBOARDING & CONFIG WIZARD ─── -->
+      <div class="page" id="page-properties">
+        <div class="page-header" style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <h1>Property Onboarding & Setup</h1>
+            <p>Onboard your property, submit compliance documents, setup inventory, and track verification status.</p>
+          </div>
+          <div id="foundingPartnerBadgeContainer" style="display:none;">
+            <span class="badge badge-success" style="font-size:1rem; padding:8px 16px; border-radius:30px; background:linear-gradient(135deg, #fbbf24, #f59e0b); color:#111827; font-weight:700;">
+              🏆 FOUNDING PROPERTY PARTNER
+            </span>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 260px 1fr; gap:24px;">
+          <!-- Left side List -->
+          <div class="card" style="padding:16px; height:fit-content;">
+            <h4 style="margin-bottom:12px;">Assigned Stays</h4>
+            <div style="display:flex; flex-direction:column; gap:8px;" id="partnerPropList">
+              <!-- Render property buttons here -->
+            </div>
+          </div>
+          <!-- Right side Wizard -->
+          <div style="display:flex; flex-direction:column; gap:20px; flex:1;">
+            <!-- Onboarding Stage Banner -->
+            <div class="card" id="onboardingStageBanner" style="display:none; padding:16px; border-left:5px solid var(--primary); justify-content:space-between; align-items:center;">
+              <div>
+                <strong style="font-size:1.05rem; color:var(--primary);" id="propStageTitle">Draft Mode</strong>
+                <p style="font-size:0.8rem; color:var(--text-secondary); margin-top:4px;" id="propStageDesc">Fill out all sections below and click Submit to start verification.</p>
+                <div id="correctionNotesBox" style="display:none; margin-top:10px; padding:10px; background:rgba(239,68,68,0.1); border:1px dashed var(--danger); border-radius:var(--radius-sm); font-size:0.78rem; color:var(--danger);">
+                  <strong>Admin Feedback:</strong> <span id="propCorrectionNotes"></span>
+                </div>
+              </div>
+              <div id="badgeStatusRight" style="font-weight:700; text-transform:uppercase; font-size:0.8rem; letter-spacing:1px; background:rgba(255,255,255,0.05); padding:6px 12px; border-radius:var(--radius-sm);">DRAFT</div>
+            </div>
+
+            <div class="card" id="propDetailsEditor" style="display:none; padding:24px;">
+              <!-- Wizard Tabs Navigation -->
+              <div class="wizard-tabs" style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:12px; margin-bottom:24px; overflow-x:auto; gap:12px;">
+                <button type="button" class="wz-tab-btn active" data-wz-step="1" onclick="switchWzStep(1)">1. Basic Info</button>
+                <button type="button" class="wz-tab-btn" data-wz-step="2" onclick="switchWzStep(2)">2. Owner KYC</button>
+                <button type="button" class="wz-tab-btn" data-wz-step="3" onclick="switchWzStep(3)">3. Deeds &amp; Compliance</button>
+                <button type="button" class="wz-tab-btn" data-wz-step="4" onclick="switchWzStep(4)">4. Bank &amp; Payouts</button>
+                <button type="button" class="wz-tab-btn" data-wz-step="5" onclick="switchWzStep(5)">5. Rooms &amp; Photos</button>
+                <button type="button" class="wz-tab-btn" data-wz-step="6" onclick="switchWzStep(6)">6. Policies &amp; Legal</button>
+              </div>
+
+              <form id="propOnboardingForm">
+                <input type="hidden" id="editPropId">
+
+                <!-- STEP 1: BASIC INFO & ELIGIBILITY -->
+                <div class="wz-step-content" id="wz-step-1">
+                  <h4 style="margin-bottom:16px; color:var(--primary);"><i class="fa-solid fa-hotel" style="margin-right:8px;"></i>Property Basic Info &amp; Capacity</h4>
+                  <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                    <div class="form-group">
+                      <label>Property Name (Public)</label>
+                      <input type="text" class="form-control" id="editPropName" required>
+                    </div>
+                    <div class="form-group">
+                      <label>Property Type</label>
+                      <select class="form-control" id="editPropType" required>
+                        <option value="Hotel">Hotel</option>
+                        <option value="Guest House">Guest House</option>
+                        <option value="PG">PG</option>
+                        <option value="Homestay">Homestay</option>
+                        <option value="Serviced Apartment">Serviced Apartment</option>
+                        <option value="Boutique Stay">Boutique Stay</option>
+                        <option value="Other">Other eligible accommodation</option>
+                      </select>
+                    </div>
+                    <div class="form-group" style="grid-column:1/-1;">
+                      <label>Complete Address</label>
+                      <input type="text" class="form-control" id="wzAddress" placeholder="Building, Street, Area" required>
+                    </div>
+                    <div class="form-group">
+                      <label>City</label>
+                      <input type="text" class="form-control" id="wzCity" required>
+                    </div>
+                    <div class="form-group">
+                      <label>State</label>
+                      <input type="text" class="form-control" id="wzState" required>
+                    </div>
+                    <div class="form-group">
+                      <label>PIN Code</label>
+                      <input type="text" class="form-control" id="wzPincode" required maxlength="6">
+                    </div>
+                    <div class="form-group">
+                      <label>Google Maps Location Link</label>
+                      <input type="text" class="form-control" id="wzGmapsLink" placeholder="https://maps.google.com/?q=...">
+                    </div>
+                    <div class="form-group">
+                      <label>Latitude</label>
+                      <input type="number" step="any" class="form-control" id="wzLatitude">
+                    </div>
+                    <div class="form-group">
+                      <label>Longitude</label>
+                      <input type="number" step="any" class="form-control" id="wzLongitude">
+                    </div>
+                    
+                    <h5 style="grid-column:1/-1; margin:16px 0 6px 0; border-bottom:1px solid var(--border); padding-bottom:6px; color:var(--primary);">Contact Person Details</h5>
+                    <div class="form-group">
+                      <label>Contact Person Name</label>
+                      <input type="text" class="form-control" id="wzContactPerson" required>
+                    </div>
+                    <div class="form-group">
+                      <label>Property Phone Number</label>
+                      <input type="text" class="form-control" id="wzPropPhone" required>
+                    </div>
+                    <div class="form-group" style="grid-column:1/-1;">
+                      <label>Property Email Address</label>
+                      <input type="email" class="form-control" id="wzPropEmail" required>
+                    </div>
+
+                    <h5 style="grid-column:1/-1; margin:16px 0 6px 0; border-bottom:1px solid var(--border); padding-bottom:6px; color:var(--primary);">Property Capacity &amp; Requirements</h5>
+                    <div class="form-group">
+                      <label>Total Rentable Rooms *</label>
+                      <input type="number" class="form-control" id="wzTotalRooms" required oninput="validateRoomRequirement()">
+                      <div id="roomRequirementWarning" style="display:none; color:var(--danger); font-size:0.75rem; margin-top:4px; font-weight:600;">
+                        ⚠️ This property currently does not meet Homzo's minimum room requirement (minimum 5 rentable rooms).
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label>Available Rooms</label>
+                      <input type="number" class="form-control" id="wzAvailableRooms" required>
+                    </div>
+                    <div class="form-group">
+                      <label>Maximum Guest Capacity</label>
+                      <input type="number" class="form-control" id="wzMaxGuests" required>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- STEP 2: OWNER IDENTITY & KYC -->
+                <div class="wz-step-content" id="wz-step-2" style="display:none;">
+                  <h4 style="margin-bottom:16px; color:var(--primary);"><i class="fa-solid fa-passport" style="margin-right:8px;"></i>Owner Identity &amp; KYC Documents</h4>
+                  <div style="display:flex; flex-direction:column; gap:16px;">
+                    <div class="form-group">
+                      <label>Ownership Entity Type</label>
+                      <select class="form-control" id="wzEntityType" onchange="toggleEntityKyc()" required>
+                        <option value="Individual">Individual Owner</option>
+                        <option value="Company">Company / LLP / Partnership Firm</option>
+                      </select>
+                    </div>
+
+                    <!-- Individual Fields -->
+                    <div id="wzKycIndividualBox" style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                      <div class="form-group">
+                        <label>Aadhaar Card Number</label>
+                        <input type="text" class="form-control" id="wzAadhaarNum" maxlength="12" placeholder="12-digit Aadhaar Number">
+                      </div>
+                      <div class="form-group">
+                        <label>PAN Card Number</label>
+                        <input type="text" class="form-control" id="wzPanNum" maxlength="10" placeholder="e.g. ABCDE1234F">
+                      </div>
+                      
+                      <!-- Aadhaar Upload -->
+                      <div class="form-group" style="grid-column:1/-1; display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.01); border:1px solid var(--border); padding:10px; border-radius:var(--radius-sm);">
+                        <div>
+                          <strong>Aadhaar Card Copy (PDF/Image)</strong>
+                          <span style="display:block; font-size:0.75rem; color:var(--text-muted);" id="lblAadhaarDoc">Not Uploaded</span>
+                        </div>
+                        <input type="file" id="fileAadhaar" style="display:none;" onchange="uploadDocFile('aadhaar', 'fileAadhaar', 'lblAadhaarDoc')">
+                        <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('fileAadhaar').click()"><i class="fa-solid fa-upload"></i> Upload</button>
+                      </div>
+
+                      <!-- PAN Upload -->
+                      <div class="form-group" style="grid-column:1/-1; display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.01); border:1px solid var(--border); padding:10px; border-radius:var(--radius-sm);">
+                        <div>
+                          <strong>PAN Card Scan (PDF/Image)</strong>
+                          <span style="display:block; font-size:0.75rem; color:var(--text-muted);" id="lblPanDoc">Not Uploaded</span>
+                        </div>
+                        <input type="file" id="filePan" style="display:none;" onchange="uploadDocFile('pan', 'filePan', 'lblPanDoc')">
+                        <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('filePan').click()"><i class="fa-solid fa-upload"></i> Upload</button>
+                      </div>
+
+                      <!-- Photo Upload -->
+                      <div class="form-group" style="grid-column:1/-1; display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.01); border:1px solid var(--border); padding:10px; border-radius:var(--radius-sm);">
+                        <div>
+                          <strong>Owner's Photograph</strong>
+                          <span style="display:block; font-size:0.75rem; color:var(--text-muted);" id="lblPhotoDoc">Not Uploaded</span>
+                        </div>
+                        <input type="file" id="filePhoto" style="display:none;" onchange="uploadDocFile('ownerPhoto', 'filePhoto', 'lblPhotoDoc')">
+                        <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('filePhoto').click()"><i class="fa-solid fa-upload"></i> Upload</button>
+                      </div>
+                    </div>
+
+                    <!-- Company Fields -->
+                    <div id="wzKycCompanyBox" style="display:none; grid-template-columns:1fr 1fr; gap:20px;">
+                      <div class="form-group">
+                        <label>Company / Firm PAN</label>
+                        <input type="text" class="form-control" id="wzCompanyPan" placeholder="Company PAN">
+                      </div>
+                      <div class="form-group">
+                        <label>Authorized Person Aadhaar/PAN</label>
+                        <input type="text" class="form-control" id="wzAuthPersonId" placeholder="Aadhaar or PAN card number">
+                      </div>
+
+                      <!-- Incorporation Doc -->
+                      <div class="form-group" style="grid-column:1/-1; display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.01); border:1px solid var(--border); padding:10px; border-radius:var(--radius-sm);">
+                        <div>
+                          <strong>Certificate of Incorporation / Firm Reg Document</strong>
+                          <span style="display:block; font-size:0.75rem; color:var(--text-muted);" id="lblIncorpDoc">Not Uploaded</span>
+                        </div>
+                        <input type="file" id="fileIncorp" style="display:none;" onchange="uploadDocFile('incorporation', 'fileIncorp', 'lblIncorpDoc')">
+                        <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('fileIncorp').click()"><i class="fa-solid fa-upload"></i> Upload</button>
+                      </div>
+
+                      <!-- Board Resolution / Auth letter -->
+                      <div class="form-group" style="grid-column:1/-1; display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.01); border:1px solid var(--border); padding:10px; border-radius:var(--radius-sm);">
+                        <div>
+                          <strong>Authorization Letter / Board Resolution</strong>
+                          <span style="display:block; font-size:0.75rem; color:var(--text-muted);" id="lblAuthDoc">Not Uploaded</span>
+                        </div>
+                        <input type="file" id="fileAuth" style="display:none;" onchange="uploadDocFile('authorization', 'fileAuth', 'lblAuthDoc')">
+                        <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('fileAuth').click()"><i class="fa-solid fa-upload"></i> Upload</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- STEP 3: PROPERTY DEEDS & COMPLIANCE -->
+                <div class="wz-step-content" id="wz-step-3" style="display:none;">
+                  <h4 style="margin-bottom:16px; color:var(--primary);"><i class="fa-solid fa-file-invoice" style="margin-right:8px;"></i>Property Ownership Deeds &amp; Compliance Docs</h4>
+                  <div style="display:flex; flex-direction:column; gap:16px;">
+                    <!-- Ownership Docs -->
+                    <h5 style="margin-bottom:6px; color:var(--primary); border-bottom:1px solid var(--border); padding-bottom:6px;">1. Ownership &amp; Possession Copies</h5>
+                    <div style="display:flex; justify-content:between; align-items:center; background:rgba(255,255,255,0.01); border:1px solid var(--border); padding:10px; border-radius:var(--radius-sm);">
+                      <div>
+                        <strong>Primary Ownership Proof (Sale Deed / Conveyance Deed / Property Tax Receipt)</strong>
+                        <span style="display:block; font-size:0.75rem; color:var(--text-muted);" id="lblOwnershipDoc">Not Uploaded</span>
+                      </div>
+                      <input type="file" id="fileOwnership" style="display:none;" onchange="uploadDocFile('ownership', 'fileOwnership', 'lblOwnershipDoc')">
+                      <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('fileOwnership').click()"><i class="fa-solid fa-upload"></i> Upload</button>
+                    </div>
+
+                    <div style="display:flex; justify-content:between; align-items:center; background:rgba(255,255,255,0.01); border:1px solid var(--border); padding:10px; border-radius:var(--radius-sm);">
+                      <div>
+                        <strong>Lease / Rent Agreement (If Rented/Leased)</strong>
+                        <span style="display:block; font-size:0.75rem; color:var(--text-muted);" id="lblLeaseDoc">Not Uploaded (Optional)</span>
+                      </div>
+                      <input type="file" id="fileLease" style="display:none;" onchange="uploadDocFile('rentAgreement', 'fileLease', 'lblLeaseDoc')">
+                      <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('fileLease').click()"><i class="fa-solid fa-upload"></i> Upload</button>
+                    </div>
+
+                    <div style="display:flex; justify-content:between; align-items:center; background:rgba(255,255,255,0.01); border:1px solid var(--border); padding:10px; border-radius:var(--radius-sm);">
+                      <div>
+                        <strong>Owner NOC Copy (If Managed/Operated by third-party)</strong>
+                        <span style="display:block; font-size:0.75rem; color:var(--text-muted);" id="lblNocDoc">Not Uploaded (Optional)</span>
+                      </div>
+                      <input type="file" id="fileNoc" style="display:none;" onchange="uploadDocFile('noc', 'fileNoc', 'lblNocDoc')">
+                      <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('fileNoc').click()"><i class="fa-solid fa-upload"></i> Upload</button>
+                    </div>
+
+                    <!-- Business / Tax Docs -->
+                    <h5 style="margin:12px 0 6px 0; color:var(--primary); border-bottom:1px solid var(--border); padding-bottom:6px;">2. Business &amp; Tax Registrations</h5>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                      <div class="form-group">
+                        <label>GST Registered Status</label>
+                        <select class="form-control" id="wzGstStatus" onchange="toggleGstInput()" required>
+                          <option value="NO">NO / UNREGISTERED</option>
+                          <option value="YES">YES / REGISTERED</option>
+                          <option value="NOT_APPLICABLE">NOT APPLICABLE</option>
+                        </select>
+                      </div>
+                      <div class="form-group" id="wzGstNumberBox" style="display:none;">
+                        <label>GSTIN (GST Number)</label>
+                        <input type="text" class="form-control" id="wzGstNumber" placeholder="15-digit GSTIN">
+                      </div>
+                    </div>
+
+                    <div id="wzGstUploadBox" style="display:none; justify-content:between; align-items:center; background:rgba(255,255,255,0.01); border:1px solid var(--border); padding:10px; border-radius:var(--radius-sm);">
+                      <div>
+                        <strong>GST Registration Certificate</strong>
+                        <span style="display:block; font-size:0.75rem; color:var(--text-muted);" id="lblGstDoc">Not Uploaded</span>
+                      </div>
+                      <input type="file" id="fileGst" style="display:none;" onchange="uploadDocFile('gst', 'fileGst', 'lblGstDoc')">
+                      <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('fileGst').click()"><i class="fa-solid fa-upload"></i> Upload</button>
+                    </div>
+
+                    <div style="display:flex; justify-content:between; align-items:center; background:rgba(255,255,255,0.01); border:1px solid var(--border); padding:10px; border-radius:var(--radius-sm);">
+                      <div>
+                        <strong>LLP / Company / Partnership Registration Certificate</strong>
+                        <span style="display:block; font-size:0.75rem; color:var(--text-muted);" id="lblBusinessRegDoc">Not Uploaded (Optional)</span>
+                      </div>
+                      <input type="file" id="fileBusinessReg" style="display:none;" onchange="uploadDocFile('businessRegistration', 'fileBusinessReg', 'lblBusinessRegDoc')">
+                      <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('fileBusinessReg').click()"><i class="fa-solid fa-upload"></i> Upload</button>
+                    </div>
+
+                    <!-- Local Compliance Docs -->
+                    <h5 style="margin:12px 0 6px 0; color:var(--primary); border-bottom:1px solid var(--border); padding-bottom:6px;">3. Local Compliance Certifications</h5>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                      <!-- Fire Safety -->
+                      <div style="display:flex; flex-direction:column; gap:8px; border:1px solid var(--border); padding:10px; border-radius:var(--radius-sm);">
+                        <div>
+                          <strong>Fire Safety Certificate / NOC</strong>
+                          <span style="display:block; font-size:0.72rem; color:var(--text-muted);" id="lblFireSafetyDoc">Not Uploaded (Required for hotels/stays)</span>
+                        </div>
+                        <input type="file" id="fileFireSafety" style="display:none;" onchange="uploadDocFile('fireSafety', 'fileFireSafety', 'lblFireSafetyDoc')">
+                        <button type="button" class="btn btn-ghost btn-xs" style="margin-top:auto;" onclick="document.getElementById('fileFireSafety').click()"><i class="fa-solid fa-upload"></i> Upload</button>
+                      </div>
+
+                      <!-- Police NOC -->
+                      <div style="display:flex; flex-direction:column; gap:8px; border:1px solid var(--border); padding:10px; border-radius:var(--radius-sm);">
+                        <div>
+                          <strong>Police NOC / Local Authority Permission</strong>
+                          <span style="display:block; font-size:0.72rem; color:var(--text-muted);" id="lblPoliceDoc">Not Uploaded</span>
+                        </div>
+                        <input type="file" id="filePolice" style="display:none;" onchange="uploadDocFile('police', 'filePolice', 'lblPoliceDoc')">
+                        <button type="button" class="btn btn-ghost btn-xs" style="margin-top:auto;" onclick="document.getElementById('filePolice').click()"><i class="fa-solid fa-upload"></i> Upload</button>
+                      </div>
+
+                      <!-- Trade License -->
+                      <div style="display:flex; flex-direction:column; gap:8px; border:1px solid var(--border); padding:10px; border-radius:var(--radius-sm);">
+                        <div>
+                          <strong>Trade License / Sarai License</strong>
+                          <span style="display:block; font-size:0.72rem; color:var(--text-muted);" id="lblTradeDoc">Not Uploaded</span>
+                        </div>
+                        <input type="file" id="fileTrade" style="display:none;" onchange="uploadDocFile('tradeLicense', 'fileTrade', 'lblTradeDoc')">
+                        <button type="button" class="btn btn-ghost btn-xs" style="margin-top:auto;" onclick="document.getElementById('fileTrade').click()"><i class="fa-solid fa-upload"></i> Upload</button>
+                      </div>
+
+                      <!-- FSSAI License -->
+                      <div style="display:flex; flex-direction:column; gap:8px; border:1px solid var(--border); padding:10px; border-radius:var(--radius-sm);">
+                        <div>
+                          <strong>FSSAI Food License (If providing meals)</strong>
+                          <span style="display:block; font-size:0.72rem; color:var(--text-muted);" id="lblFssaiDoc">Not Uploaded</span>
+                        </div>
+                        <input type="file" id="fileFssai" style="display:none;" onchange="uploadDocFile('fssai', 'fileFssai', 'lblFssaiDoc')">
+                        <button type="button" class="btn btn-ghost btn-xs" style="margin-top:auto;" onclick="document.getElementById('fileFssai').click()"><i class="fa-solid fa-upload"></i> Upload</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- STEP 4: BANK ACCOUNT & PAYOUTS -->
+                <div class="wz-step-content" id="wz-step-4" style="display:none;">
+                  <h4 style="margin-bottom:16px; color:var(--primary);"><i class="fa-solid fa-building-columns" style="margin-right:8px;"></i>Bank details for Payouts</h4>
+                  <div style="display:flex; flex-direction:column; gap:20px;">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                      <div class="form-group">
+                        <label>Account Holder Name</label>
+                        <input type="text" class="form-control" id="wzBankAccountHolder" placeholder="Same as in Bank records" required oninput="verifyBankNameMatching()">
+                      </div>
+                      <div class="form-group">
+                        <label>Bank Name</label>
+                        <input type="text" class="form-control" id="wzBankName" placeholder="e.g. HDFC Bank, SBI" required>
+                      </div>
+                      <div class="form-group">
+                        <label>Account Number</label>
+                        <input type="text" class="form-control" id="wzBankAccountNumber" placeholder="Account Number" required>
+                      </div>
+                      <div class="form-group">
+                        <label>IFSC Code</label>
+                        <input type="text" class="form-control" id="wzBankIfsc" placeholder="e.g. HDFC0000123" required maxlength="11">
+                      </div>
+                    </div>
+
+                    <!-- Name Match Verification Alert -->
+                    <div id="bankNameMatchAlert" style="display:none; padding:12px; border-radius:var(--radius-sm); border:1px solid; font-size:0.8rem;">
+                      <!-- Mismatch / Match warnings are injected dynamically -->
+                    </div>
+
+                    <!-- Cancelled Cheque upload -->
+                    <div style="display:flex; justify-content:between; align-items:center; background:rgba(255,255,255,0.01); border:1px solid var(--border); padding:12px; border-radius:var(--radius-sm);">
+                      <div>
+                        <strong>Cancelled Cheque OR Bank account passbook copy (PDF/Image)</strong>
+                        <span style="display:block; font-size:0.75rem; color:var(--text-muted);" id="lblChequeDoc">Not Uploaded</span>
+                      </div>
+                      <input type="file" id="fileCheque" style="display:none;" onchange="uploadDocFile('cheque', 'fileCheque', 'lblChequeDoc')">
+                      <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('fileCheque').click()"><i class="fa-solid fa-upload"></i> Upload</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- STEP 5: ROOMS & PHOTOS -->
+                <div class="wz-step-content" id="wz-step-5" style="display:none;">
+                  <h4 style="margin-bottom:16px; color:var(--primary);"><i class="fa-solid fa-bed" style="margin-right:8px;"></i>Property Amenities &amp; Room Layouts</h4>
+                  <div style="display:flex; flex-direction:column; gap:20px;">
+                    <!-- Amenities -->
+                    <div class="form-group">
+                      <label>Select Property Amenities</label>
+                      <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-top:8px;" id="wzAmenitiesGrid">
+                        <!-- Amenities from original page -->
+                        <label class="toggle-row" style="background:rgba(255,255,255,0.02); padding:6px 10px; border:1px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; font-size:0.8rem; display:flex; justify-content:space-between; align-items:center;">
+                          <span>Free Wi-Fi</span>
+                          <input type="checkbox" value="WiFi" name="wzAmenity">
+                        </label>
+                        <label class="toggle-row" style="background:rgba(255,255,255,0.02); padding:6px 10px; border:1px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; font-size:0.8rem; display:flex; justify-content:space-between; align-items:center;">
+                          <span>AC Rooms</span>
+                          <input type="checkbox" value="AC" name="wzAmenity">
+                        </label>
+                        <label class="toggle-row" style="background:rgba(255,255,255,0.02); padding:6px 10px; border:1px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; font-size:0.8rem; display:flex; justify-content:space-between; align-items:center;">
+                          <span>Smart TV</span>
+                          <input type="checkbox" value="SmartTV" name="wzAmenity">
+                        </label>
+                        <label class="toggle-row" style="background:rgba(255,255,255,0.02); padding:6px 10px; border:1px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; font-size:0.8rem; display:flex; justify-content:space-between; align-items:center;">
+                          <span>Kitchen Access</span>
+                          <input type="checkbox" value="Kitchen" name="wzAmenity">
+                        </label>
+                        <label class="toggle-row" style="background:rgba(255,255,255,0.02); padding:6px 10px; border:1px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; font-size:0.8rem; display:flex; justify-content:space-between; align-items:center;">
+                          <span>Gym</span>
+                          <input type="checkbox" value="Gym" name="wzAmenity">
+                        </label>
+                        <label class="toggle-row" style="background:rgba(255,255,255,0.02); padding:6px 10px; border:1px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; font-size:0.8rem; display:flex; justify-content:space-between; align-items:center;">
+                          <span>Swimming Pool</span>
+                          <input type="checkbox" value="Pool" name="wzAmenity">
+                        </label>
+                        <label class="toggle-row" style="background:rgba(255,255,255,0.02); padding:6px 10px; border:1px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; font-size:0.8rem; display:flex; justify-content:space-between; align-items:center;">
+                          <span>Power Backup</span>
+                          <input type="checkbox" value="PowerBackup" name="wzAmenity">
+                        </label>
+                        <label class="toggle-row" style="background:rgba(255,255,255,0.02); padding:6px 10px; border:1px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; font-size:0.8rem; display:flex; justify-content:space-between; align-items:center;">
+                          <span>Housekeeping</span>
+                          <input type="checkbox" value="Housekeeping" name="wzAmenity">
+                        </label>
+                        <label class="toggle-row" style="background:rgba(255,255,255,0.02); padding:6px 10px; border:1px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; font-size:0.8rem; display:flex; justify-content:space-between; align-items:center;">
+                          <span>CCTV 24/7</span>
+                          <input type="checkbox" value="CCTV" name="wzAmenity">
+                        </label>
+                      </div>
+                    </div>
+
+                    <!-- Room Categories (stored in meta) -->
+                    <div class="card" style="padding:16px;">
+                      <h5 style="margin-bottom:12px; color:var(--primary);">Room Layout Categories</h5>
+                      <div id="wzRoomCategoriesList" style="display:flex; flex-direction:column; gap:12px; margin-bottom:14px;">
+                        <!-- dynamic rendering of categories -->
+                      </div>
+                      <button type="button" class="btn btn-ghost btn-sm" onclick="addWzRoomCategory()"><i class="fa-solid fa-plus"></i> Add Room Category</button>
+                    </div>
+
+                    <!-- Room/Property Photos -->
+                    <div class="card" style="padding:16px;">
+                      <h5 style="margin-bottom:12px; color:var(--primary);">Property &amp; Room Photographs</h5>
+                      <p style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:10px;">Provide clear, recent elevation, entrance, reception and bathroom photos.</p>
+                      
+                      <div class="form-group">
+                        <label>Property Photo Uploads (Drag-and-Drop / Multi File Upload)</label>
+                        <div class="file-dropzone" onclick="showToast('Mock photo upload successful. In production, files are saved to server storage.', 'success')">
+                          <i class="fa-solid fa-cloud-arrow-up" style="font-size:28px; color:var(--primary); margin-bottom:8px;"></i>
+                          <p style="font-size:0.85rem; font-weight:700;">Upload exterior &amp; room photos here</p>
+                          <p style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">PNG, JPEG formats supported</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- STEP 6: POLICIES & LEGAL -->
+                <div class="wz-step-content" id="wz-step-6" style="display:none;">
+                  <h4 style="margin-bottom:16px; color:var(--primary);"><i class="fa-solid fa-gavel" style="margin-right:8px;"></i>Rules, Declarations &amp; Partner Agreement</h4>
+                  
+                  <!-- Policies input text -->
+                  <div class="form-group">
+                    <label>House Rules &amp; Policies Description</label>
+                    <textarea class="form-control" id="editPropPolicies" rows="4" placeholder="Check-in time, ID requirements, couple policy rules, etc."></textarea>
+                  </div>
+
+                  <!-- Agreements Checkboxes -->
+                  <div class="card" style="padding:20px; margin-top:16px; display:flex; flex-direction:column; gap:14px;">
+                    <h5 style="color:var(--primary); margin-bottom:4px;">Legal Declaration</h5>
+                    
+                    <label style="display:flex; gap:10px; cursor:pointer; align-items:start; font-size:0.8rem; line-height:1.4;">
+                      <input type="checkbox" id="chkDeclTrue1" required style="margin-top:3px;">
+                      <span>I confirm that I am the owner or legally authorized representative/operator of this property and have the necessary permission to offer the property for accommodation purposes. I confirm that all information and documents submitted to Homzo are genuine, valid and accurate.</span>
+                    </label>
+
+                    <label style="display:flex; gap:10px; cursor:pointer; align-items:start; font-size:0.8rem; line-height:1.4;">
+                      <input type="checkbox" id="chkDeclTrue2" required style="margin-top:3px;">
+                      <span>I understand that Homzo may verify the submitted information and documents before approving the property.</span>
+                    </label>
+
+                    <label style="display:flex; gap:10px; cursor:pointer; align-items:start; font-size:0.8rem; line-height:1.4;">
+                      <input type="checkbox" id="chkDeclTrue3" required style="margin-top:3px;">
+                      <span>I understand that submission of documents does not guarantee approval or bookings.</span>
+                    </label>
+                  </div>
+
+                  <!-- Partner Agreement sign block -->
+                  <div class="card" style="padding:20px; margin-top:20px; background:rgba(245,158,11,0.02); border:1px solid rgba(245,158,11,0.15);">
+                    <h5 style="color:#fbbf24; margin-bottom:8px;"><i class="fa-solid fa-file-signature"></i> Homzo Partner Agreement</h5>
+                    <p style="font-size:0.75rem; color:var(--text-secondary); line-height:1.4; margin-bottom:12px;">By checking the box below, you formally accept the **Homzo Partner Agreement**, including the Commission Terms (15% per confirmed booking for Category A / compliant stays, 17% for Category B / unregistered stays, subject to manual admin override), Listing Policy, Guest Safety Requirements, and Payout Terms.</p>
+                    
+                    <label style="display:flex; gap:10px; cursor:pointer; align-items:center; font-weight:700; color:#fbbf24; font-size:0.85rem;">
+                      <input type="checkbox" id="chkAcceptAgreement" onchange="toggleAgreementChecked()" style="width:16px; height:16px;">
+                      <span>I Agree &amp; Become a Homzo Property Partner</span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Prev/Next Navigation Controls -->
+                <div style="display:flex; justify-content:space-between; margin-top:28px; border-top:1px solid var(--border); padding-top:16px;">
+                  <button type="button" class="btn btn-ghost" id="wzPrevBtn" onclick="navigateWzStep(-1)" disabled><i class="fa-solid fa-arrow-left"></i> Previous</button>
+                  <button type="button" class="btn btn-primary" id="wzSaveDraftBtn" onclick="saveWzDraft()"><i class="fa-solid fa-save"></i> Save Draft</button>
+                  <button type="button" class="btn btn-primary" id="wzNextBtn" onclick="navigateWzStep(1)">Next <i class="fa-solid fa-arrow-right"></i></button>
+                  <button type="button" class="btn btn-success" id="wzSubmitBtn" onclick="submitWzOnboarding()" style="display:none;"><i class="fa-solid fa-circle-check"></i> Submit for Verification</button>
+                </div>
+              </form>
+            </div>
+            
+            <!-- No property selected card -->
+            <div class="card" id="noPropSelected" style="padding:48px; text-align:center; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+              <i class="fa-solid fa-hotel" style="font-size:48px; color:var(--text-muted); margin-bottom:16px;"></i>
+              <h3>No Stay Selected</h3>
+              <p style="color:var(--text-secondary); max-width:320px; margin-top:8px;">Please select one of your assigned properties from the list to start or resume onboarding.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── PRICING & CALENDAR ─── -->
+      <div class="page" id="page-pricing">
+        <div class="page-header">
+          <h1>Pricing & Availability</h1>
+          <p>Control seasonal pricing, weekend surcharges, and block dates on the availability calendar.</p>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 280px 1fr; gap:24px;">
+          <!-- Left side Selection -->
+          <div class="card" style="padding:16px; height:fit-content;">
+            <h4 style="margin-bottom:12px;">Select Property</h4>
+            <div style="display:flex; flex-direction:column; gap:8px;" id="pricingPropList">
+              <!-- Render property buttons here -->
+            </div>
+          </div>
+          <!-- Right side pricing editor -->
+          <div id="pricingCalSection" style="display:none; flex-direction:column; gap:24px;">
+            <div class="card">
+              <h4>Base Price Adjustments</h4>
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-top:16px;">
+                <div class="form-group">
+                  <label>Seasonal Price Markup (%)</label>
+                  <div style="display:flex; align-items:center; gap:12px;">
+                    <input type="range" min="-50" max="100" value="0" class="form-control" style="padding:0;" id="rangeSeasonal">
+                    <span style="font-weight:700; color:var(--primary); min-width:40px; text-align:right;" id="labelSeasonal">0%</span>
+                  </div>
+                  <span style="font-size:0.75rem; color:var(--text-muted);">Applies a markup or discount percentage during busy periods.</span>
+                </div>
+                <div class="form-group">
+                  <label>Weekend Premium Surcharge (%)</label>
+                  <div style="display:flex; align-items:center; gap:12px;">
+                    <input type="range" min="0" max="50" value="0" class="form-control" style="padding:0;" id="rangeWeekend">
+                    <span style="font-weight:700; color:var(--primary); min-width:40px; text-align:right;" id="labelWeekend">0%</span>
+                  </div>
+                  <span style="font-size:0.75rem; color:var(--text-muted);">Applied automatically to Friday and Saturday nights.</span>
+                </div>
+              </div>
+              <button class="btn btn-primary btn-sm" style="margin-top:14px;" id="savePricingBtn">Save Adjustments</button>
+            </div>
+            
+            <div class="calendar-container">
+              <div class="calendar-header">
+                <h4 style="margin:0;"><i class="fa-solid fa-calendar-days" style="color:var(--primary); margin-right:10px;"></i>Availability Calendar (June 2026)</h4>
+                <div style="font-size:0.78rem; color:var(--text-muted); font-weight:600;"><span style="display:inline-block; width:12px; height:12px; background:rgba(239, 68, 68, 0.2); border:1px solid var(--danger); border-radius:3px; vertical-align:middle; margin-right:4px;"></span> Blocked Dates</div>
+              </div>
+              <div class="calendar-grid" id="calendarGrid">
+                <!-- Days labels -->
+                <div class="calendar-day-label">Sun</div>
+                <div class="calendar-day-label">Mon</div>
+                <div class="calendar-day-label">Tue</div>
+                <div class="calendar-day-label">Wed</div>
+                <div class="calendar-day-label">Thu</div>
+                <div class="calendar-day-label">Fri</div>
+                <div class="calendar-day-label">Sat</div>
+                
+                <!-- Days cells will be filled dynamically -->
+              </div>
+              <div style="margin-top:16px; font-size:0.78rem; color:var(--text-secondary);">
+                <strong>Note:</strong> Click on any date box to toggle its status between **Available** and **Blocked (Sold Out / Closed)**.
+              </div>
+            </div>
+          </div>
+          <!-- Pricing prompt -->
+          <div class="card" id="noPricingSelected" style="padding:48px; text-align:center; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+            <i class="fa-solid fa-calendar-days" style="font-size:48px; color:var(--text-muted); margin-bottom:16px;"></i>
+            <h3>No Property Selected</h3>
+            <p style="color:var(--text-secondary); max-width:320px; margin-top:8px;">Please select one of your assigned hotels from the sidebar list to load its interactive availability calendar.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── BOOKINGS ─── -->
+      <div class="page" id="page-bookings">
+        <div class="page-header">
+          <h1>Booking Reservations</h1>
+          <p>Track guests reservations, check status, and request cancellations.</p>
+        </div>
+        <div class="toolbar">
+          <div class="search-input-wrap">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" class="form-control" placeholder="Search bookings by guest name…" id="bookingSearch">
+          </div>
+          <select class="form-control" style="max-width:200px" id="bookingFilterStatus">
+            <option value="all">All Status</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="pending">Pending</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="card table-card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Booking ID</th><th>Guest Name</th><th>Check-In</th><th>Check-Out</th><th>Property</th><th>Rooms/Pax</th><th>Amount</th><th>Status</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="bookingsTbody">
+              <tr><td colspan="9" style="text-align:center; color:var(--text-muted);">Loading bookings...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ─── PAYOUTS & EARNINGS ─── -->
+      <div class="page" id="page-revenue">
+        <div class="page-header">
+          <h1>Payouts & Financials</h1>
+          <p>Detailed breakdown of gross earnings, platform commission deductions, and payout history.</p>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:rgba(34,197,94,0.12); color:var(--success)"><i class="fa-solid fa-arrow-trend-up"></i></div>
+            <div class="kpi-info"><span>Total Gross Sales</span><strong id="payoutGross">₹0</strong></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:rgba(239,68,68,0.12); color:var(--danger)"><i class="fa-solid fa-building-circle-arrow-right"></i></div>
+            <div class="kpi-info"><span>Homzo Commission (15%)</span><strong id="payoutCommission">₹0</strong></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:rgba(59,130,246,0.12); color:var(--info)"><i class="fa-solid fa-wallet"></i></div>
+            <div class="kpi-info"><span>Net Disbursed</span><strong id="payoutNet">₹0</strong></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" style="background:rgba(245,158,11,0.12); color:var(--warning)"><i class="fa-solid fa-clock-rotate-left"></i></div>
+            <div class="kpi-info"><span>Next Scheduled Payout</span><strong>June 25, 2026</strong></div>
+          </div>
+        </div>
+        
+        <div class="card table-card" style="margin-top:28px;">
+          <div class="table-header">
+            <h4>Disbursement Ledger</h4>
+            <button class="btn btn-ghost btn-sm" onclick="showToast('Exporting to Excel...', 'info')"><i class="fa-solid fa-file-export"></i> Export Ledger</button>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Booking Ref</th><th>Guest</th><th>Amount Received</th><th>Homzo Fee (15%)</th><th>Payout Value</th><th>Date Processed</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="revenueTbody">
+              <tr><td colspan="7" style="text-align:center; color:var(--text-muted);">No records found.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ─── VERIFICATION & KYC ─── -->
+      <div class="page" id="page-verification">
+        <div class="page-header">
+          <h1>KYC & Legal Verification</h1>
+          <p>Submit GST, PAN, bank accounts, and property deeds to authorize list status and enable payouts.</p>
+        </div>
+        
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:28px;">
+          <div class="card">
+            <h4 style="margin-bottom:18px;"><i class="fa-solid fa-building-columns" style="color:var(--primary); margin-right:8px;"></i>Tax & Payout Account Details</h4>
+            <form id="kycDetailsForm">
+              <div class="form-group">
+                <label>GSTIN (GST Number)</label>
+                <input type="text" class="form-control" id="kycGst" placeholder="e.g. 27AAAAA1111A1Z1" required>
+              </div>
+              <div class="form-group">
+                <label>Permanent Account Number (PAN)</label>
+                <input type="text" class="form-control" id="kycPan" placeholder="e.g. ABCDE1234F" required maxlength="10">
+              </div>
+              <div class="form-group">
+                <label>Bank Account Number</label>
+                <input type="text" class="form-control" id="kycAccount" placeholder="Bank savings/current account number" required>
+              </div>
+              <div class="form-group">
+                <label>Bank IFSC Code</label>
+                <input type="text" class="form-control" id="kycIfsc" placeholder="e.g. HDFC0000123" required maxlength="11">
+              </div>
+              <button class="btn btn-primary" style="width:100%; justify-content:center; margin-top:10px;" type="submit">
+                <i class="fa-solid fa-paper-plane"></i> Submit KYC Details
+              </button>
+            </form>
+          </div>
+          
+          <div class="card">
+            <h4 style="margin-bottom:18px;"><i class="fa-solid fa-file-arrow-up" style="color:var(--primary); margin-right:8px;"></i>Verification Documents Checklist</h4>
+            <div style="display:flex; flex-direction:column; gap:16px;">
+              <div style="display:flex; justify-content:between; align-items:center; padding:12px; background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:var(--radius-sm);">
+                <div style="flex:1;">
+                  <strong style="font-size:0.88rem; display:block;">GST Registration Certificate</strong>
+                  <span style="font-size:0.75rem; color:var(--text-muted);" id="gstDocStatus">Status: Not Uploaded</span>
+                </div>
+                <button class="btn btn-ghost btn-sm" onclick="showToast('Mock Upload Successful', 'success')"><i class="fa-solid fa-upload"></i> Upload</button>
+              </div>
+              
+              <div style="display:flex; justify-content:between; align-items:center; padding:12px; background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:var(--radius-sm);">
+                <div style="flex:1;">
+                  <strong style="font-size:0.88rem; display:block;">PAN Card Scan</strong>
+                  <span style="font-size:0.75rem; color:var(--text-muted);" id="panDocStatus">Status: Not Uploaded</span>
+                </div>
+                <button class="btn btn-ghost btn-sm" onclick="showToast('Mock Upload Successful', 'success')"><i class="fa-solid fa-upload"></i> Upload</button>
+              </div>
+
+              <div style="display:flex; justify-content:between; align-items:center; padding:12px; background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:var(--radius-sm);">
+                <div style="flex:1;">
+                  <strong style="font-size:0.88rem; display:block;">Property Deed / Registry Copy</strong>
+                  <span style="font-size:0.75rem; color:var(--text-muted);" id="deedDocStatus">Status: Not Uploaded</span>
+                </div>
+                <button class="btn btn-ghost btn-sm" onclick="showToast('Mock Upload Successful', 'success')"><i class="fa-solid fa-upload"></i> Upload</button>
+              </div>
+            </div>
+            
+            <div style="margin-top:24px; padding:16px; background:rgba(34,197,94,0.04); border:1px solid rgba(34,197,94,0.15); border-radius:var(--radius-sm);">
+              <h5 style="color:var(--success); margin-bottom:4px;"><i class="fa-solid fa-circle-check"></i> Verification Policy</h5>
+              <p style="font-size:0.78rem; color:var(--text-secondary); line-height:1.4;">All documents submitted are encrypted and reviewed by the Super Admin team. Verification usually takes 24-48 hours. Once verified, properties will display a "Homzo Certified Partner" badge to guests.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── GUEST REVIEWS ─── -->
+      <div class="page" id="page-reviews">
+        <div class="page-header">
+          <h1>Guest Reviews & Ratings</h1>
+          <p>Moderate ratings, analyze scores, and draft replies to reviews for your properties.</p>
+        </div>
+        <div class="card table-card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Guest</th><th>Rating</th><th>Review Feedback</th><th>Posted Date</th><th>Reply Status</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="reviewsTbody">
+              <tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Loading reviews...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ─── SUPPORT & HELP ─── -->
+      <div class="page" id="page-support">
+        <div class="page-header">
+          <h1>Support & Partner Help Desk</h1>
+          <p>Need assistance? File a support ticket directly to the Homzo admin, read FAQs, or start a live chat.</p>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:28px;">
+          <!-- Left side Ticket Form -->
+          <div class="card">
+            <h4 style="margin-bottom:18px;">Raise a Support Ticket</h4>
+            <form id="ticketForm">
+              <div class="form-group">
+                <label>Ticket Subject</label>
+                <input type="text" class="form-control" id="ticketSubject" placeholder="Summary of the issue..." required>
+              </div>
+              <div class="form-group">
+                <label>Category</label>
+                <select class="form-control" id="ticketCategory" required>
+                  <option value="Billing & Payouts">Billing & Payouts</option>
+                  <option value="Property Verification">Property Verification</option>
+                  <option value="Guest Dispute">Guest Dispute</option>
+                  <option value="Booking Modification">Booking Modification</option>
+                  <option value="Technical Error">Technical Error</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Issue Description</label>
+                <textarea class="form-control" id="ticketMessage" rows="5" placeholder="Explain details of your query..." required></textarea>
+              </div>
+              <button class="btn btn-primary" style="width:100%; justify-content:center;" type="submit">
+                <i class="fa-solid fa-headset"></i> Submit Support Case
+              </button>
+            </form>
+          </div>
+
+          <!-- Right side Tickets History & FAQ -->
+          <div style="display:flex; flex-direction:column; gap:24px;">
+            <div class="card">
+              <h4>Support Ticket Log</h4>
+              <div class="ticket-list" id="ticketLog">
+                <div style="text-align:center; color:var(--text-muted); padding:20px;">No support cases filed.</div>
+              </div>
+            </div>
+            
+            <div class="card">
+              <h4>Frequently Asked Questions</h4>
+              <div style="display:flex; flex-direction:column; gap:12px; margin-top:14px;">
+                <details style="background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px; cursor:pointer;">
+                  <summary style="font-weight:700; font-size:0.88rem; color:var(--text-primary);">When do payouts get processed?</summary>
+                  <p style="font-size:0.8rem; color:var(--text-secondary); margin-top:8px; line-height:1.4;">Payouts are processed bi-weekly (on the 10th and 25th of every month) for bookings completed. Earnings are transferred directly to your bank account once verification is completed.</p>
+                </details>
+                <details style="background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px; cursor:pointer;">
+                  <summary style="font-weight:700; font-size:0.88rem; color:var(--text-primary);">How can I request cancellation for a booking?</summary>
+                  <p style="font-size:0.8rem; color:var(--text-secondary); margin-top:8px; line-height:1.4;">Select the Booking from the reservations list, click the Action button, and click Cancel. Homzo cancellation policies apply depending on guest type and check-in timeline.</p>
+                </details>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end pageContent -->
+  </div><!-- end adminMain -->
+</div><!-- end partnerLayout -->
+
+<!-- Booking Action Modal -->
+<div class="modal-overlay" id="bookingActionModal" style="display:none">
+  <div class="modal-box" style="position:relative; max-width:440px">
+    <button class="modal-close" onclick="closeModal('bookingActionModal')"><i class="fa-solid fa-xmark"></i></button>
+    <h2 id="baTitle">Booking Details</h2>
+    <div id="baContent"></div>
+  </div>
+</div>
+
+<!-- Review Reply Modal -->
+<div class="modal-overlay" id="reviewReplyModal" style="display:none">
+  <div class="modal-box" style="position:relative; max-width:500px">
+    <button class="modal-close" onclick="closeModal('reviewReplyModal')"><i class="fa-solid fa-xmark"></i></button>
+    <h2>Reply to Guest Review</h2>
+    <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; margin:16px 0; text-align:left;">
+      <div style="font-weight:700; color:var(--text-primary); margin-bottom:4px;" id="repGuestName">Guest Name</div>
+      <div style="color:var(--primary); margin-bottom:8px;" id="repStars">⭐⭐⭐⭐•</div>
+      <p style="font-size:0.85rem; color:var(--text-secondary); margin:0; line-height:1.5;" id="repText">Review text goes here...</p>
+    </div>
+    <div class="form-group" style="text-align:left;">
+      <label>Response to Guest</label>
+      <textarea class="form-control" rows="4" placeholder="Write your professional response..." id="repContent" required></textarea>
+    </div>
+    <input type="hidden" id="repReviewId">
+    <button class="btn btn-primary" style="width:100%; margin-top:8px" id="saveReplyBtn">
+      <i class="fa-solid fa-save"></i> Submit Response
+    </button>
+  </div>
+</div>
+
+<!-- Notifications Center Modal -->
+<div class="modal-overlay" id="notifCenterModal" style="display:none">
+  <div class="modal-box" style="position:relative; max-width:500px">
+    <button class="modal-close" onclick="closeModal('notifCenterModal')"><i class="fa-solid fa-xmark"></i></button>
+    <h2><i class="fa-solid fa-bell" style="color:var(--primary); margin-right:10px"></i>Notification Alerts</h2>
+    <div style="display:flex; flex-direction:column; gap:12px; margin-top:16px; max-height:400px; overflow-y:auto;" id="notifList">
+      <div style="text-align:center; color:var(--text-muted); padding:20px;">No alerts.</div>
+    </div>
+  </div>
+<!-- ── PASSWORD RESET MODAL ── -->
+<div class="modal-overlay" id="passwordResetModal" style="display:none">
+  <div class="modal-box" style="position:relative; max-width:400px; text-align:left; padding:30px;">
+    <button class="modal-close" onclick="closeModal('passwordResetModal')"><i class="fa-solid fa-xmark"></i></button>
+    <h2><i class="fa-solid fa-key" style="color:var(--primary); margin-right:10px;"></i>Reset Password</h2>
+    
+    <div style="display:flex; flex-direction:column; gap:16px; margin-top:20px;">
+      <!-- Step 1: Request OTP -->
+      <div id="resetStep1">
+        <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:14px; line-height:1.4;">
+          Enter your registered email address to receive a verification OTP.
+        </p>
+        <div class="form-group" style="margin-bottom:16px;">
+          <label>Email Address</label>
+          <input type="email" class="form-control" id="resetEmail" placeholder="you@example.com" required>
+        </div>
+        <button class="btn btn-primary" id="sendOtpBtn" style="width:100%; justify-content:center;">
+          <i class="fa-solid fa-paper-plane"></i> Send OTP Code
+        </button>
+      </div>
+      
+      <!-- Step 2: Verify OTP & Reset -->
+      <div id="resetStep2" style="display:none;">
+        <p style="font-size:0.85rem; color:var(--text-secondary); background:rgba(255,255,255,0.02); padding:10px; border-left:3px solid var(--primary); border-radius:0 4px 4px 0; margin-bottom:14px; line-height:1.4;">
+          OTP code generated. Check the server console log in simulation mode to read the OTP.
+        </p>
+        <div class="form-group" style="margin-bottom:12px;">
+          <label>Verification OTP</label>
+          <input type="text" class="form-control" id="resetOtp" placeholder="6-digit code" required>
+        </div>
+        <div class="form-group" style="margin-bottom:12px;">
+          <label>New Password</label>
+          <input type="password" class="form-control" id="resetNewPassword" placeholder="Minimum 6 characters" required>
+        </div>
+        <div class="form-group" style="margin-bottom:16px;">
+          <label>Confirm New Password</label>
+          <input type="password" class="form-control" id="resetConfirmPassword" placeholder="Confirm new password" required>
+        </div>
+        <button class="btn btn-primary" id="verifyResetBtn" style="width:100%; justify-content:center;">
+          <i class="fa-solid fa-check-double"></i> Update Password
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<!-- Floating AI Chat Assistant Widget -->
+<div id="homzoAiAssistantWidget" style="position: fixed; bottom: 25px; right: 25px; z-index: 10000; font-family: 'Outfit', sans-serif;">
+  <!-- Toggle Button -->
+  <button id="homzoAiTriggerBtn" style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #d4af37, #aa7c11); border: none; color: #fff; font-size: 1.3rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; z-index: 10001; animation: pulse-ring 2s infinite;">
+    <i class="fa-solid fa-headset"></i>
+    <span style="position: absolute; top: -2px; right: -2px; background: #ea4335; color: #fff; font-size: 0.6rem; font-weight: 700; padding: 1px 5px; border-radius: 10px; text-transform: uppercase; animation: pulse 2s infinite;">AI</span>
+  </button>
+
+  <!-- Chat Window -->
+  <div id="homzoAiChatWindow" style="display: none; width: 310px; height: 420px; background: rgba(13, 17, 23, 0.88); border: 1px solid rgba(212, 175, 55, 0.3); box-shadow: 0 8px 32px rgba(0,0,0,0.5); position: absolute; bottom: 70px; right: 0; flex-direction: column; overflow: hidden; backdrop-filter: blur(20px); border-radius: 14px; animation: slideUp 0.3s cubic-bezier(0.165, 0.84, 0.44, 1); z-index: 10000;">
+    <!-- Chat Header -->
+    <div style="background: linear-gradient(135deg, #1b263b 0%, #0c1017 100%); border-bottom: 1px solid rgba(212, 175, 55, 0.25); padding: 10px 15px; display: flex; justify-content: space-between; align-items: center;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <div style="width: 8px; height: 8px; background: #22c55e; border-radius: 50%; box-shadow: 0 0 8px #22c55e;"></div>
+        <div>
+          <h4 style="margin: 0; color: #d4af37; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.3px;">HOMZO Concierge</h4>
+          <span style="font-size: 0.65rem; color: #94a3b8;">Official AI Assistant</span>
+        </div>
+      </div>
+      <button id="homzoAiCloseBtn" style="background: none; border: none; color: #94a3b8; font-size: 1rem; cursor: pointer; transition: color 0.2s;"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <!-- Messages Container -->
+    <div id="homzoAiMessages" style="flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; font-size: 0.8rem; color: #e2e8f0; scroll-behavior: smooth;">
+      <!-- Welcome Message -->
+      <div style="display: flex; flex-direction: column; gap: 4px; align-self: flex-start; max-width: 85%; animation: bubbleFadeIn 0.3s ease;">
+        <div style="background: rgba(255,255,255,0.04); padding: 8px 12px; border-radius: 12px 12px 12px 0; border: 1px solid rgba(255,255,255,0.06); line-height: 1.35;">
+          Hello! I am your <strong>HOMZO Concierge</strong> Assistant. How can I help you today?
+        </div>
+        <span style="font-size: 0.6rem; color: #64748b; margin-left: 4px;">Just now</span>
+      </div>
+    </div>
+
+    <!-- Quick Replies Area -->
+    <div style="padding: 8px 12px; display: flex; flex-wrap: wrap; gap: 4px; border-top: 1px solid rgba(255,255,255,0.04); background: rgba(0,0,0,0.2);">
+      <button class="homzo-quick-reply" onclick="sendQuickReply('How to onboard my property?')" style="background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.25); color: #d4af37; font-size: 0.68rem; padding: 3px 8px; border-radius: 12px; cursor: pointer; transition: all 0.2s;">Onboard Property</button>
+      <button class="homzo-quick-reply" onclick="sendQuickReply('What commission does Homzo take?')" style="background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.25); color: #d4af37; font-size: 0.68rem; padding: 3px 8px; border-radius: 12px; cursor: pointer; transition: all 0.2s;">Commission Rate</button>
+      <button class="homzo-quick-reply" onclick="sendQuickReply('Best monthly stay plan for students?')" style="background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.25); color: #d4af37; font-size: 0.68rem; padding: 3px 8px; border-radius: 12px; cursor: pointer; transition: all 0.2s;">Long Stays</button>
+      <button class="homzo-quick-reply" onclick="sendQuickReply('How to raise a complaint?')" style="background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.25); color: #d4af37; font-size: 0.68rem; padding: 3px 8px; border-radius: 12px; cursor: pointer; transition: all 0.2s;">Complaints</button>
+    </div>
+
+    <!-- Chat Input Form -->
+    <form id="homzoAiInputForm" style="display: flex; border-top: 1px solid rgba(212, 175, 55, 0.25); background: #0c1017; padding: 8px 12px; gap: 6px; align-items: center;">
+      <input type="text" id="homzoAiInput" placeholder="Ask Concierge..." required style="flex: 1; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 6px 10px; color: #fff; font-size: 0.78rem; outline: none; transition: border-color 0.2s;">
+      <button type="submit" style="width: 30px; height: 30px; border-radius: 50%; background: #d4af37; border: none; color: #0c1017; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+        <i class="fa-solid fa-paper-plane" style="font-size: 0.75rem;"></i>
+      </button>
+    </form>
+  </div>
+</div>
+
+<style>
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.6); }
+  70% { box-shadow: 0 0 0 12px rgba(212, 175, 55, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+}
+@keyframes slideUp {
+  from { transform: translateY(15px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes bubbleFadeIn {
+  from { transform: translateY(8px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.homzo-quick-reply:hover {
+  background: rgba(212, 175, 55, 0.2) !important;
+  transform: translateY(-1px);
+}
+#homzoAiInput:focus {
+  border-color: rgba(212, 175, 55, 0.8) !important;
+}
+#homzoAiTriggerBtn:hover {
+  transform: scale(1.06);
+  background: linear-gradient(135deg, #aa7c11, #d4af37) !important;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const triggerBtn = document.getElementById('homzoAiTriggerBtn');
+  const chatWindow = document.getElementById('homzoAiChatWindow');
+  const closeBtn = document.getElementById('homzoAiCloseBtn');
+  const inputForm = document.getElementById('homzoAiInputForm');
+  const inputField = document.getElementById('homzoAiInput');
+  const messagesContainer = document.getElementById('homzoAiMessages');
+
+  if (triggerBtn && chatWindow) {
+    triggerBtn.addEventListener('click', () => {
+      const isHidden = chatWindow.style.display === 'none';
+      chatWindow.style.display = isHidden ? 'flex' : 'none';
+    });
+  }
+
+  if (closeBtn && chatWindow) {
+    closeBtn.addEventListener('click', () => {
+      chatWindow.style.display = 'none';
+    });
+  }
+
+  if (inputForm) {
+    inputForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = inputField.value.trim();
+      if (!text) return;
+      
+      inputField.value = '';
+      await appendUserMessage(text);
+    });
+  }
+  async function appendUserMessage(text) {
+    const userMsgDiv = document.createElement('div');
+    userMsgDiv.style.cssText = 'display: flex; flex-direction: column; gap: 4px; align-self: flex-end; max-width: 80%;';
+    userMsgDiv.innerHTML = `
+      <div style="background: linear-gradient(135deg, #d4af37, #aa7c11); color: #0f172a; padding: 10px 14px; border-radius: 12px 12px 0 12px; font-weight: 500;">
+        ${text}
+      </div>
+      <span style="font-size: 0.65rem; color: #64748b; text-align: right; margin-right: 4px;">Just now</span>
+    `;
+    messagesContainer.appendChild(userMsgDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    const typingDiv = document.createElement('div');
+    typingDiv.id = 'homzoAiTyping';
+    typingDiv.style.cssText = 'display: flex; gap: 4px; align-self: flex-start; max-width: 80%;';
+    typingDiv.innerHTML = `
+      <div style="background: rgba(255,255,255,0.05); padding: 10px 14px; border-radius: 12px 12px 12px 0; border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; display:flex; align-items:center; gap:6px;">
+        <i class="fa-solid fa-circle-notch fa-spin"></i> Concierge is typing...
+      </div>
+    `;
+    messagesContainer.appendChild(typingDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    try {
+      const res = await fetch('/api/ai/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text })
+      });
+      const data = await res.json();
+      
+      const typingEl = document.getElementById('homzoAiTyping');
+      if (typingEl) typingEl.remove();
+
+      const botMsgDiv = document.createElement('div');
+      botMsgDiv.style.cssText = 'display: flex; flex-direction: column; gap: 4px; align-self: flex-start; max-width: 80%;';
+      const formattedReply = data.reply
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br>');
+      botMsgDiv.innerHTML = `
+        <div style="background: rgba(255,255,255,0.05); padding: 10px 14px; border-radius: 12px 12px 12px 0; border: 1px solid rgba(255,255,255,0.1); line-height: 1.4;">
+          ${formattedReply}
+        </div>
+        <span style="font-size: 0.65rem; color: #64748b; margin-left: 4px;">Just now &bull; ${data.source}</span>
+      `;
+      messagesContainer.appendChild(botMsgDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    } catch(err) {
+      console.error(err);
+      const typingEl = document.getElementById('homzoAiTyping');
+      if (typingEl) typingEl.remove();
+
+      const errorMsgDiv = document.createElement('div');
+      errorMsgDiv.style.cssText = 'display: flex; gap: 4px; align-self: flex-start; max-width: 80%;';
+      errorMsgDiv.innerHTML = `
+        <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; padding: 10px 14px; border-radius: 12px 12px 12px 0;">
+          Sorry, I failed to connect. Please try again later.
+        </div>
+      `;
+      messagesContainer.appendChild(errorMsgDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+  }
+
+  window.sendQuickReply = function(text) {
+    appendUserMessage(text);
+  };
+});
+</script>
+
+<script src="partner.js"></script>
+</body>
+</html>
