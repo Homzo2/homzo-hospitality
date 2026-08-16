@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trust & Safety - HOMZO</title>
+  <meta name="description" content="Discover Homzo Hospitality's Trust and Safety commitments — learn how we verify properties, ensure guest safety, and secure transactions." />
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="client.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .page-header {
+      padding: 120px 20px 60px;
+      text-align: center;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+    }
+    .page-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+    }
+    .page-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 60px 20px;
+      min-height: 45vh;
+      position: relative;
+      z-index: 10;
+    }
+    .page-watermark {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-image: url('homzo_logo.png');
+      background-repeat: repeat;
+      background-size: 300px;
+      opacity: 0.02;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    /* Trust Policy Layouts */
+    .policy-section {
+      margin-bottom: 48px;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 22px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border-strong);
+    }
+
+    .section-icon {
+      width: 42px;
+      height: 42px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-strong);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 1.1rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .section-header h2 {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.45rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .intro-block {
+      text-align: center;
+      max-width: 760px;
+      margin: 0 auto 40px;
+    }
+    .intro-block h3 {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.6rem;
+      color: var(--primary);
+      margin-bottom: 14px;
+    }
+    .intro-block p {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    /* CARD */
+    .policy-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 28px 32px;
+      margin-bottom: 16px;
+      transition: var(--transition);
+    }
+    .policy-card:hover {
+      border-color: var(--border-strong);
+      box-shadow: var(--shadow-card);
+    }
+
+    .policy-card p, .policy-card li {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+      line-height: 1.7;
+    }
+
+    .policy-card ul, .policy-card ol {
+      padding-left: 20px;
+    }
+
+    .policy-card li { margin-bottom: 8px; }
+
+    /* NOTE BOX */
+    .note-box {
+      background: var(--primary-glow);
+      border-left: 3px solid var(--primary);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: 14px 20px;
+      font-size: 0.88rem;
+      color: var(--text-primary);
+      margin-top: 12px;
+    }
+    
+    .note-box.danger {
+      background: rgba(239, 68, 68, 0.1);
+      border-left-color: var(--danger);
+      color: var(--text-primary);
+    }
+
+    /* COMMITMENT CARD */
+    .commitment-card {
+      background: linear-gradient(135deg, var(--bg-card) 0%, rgba(255, 92, 53, 0.04) 100%);
+      border: 1px dashed rgba(255, 92, 53, 0.3);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      text-align: center;
+      margin-bottom: 48px;
+      box-shadow: var(--shadow-card);
+    }
+    .commitment-card i {
+      font-size: 1.8rem;
+      color: var(--primary);
+      margin-bottom: 12px;
+    }
+    .commitment-quote {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.5;
+      font-style: italic;
+    }
+
+    /* CONTACT SECTION */
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .contact-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      text-align: center;
+      transition: var(--transition);
+    }
+    .contact-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(255, 92, 53, 0.1);
+    }
+
+    .contact-card .icon { font-size: 1.6rem; margin-bottom: 10px; }
+    .contact-card h4 { font-family: 'Sora', sans-serif; font-size: 1rem; color: var(--text-primary); margin-bottom: 6px; }
+    .contact-card p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; }
+    .contact-card a { color: var(--primary); font-weight: 600; }
+  </style>
+</head>
+<body>
+
+<div class="page-watermark"></div>
+
+<!-- ════════════════ NAVBAR ════════════════ -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo">
+      <img src="homzo_logo.png" alt="HOMZO Logo" class="brand-logo">
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html" class="nav-link">Home</a></li>
+      <li><a href="about.html" class="nav-link">About</a></li>
+          <li><a href="/careers" class="nav-link">Careers</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ════════════════ HEADER ════════════════ -->
+<header class="page-header">
+  <h1 class="page-title">Trust & Safety</h1>
+</header>
+
+<!-- ════════════════ CONTENT ════════════════ -->
+<div class="page-container">
+  
+  <!-- INTRO -->
+  <div class="intro-block">
+    <h3>Safe Stays. Trusted Experiences.</h3>
+    <p>At Homzo, trust and safety are at the core of everything we do. We are committed to creating a secure, reliable, and comfortable environment for guests, property partners, and business associates across our hospitality network.</p>
+  </div>
+
+  <!-- COMMITMENT STATEMENT -->
+  <div class="commitment-card">
+    <i class="fa-solid fa-shield-halved"></i>
+    <div class="commitment-quote">
+      “Homzo is committed to building a trusted hospitality platform focused on safety, transparency, reliability, and customer satisfaction.”
+    </div>
+  </div>
+
+  <!-- GUEST SAFETY -->
+  <div class="policy-section">
+    <div class="section-header">
+      <div class="section-icon">🛡️</div>
+      <h2>Guest Safety</h2>
+    </div>
+    <div class="policy-card">
+      <p style="margin-bottom: 16px; font-weight: 600; color: var(--text-primary);">To maintain a secure stay experience, Homzo encourages and implements:</p>
+      <ul>
+        <li><strong>Government ID Verification:</strong> Strict verification of valid government-issued photo identification during the check-in process.</li>
+        <li><strong>Secure Bookings:</strong> End-to-end encrypted booking processes to safeguard user accounts and transactions.</li>
+        <li><strong>Behavioral Standards:</strong> Clear guest guidelines that encourage safe, respectful, and neighbor-friendly behavior.</li>
+        <li><strong>Emergency Support:</strong> Round-the-clock emergency support and rapid response coordinates for resolving critical situations.</li>
+      </ul>
+      <div class="note-box">Our goal is to ensure every guest feels safe and comfortable throughout their stay.</div>
+    </div>
+  </div>
+
+  <!-- PROPERTY VERIFICATION -->
+  <div class="policy-section">
+    <div class="section-header">
+      <div class="section-icon">🏢</div>
+      <h2>Property Verification</h2>
+    </div>
+    <div class="policy-card">
+      <p style="margin-bottom: 16px; font-weight: 600; color: var(--text-primary);">Homzo works only with property partners who comply with essential hospitality and operational standards, including:</p>
+      <ul>
+        <li><strong>Hygiene & Cleanliness:</strong> Mandatory regular sanitization and immaculate maintenance of rooms, beds, and restrooms.</li>
+        <li><strong>Proper Housekeeping:</strong> Professional upkeep, functional appliances, and structured housekeeping processes.</li>
+        <li><strong>Transparent Listings:</strong> Absolute accuracy in room details, amenities checklist, and pricing sheets without hidden fees.</li>
+        <li><strong>Service Standards:</strong> Guest-friendly support protocols and warm, welcoming service from on-ground staff.</li>
+      </ul>
+      <div class="note-box danger">⚠️ Properties that fail to maintain quality and safety standards may face immediate suspension or permanent removal from the platform.</div>
+    </div>
+  </div>
+
+  <!-- PRIVACY & DATA SECURITY -->
+  <div class="policy-section">
+    <div class="section-header">
+      <div class="section-icon">🔒</div>
+      <h2>Privacy & Data Security</h2>
+    </div>
+    <div class="policy-card">
+      <p>We value customer privacy and take extensive technical and administrative measures to protect all user data from unauthorized access or disclosure.</p>
+      <br>
+      <p style="margin-bottom: 16px; font-weight: 600; color: var(--text-primary);">Customer data is utilized strictly for:</p>
+      <ul>
+        <li>Seamless booking management and invoicing.</li>
+        <li>Providing dedicated, helpful customer support.</li>
+        <li>Safety verification, fraud prevention, and profile audit processes.</li>
+        <li>Constant optimization and enhancements of our platform services.</li>
+      </ul>
+      <div class="note-box">🛡️ Homzo does not sell, rent, or trade personal customer information to unauthorized third parties.</div>
+    </div>
+  </div>
+
+  <!-- RESPONSIBLE PLATFORM USAGE -->
+  <div class="policy-section">
+    <div class="section-header">
+      <div class="section-icon">🚫</div>
+      <h2>Responsible Platform Usage</h2>
+    </div>
+    <div class="policy-card">
+      <p style="margin-bottom: 16px; font-weight: 600; color: var(--text-primary);">To maintain a trusted hospitality ecosystem, the following activities are strictly prohibited:</p>
+      <ul style="list-style-type: none; padding-left: 0;">
+        <li>❌ <strong>Fraudulent Bookings:</strong> Use of stolen financial instruments or identity spoofing to secure reservations.</li>
+        <li>❌ <strong>Illegal Activities:</strong> Any law-breaking activities or substance abuse at partner properties.</li>
+        <li>❌ <strong>Platform Misuse:</strong> Attempting to bypass security infrastructure or scrape listings information.</li>
+        <li>❌ <strong>Hostile Behavior:</strong> Harassment, violence, or unsafe conduct towards property staff, fellow guests, or neighbors.</li>
+      </ul>
+      <div class="note-box danger">⚠️ Violation of these standards may result in immediate account suspension, booking cancellation, forfeiture of payments, or reporting to law enforcement authorities.</div>
+    </div>
+  </div>
+
+  <!-- PARTNER RESPONSIBILITY -->
+  <div class="policy-section">
+    <div class="section-header">
+      <div class="section-icon">🤝</div>
+      <h2>Partner Responsibility</h2>
+    </div>
+    <div class="policy-card">
+      <p>Homzo believes in building professional, transparent, and ethical partnerships. Our property partners are core pillars of this trusted platform and are expected to:</p>
+      <br>
+      <ul>
+        <li>Maintain and enforce maximum guest safety standards on-property.</li>
+        <li>Provide perfectly accurate, up-to-date property specifications and photos.</li>
+        <li>Deliver highly respectful, empathetic, and professional customer service.</li>
+        <li>Strictly adhere to local municipal laws, building rules, and hospitality guidelines.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SUPPORT & ASSISTANCE -->
+  <div class="policy-section">
+    <div class="section-header">
+      <div class="section-icon">📞</div>
+      <h2>Support & Assistance</h2>
+    </div>
+    <p style="color: var(--text-secondary); margin-bottom: 24px; font-size: 0.95rem;">For urgent safety concerns, booking disputes, property audits, or general trust-related inquiries, please connect with our response team immediately:</p>
+    <div class="contact-grid">
+      <div class="contact-card">
+        <div class="icon">✉️</div>
+        <h4>Email Support</h4>
+        <p><a href="mailto:supporhomzo@gmail.com">supporhomzo@gmail.com</a></p>
+      </div>
+      <div class="contact-card">
+        <div class="icon">📞</div>
+        <h4>Call Helpline</h4>
+        <p><a href="tel:7887090020">+91 7887090020</a><br>Available 24×7</p>
+      </div>
+      <div class="contact-card">
+        <div class="icon">🏢</div>
+        <h4>HQ Location</h4>
+        <p>Gurgaon, Haryana, India</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════ FOOTER ════════════════ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-logo">
+          <img src="homzo_logo.png" alt="HOMZO Logo" class="brand-logo footer-logo">
+        </a>
+        <p>Your trusted accommodation partner across India. Quality stays for every type of traveler.</p>
+        <div class="social-links">
+          <a href="https://www.facebook.com/share/1P3xbf5bP3/" target="_blank" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="https://www.instagram.com/homzo_official" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#" onclick="event.preventDefault();" title="Coming Soon" aria-label="Twitter" style="opacity: 0.5; cursor: not-allowed;"><i class="fa-brands fa-x-twitter"></i></a>
+          <a href="#" onclick="event.preventDefault();" title="Coming Soon" aria-label="LinkedIn" style="opacity: 0.5; cursor: not-allowed;"><i class="fa-brands fa-linkedin-in"></i></a>
+        </div>
+      </div>
+      <div class="footer-links">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="support.html">Support</a></li>
+          <li><a href="official-homzo-blog.html">Official Homzo Blog</a></li>
+          <li><a href="investor-relations.html">Investor Relations</a></li>
+          <li><a href="homzo-circle.html">Homzo Circle</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h5>Policies & Safety</h5>
+        <ul>
+          <li><a href="guest-policy.html">Guest Policy</a></li>
+          <li><a href="trust-and-safety.html">Trust & Safety</a></li>
+          <li><a href="Homzo_Privacy_Policy.pdf" target="_blank">Privacy Policy</a></li>
+          <li><a href="term%20of%20service.pdf" target="_blank">Terms of Service</a></li>
+          <li><a href="responsible-disclosure.html">Responsible Disclosure</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h5>Partner With Us</h5>
+        <ul>
+          <li><a href="advertise-your-homes.html">Partner With Homzo</a></li>
+          <li><a href="homzo-frames.html">Homzo Frames</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 HOMZO. All rights reserved. Built with ❤️ in India.</span>
+      <span>GST No: 27AAGCH1234A1ZS</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

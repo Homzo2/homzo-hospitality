@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Homzo Circle – Hospitality & Partner Network</title>
+  <meta name="description" content="Discover Homzo Circle — our exclusive reward and loyalty membership program offering special discounts, upgrades, and premium benefits." />
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="client.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    /* Homzo Circle Theme & Layout Styles */
+    .circle-hero {
+      position: relative;
+      padding: 140px 20px 80px;
+      text-align: center;
+      background: radial-gradient(circle at top, rgba(255, 92, 53, 0.08) 0%, var(--bg-base) 70%);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .circle-hero-container {
+      max-width: 800px;
+      margin: 0 auto;
+      z-index: 2;
+      position: relative;
+    }
+    .circle-hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--primary-glow);
+      border: 1px solid rgba(255,92,53,0.3);
+      color: var(--primary);
+      padding: 6px 16px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .circle-hero h1 {
+      font-family: 'Sora', sans-serif;
+      font-size: clamp(2.2rem, 5vw, 3.8rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 20px;
+    }
+    .circle-hero p {
+      font-size: 1.15rem;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      max-width: 680px;
+      margin: 0 auto 32px;
+    }
+
+    /* Core grid layout */
+    .circle-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 60px 24px 100px;
+      display: grid;
+      grid-template-columns: 1.7fr 1.1fr;
+      gap: 48px;
+    }
+
+    @media (max-width: 992px) {
+      .circle-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        padding-top: 30px;
+      }
+    }
+
+    /* Community Sections */
+    .circle-section {
+      margin-bottom: 56px;
+    }
+    .circle-section-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+    .circle-section-title i {
+      color: var(--primary);
+    }
+
+    /* Info Cards styling */
+    .info-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 20px;
+      transition: var(--transition);
+    }
+    .info-card:hover {
+      border-color: var(--border-strong);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-card);
+    }
+    .info-card-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+    }
+    .info-card-badge {
+      background: var(--primary-glow);
+      color: var(--primary);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 9px;
+    }
+    .info-card h4 {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+    }
+    .info-card p {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+
+    /* Stories Card specific styling */
+    .story-card {
+      border-left: 3px solid var(--primary);
+    }
+    .story-author {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Blog Card styling */
+    .blog-item {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .blog-item:last-child {
+      border-bottom: none;
+    }
+    .blog-icon {
+      font-size: 1.6rem;
+      color: var(--primary);
+      background: var(--primary-glow);
+      width: 46px;
+      height: 46px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .blog-info h5 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+      transition: color 0.2s;
+    }
+    .blog-info h5:hover {
+      color: var(--primary);
+      cursor: pointer;
+    }
+    .blog-info span {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    /* Side Join form */
+    .join-form-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      height: fit-content;
+      position: sticky;
+      top: 100px;
+      box-shadow: var(--shadow-card);
+    }
+    .join-form-card h3 {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .join-form-card p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-watermark"></div>
+
+<!-- ════════════════ NAVBAR ════════════════ -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo">
+      <img src="homzo_logo.png" alt="HOMZO Logo" class="brand-logo">
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html" class="nav-link">Home</a></li>
+      <li><a href="about.html" class="nav-link">About</a></li>
+      <li><a href="index.html#categories" class="nav-link">Categories</a></li>
+      <li><a href="index.html#properties" class="nav-link">Properties</a></li>
+      <li><a href="/careers" class="nav-link">Careers</a></li>
+      <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+    </ul>
+    <div class="nav-actions">
+    </div>
+  </div>
+</nav>
+
+<!-- ════════════════ HERO SECTION ════════════════ -->
+<section class="circle-hero">
+  <div class="circle-hero-container">
+    <div class="circle-hero-badge"><i class="fa-solid fa-users-viewfinder"></i> Homzo Circle</div>
+    <h1>Welcome to <span class="grad-text">Homzo Circle</span></h1>
+    <p>“Homzo Circle is an upcoming hospitality community focused on connecting hotels, travelers, and business opportunities across India. Stay connected for updates, partnerships, travel insights, and future community activities.”</p>
+    <button class="btn btn-primary" onclick="scrollToForm()"><i class="fa-solid fa-network-wired"></i> Join Our Network</button>
+  </div>
+</section>
+
+<!-- ════════════════ MAIN GRID LAYOUT ════════════════ -->
+<div class="circle-grid">
+  
+  <!-- Left Side: Community News, Stories, Blogs & Bulletins -->
+  <main>
+    
+    <!-- Latest Updates -->
+    <section class="circle-section">
+      <h2 class="circle-section-title"><i class="fa-solid fa-bullhorn"></i> Latest Homzo Updates</h2>
+      
+      <div class="info-card">
+        <div class="info-card-meta">
+          <span class="info-card-badge">Announcement</span>
+          <span>•</span>
+          <span>May 2026</span>
+        </div>
+        <h4>Homzo Expansion Blueprint: Launching Soon in Key IT &amp; Student Hubs</h4>
+        <p>We are officially mapping our operational models for key metropolitan sectors, targeting Pune, Hyderabad, and Delhi NCR. This blueprint ensures dedicated student accommodations and premium corporate stay setups are pre-verified and loaded with standard hospitality provisions.</p>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-meta">
+          <span class="info-card-badge">Integration</span>
+          <span>•</span>
+          <span>April 2026</span>
+        </div>
+        <h4>Zero-Friction Booking Channels for Local Property Partners</h4>
+        <p>Introducing a refined guest onboarding workflow that registers bookings and feeds data directly into local dashboards. Property owners can now close leases, track check-ins, and manage guest verification metrics dynamically with complete transparent auditing.</p>
+      </div>
+    </section>
+
+    <!-- Hotel Partner Stories -->
+    <section class="circle-section">
+      <h2 class="circle-section-title"><i class="fa-solid fa-handshake"></i> Hotel Partner Stories</h2>
+      
+      <div class="info-card story-card">
+        <div class="info-card-meta">
+          <span class="info-card-badge">Mumbai Success</span>
+          <span>•</span>
+          <span>Partnership Review</span>
+        </div>
+        <h4>"Transitioning to the Homzo verified network improved occupancy by 35%"</h4>
+        <p>"Relying on Homzo's digital validation system completely streamlined our guest screening process. We've seen a highly consistent inflow of corporate professionals on short-term projects who value clean, secure, and professional serviced lodging."</p>
+        <div class="story-author">
+          <i class="fa-solid fa-circle-user"></i>
+          <span>Mr. Satish Kamath, Managing Director, Kamath Residency</span>
+        </div>
+      </div>
+
+      <div class="info-card story-card">
+        <div class="info-card-meta">
+          <span class="info-card-badge">Bengaluru Stay</span>
+          <span>•</span>
+          <span>Partnership Review</span>
+        </div>
+        <h4>"Simplified corporate leasing pipelines for shared premium stays"</h4>
+        <p>"Integrating our co-living units with Homzo's booking schema freed us from manual coordination. Corporate interns and young professionals verify their details online and check in immediately, ensuring zero rental vacancy cycles."</p>
+        <div class="story-author">
+          <i class="fa-solid fa-circle-user"></i>
+          <span>Mrs. Anjali Hegde, Proprietor, The Elite Co-Living</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Travel & Hospitality Blogs -->
+    <section class="circle-section">
+      <h2 class="circle-section-title"><i class="fa-solid fa-book-open-reader"></i> Travel &amp; Hospitality Blogs</h2>
+      
+      <div class="blog-item">
+        <div class="blog-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+        <div class="blog-info">
+          <h5 onclick="showBlogAlert()">The Ultimate Guide for Students Relocating to Mumbai Stays</h5>
+          <span>Read Time: 5 mins • Focus: Budget Stay, Transit Routes, Student Hacks</span>
+        </div>
+      </div>
+
+      <div class="blog-item">
+        <div class="blog-icon"><i class="fa-solid fa-briefcase"></i></div>
+        <div class="blog-info">
+          <h5 onclick="showBlogAlert()">Why Custom Corporate Lodging is Replacing Traditional Hotel Bookings</h5>
+          <span>Read Time: 7 mins • Focus: Professional Stays, Smart Workspace, Flexibility</span>
+        </div>
+      </div>
+
+      <div class="blog-item">
+        <div class="blog-icon"><i class="fa-solid fa-umbrella-beach"></i></div>
+        <div class="blog-info">
+          <h5 onclick="showBlogAlert()">Exploring Offbeat Leisure Destination Partnerships in Western India</h5>
+          <span>Read Time: 4 mins • Focus: Eco-Tourism, Verified Homestays, Local Experiences</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Business & Investor Updates -->
+    <section class="circle-section" style="margin-bottom: 0;">
+      <h2 class="circle-section-title"><i class="fa-solid fa-chart-line"></i> Business &amp; Investor Updates</h2>
+      
+      <div class="info-card">
+        <div class="info-card-meta">
+          <span class="info-card-badge">Q1 Growth</span>
+          <span>•</span>
+          <span>Investor Relations</span>
+        </div>
+        <h4>Unifying Fragmentation in Independent Hospitality Sectors</h4>
+        <p>Our operational thesis focuses on standardizing independent hotels and co-living properties into a unified digital experience. By automating billing, booking, and policy auditing channels, Homzo enhances the net yield for asset owners while guaranteeing reliability for travelers.</p>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-meta">
+          <span class="info-card-badge">Franchising</span>
+          <span>•</span>
+          <span>Enterprise Bulletin</span>
+        </div>
+        <h4>Enterprise Franchise &amp; Managed Property Models</h4>
+        <p>We are opening dialogue frameworks for managed property contracts and franchise partnerships for premium co-living assets across Tier 1 and Tier 2 cities in India. Qualified owners can access proprietary guest onboarding systems and global marketing resources.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Right Side: Clean Inquiry Form (Sticky) -->
+  <aside>
+    <div class="join-form-card" id="joinFormCard">
+      <h3>Join Homzo Circle</h3>
+      <p>Connect with enterprise leaders, travelers, and asset operators. Join our upcoming network database for priority alerts.</p>
+      
+      <form id="circleJoinForm">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="cjName" class="form-control" placeholder="Enter your name" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="cjEmail" class="form-control" placeholder="you@domain.com" required>
+        </div>
+
+        <div class="form-group">
+          <label>You Are A</label>
+          <select id="cjType" class="form-control" style="appearance: auto;">
+            <option value="Hotel / Property Owner">Hotel / Property Owner</option>
+            <option value="Traveler / Guest">Traveler / Guest</option>
+            <option value="Investor / Business Partner">Investor / Business Partner</option>
+            <option value="Vendor / Operator">Vendor / Operator</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Message / Partnership Interest</label>
+          <textarea id="cjMessage" class="form-control" rows="4" placeholder="Briefly describe your property location, investment targets, or inquiries..." required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+          <i class="fa-solid fa-paper-plane"></i> Submit Inquiry
+        </button>
+      </form>
+    </div>
+  </aside>
+
+</div>
+
+<!-- ════════════════ FOOTER ════════════════ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-logo">
+          <img src="homzo_logo.png" alt="HOMZO Logo" class="brand-logo footer-logo">
+        </a>
+        <p>Your trusted accommodation partner across India. Quality stays for every type of traveler.</p>
+        <div class="social-links">
+          <a href="https://www.facebook.com/share/1P3xbf5bP3/" target="_blank" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="https://www.instagram.com/homzo_official" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#" onclick="event.preventDefault();" title="Coming Soon" aria-label="Twitter" style="opacity: 0.5; cursor: not-allowed;"><i class="fa-brands fa-x-twitter"></i></a>
+          <a href="#" onclick="event.preventDefault();" title="Coming Soon" aria-label="LinkedIn" style="opacity: 0.5; cursor: not-allowed;"><i class="fa-brands fa-linkedin-in"></i></a>
+        </div>
+      </div>
+      <div class="footer-links">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="support.html">Support</a></li>
+          <li><a href="official-homzo-blog.html">Official Homzo Blog</a></li>
+          <li><a href="investor-relations.html">Investor Relations</a></li>
+          <li><a href="homzo-circle.html">Homzo Circle</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h5>Policies & Safety</h5>
+        <ul>
+          <li><a href="guest-policy.html">Guest Policy</a></li>
+          <li><a href="trust-and-safety.html">Trust & Safety</a></li>
+          <li><a href="Homzo_Privacy_Policy.pdf" target="_blank">Privacy Policy</a></li>
+          <li><a href="term%20of%20service.pdf" target="_blank">Terms of Service</a></li>
+          <li><a href="responsible-disclosure.html">Responsible Disclosure</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h5>Partner With Us</h5>
+        <ul>
+          <li><a href="advertise-your-homes.html">Partner With Homzo</a></li>
+          <li><a href="homzo-frames.html">Homzo Frames</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 HOMZO. All rights reserved. Built with ❤️ in India.</span>
+      <span>GST No: 27AAGCH1234A1ZS</span>
+    </div>
+  </div>
+</footer>
+
+<!-- Toast notification container -->
+<div id="toast-container"></div>
+
+<!-- JavaScript Controls -->
+<script>
+// --- Show Toast ---
+function showToast(msg, type = 'info') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  const icons = { success: 'fa-check-circle', error: 'fa-circle-xmark', info: 'fa-circle-info' };
+  const colors = { success: '#22c55e', error: '#ef4444', info: '#3b82f6' };
+  t.className = `toast ${type}`;
+  t.innerHTML = `<i class="fa-solid ${icons[type]}" style="color:${colors[type]};font-size:18px"></i><span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(() => {
+    t.style.opacity = '0';
+    t.style.transform = 'translateX(60px)';
+    t.style.transition = '0.3s';
+    setTimeout(() => t.remove(), 300);
+  }, 4000);
+}
+
+// --- Scroll function ---
+function scrollToForm() {
+  document.getElementById('joinFormCard').scrollIntoView({ behavior: 'smooth' });
+}
+
+// --- Blog Alert ---
+function showBlogAlert() {
+  showToast('Connecting to blog article database...', 'info');
+  setTimeout(() => {
+    window.location.href = 'official-homzo-blog.html';
+  }, 1000);
+}
+
+// --- Submit form dynamically to backend inquiries database ---
+document.getElementById('circleJoinForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const name = document.getElementById('cjName').value.trim();
+  const email = document.getElementById('cjEmail').value.trim();
+  const type = document.getElementById('cjType').value;
+  const msg = document.getElementById('cjMessage').value.trim();
+  
+  if (!name || !email || !msg) {
+    showToast('Please fill all required inputs!', 'error');
+    return;
+  }
+  
+  const submitBtn = e.target.querySelector('button');
+  const originalHtml = submitBtn.innerHTML;
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+
+  try {
+    // Post directly to the existing inquiries API (saves to inquiries_database.csv)
+    const res = await fetch('/api/inquiries', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name,
+        email,
+        type: `Circle - ${type}`,
+        message: msg
+      })
+    });
+    
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Submission failed');
+
+    showToast(`Welcome to Homzo Circle, ${name}! Your inquiry has been registered.`, 'success');
+    e.target.reset();
+  } catch (err) {
+    console.error('Submission Error:', err);
+    showToast(err.message === 'Failed to fetch' ? 'Unable to connect to backend server.' : err.message, 'error');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = originalHtml;
+  }
+});
+</script>
+
+</body>
+</html>
+

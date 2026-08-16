@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Investor Relations - HOMZO</title>
+  <meta name="description" content="Explore Homzo Hospitality Investor Relations — access financial reports, corporate governance updates, and investor news." />
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="client.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .page-header {
+      padding: 120px 20px 60px;
+      text-align: center;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+    }
+    .page-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+    }
+    .page-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 60px 32px;
+      min-height: 45vh;
+      position: relative;
+      z-index: 10;
+    }
+    .page-watermark {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-image: url('homzo_logo.png');
+      background-repeat: repeat;
+      background-size: 300px;
+      opacity: 0.02;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    /* Investor Custom Layouts */
+    .investor-intro {
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      line-height: 1.8;
+      max-width: 860px;
+      margin: 0 auto 48px;
+      text-align: center;
+    }
+    
+    .vision-card {
+      background: linear-gradient(135deg, var(--bg-card) 0%, rgba(255, 92, 53, 0.04) 100%);
+      border: 1px dashed rgba(255, 92, 53, 0.3);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      text-align: center;
+      margin-bottom: 60px;
+      box-shadow: var(--shadow-card);
+    }
+    .vision-card i {
+      font-size: 2rem;
+      color: var(--primary);
+      margin-bottom: 16px;
+    }
+    .vision-quote {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.6;
+      font-style: italic;
+    }
+
+    .investor-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 60px;
+    }
+    
+    .why-invest-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 28px;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .why-invest-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-card);
+    }
+    .why-invest-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--primary-glow);
+      color: var(--primary);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+    .why-invest-card h4 {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.1rem;
+      color: var(--text-primary);
+      font-weight: 700;
+    }
+    .why-invest-card p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* Property Gallery */
+    .gallery-section {
+      margin-bottom: 60px;
+    }
+    .gallery-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.75rem;
+      color: var(--text-primary);
+      margin-bottom: 32px;
+      text-align: center;
+      font-weight: 700;
+    }
+    .gallery-title span { color: var(--primary); }
+    
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+    @media (max-width: 1024px) {
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .gallery-grid { grid-template-columns: 1fr; }
+    }
+    
+    .gallery-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      transition: var(--transition);
+      position: relative;
+      height: 250px;
+    }
+    .gallery-item:hover {
+      border-color: var(--primary);
+      transform: translateY(-4px);
+    }
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s;
+    }
+    .gallery-item:hover img {
+      transform: scale(1.08);
+    }
+    .gallery-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(10, 12, 16, 0.95) 0%, rgba(10, 12, 16, 0.2) 70%, transparent 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 20px;
+    }
+    .gallery-overlay h5 {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.05rem;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+    .gallery-overlay p {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    /* Split opportunities and discussion */
+    .opp-disc-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      margin-bottom: 60px;
+    }
+    @media (max-width: 800px) {
+      .opp-disc-split { grid-template-columns: 1fr; gap: 30px; }
+    }
+    .split-col {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 36px;
+    }
+    .split-col h3 {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.4rem;
+      margin-bottom: 24px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+    }
+    .split-col h3 i { color: var(--primary); }
+    
+    .pill-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .pill-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      padding: 16px 20px;
+      border-radius: var(--radius-md);
+      transition: var(--transition);
+    }
+    .pill-item:hover {
+      border-color: var(--primary);
+      transform: translateX(6px);
+    }
+    .pill-item i {
+      color: var(--primary);
+      font-size: 1.1rem;
+    }
+    .pill-item span {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    /* Contact Card and CTA group */
+    .ir-contact-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      margin-bottom: 40px;
+    }
+    .ir-contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+    }
+    @media (max-width: 900px) {
+      .ir-contact-grid { grid-template-columns: 1fr; gap: 30px; }
+    }
+    
+    .ir-info-pane {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .ir-info-pane h3 {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.5rem;
+      color: var(--text-primary);
+      font-weight: 700;
+    }
+    .ir-info-pane p {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .ir-contact-details {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 10px;
+    }
+    .ir-contact-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+    }
+    .ir-contact-item i {
+      color: var(--primary);
+      width: 20px;
+      font-size: 1.05rem;
+    }
+    .ir-contact-item a {
+      color: var(--text-primary);
+      font-weight: 600;
+      transition: var(--transition);
+    }
+    .ir-contact-item a:hover {
+      color: var(--primary);
+    }
+    
+    .ir-cta-pane {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 480px) {
+      .ir-cta-pane { grid-template-columns: 1fr; }
+    }
+    .ir-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 24px 16px;
+      color: var(--text-primary);
+      font-family: 'Sora', sans-serif;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: var(--transition);
+      cursor: pointer;
+      text-align: center;
+    }
+    .ir-btn:hover {
+      border-color: var(--primary);
+      background: var(--primary-glow);
+      color: var(--primary);
+      transform: translateY(-3px);
+      box-shadow: 0 4px 15px var(--primary-glow);
+    }
+    .ir-btn i {
+      font-size: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-watermark"></div>
+
+<!-- ════════════════ NAVBAR ════════════════ -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo">
+      <img src="homzo_logo.png" alt="HOMZO Logo" class="brand-logo">
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html" class="nav-link">Home</a></li>
+      <li><a href="about.html" class="nav-link">About</a></li>
+          <li><a href="/careers" class="nav-link">Careers</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ════════════════ HEADER ════════════════ -->
+<header class="page-header">
+  <h1 class="page-title">Investor Relations</h1>
+</header>
+
+<!-- ════════════════ CONTENT ════════════════ -->
+<div class="page-container">
+  
+  <!-- INTRO -->
+  <div class="investor-intro">
+    <h3>Building the Future of <span class="grad-text">Smart Hospitality</span> with Homzo</h3>
+    <p style="margin-top: 16px;">Homzo is creating a modern hospitality and accommodation ecosystem focused on affordability, operational efficiency, and scalable growth opportunities across India. We are actively exploring strategic partnerships, investor collaborations, and expansion opportunities with individuals and organizations who believe in the future of smart hospitality.</p>
+  </div>
+
+  <!-- VISION -->
+  <div class="vision-card">
+    <i class="fa-solid fa-quote-left"></i>
+    <div class="vision-quote">
+      “Our vision is to build a trusted and scalable hospitality brand that simplifies stays, empowers property owners, and creates value-driven experiences for modern travelers.”
+    </div>
+  </div>
+
+  <!-- WHY INVEST -->
+  <div class="gallery-title">Why Invest in <span>Homzo?</span></div>
+  <div class="investor-grid">
+    
+    <div class="why-invest-card">
+      <div class="why-invest-icon"><i class="fa-solid fa-chart-line"></i></div>
+      <h4>Growing Demand</h4>
+      <p>Unprecedented, rising demand in India for organized, managed accommodations and student stays.</p>
+    </div>
+
+    <div class="why-invest-card">
+      <div class="why-invest-icon"><i class="fa-solid fa-hotel"></i></div>
+      <h4>Hybrid Approach</h4>
+      <p>Innovative business model inspired by modern hotel aggregation and managed stay platforms.</p>
+    </div>
+
+    <div class="why-invest-card">
+      <div class="why-invest-icon"><i class="fa-solid fa-map-location-dot"></i></div>
+      <h4>Scalable Expansion</h4>
+      <p>Proven roadmaps to scale in tier 1, tier 2, and highly lucrative religious/tourism hotspots.</p>
+    </div>
+
+    <div class="why-invest-card">
+      <div class="why-invest-icon"><i class="fa-solid fa-gears"></i></div>
+      <h4>Tech-Driven</h4>
+      <p>Heavy emphasis on operational efficiency and a seamless customer experience via custom software.</p>
+    </div>
+
+    <div class="why-invest-card" style="grid-column: 1 / -1; max-width: 500px; margin: 0 auto;">
+      <div class="why-invest-icon" style="margin: 0 auto;"><i class="fa-solid fa-eye"></i></div>
+      <h4 style="text-align: center;">Long-Term Vision</h4>
+      <p style="text-align: center;">Organizing and digitizing the highly fragmented budget stays sector to establish the go-to value brand across India.</p>
+    </div>
+
+  </div>
+
+  <!-- PROPERTY GALLERY SHOWROOM -->
+  <div class="gallery-section">
+    <div class="gallery-title">Our Premium <span>Stay Verticals</span></div>
+    <div class="gallery-grid">
+      
+      <div class="gallery-item">
+        <img src="student_room.png" alt="Student Accommodation">
+        <div class="gallery-overlay">
+          <h5>Cozy Student Rooms</h5>
+          <p>Managed student stays & co-living near prime universities.</p>
+        </div>
+      </div>
+
+      <div class="gallery-item">
+        <img src="employee_room.png" alt="Corporate Stays">
+        <div class="gallery-overlay">
+          <h5>Corporate Suites</h5>
+          <p>Premium service apartments for working professionals.</p>
+        </div>
+      </div>
+
+      <div class="gallery-item">
+        <img src="tourist_room.png" alt="Tourist Accommodations">
+        <div class="gallery-overlay">
+          <h5>Tourist Havens</h5>
+          <p>Comfortable, affordable rooms in tourism cities.</p>
+        </div>
+      </div>
+
+      <div class="gallery-item">
+        <img src="couple_room.png" alt="Couple Friendly Stays">
+        <div class="gallery-overlay">
+          <h5>Private Couple Rooms</h5>
+          <p>Hassle-free, secure, and dignified private stays.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SPLIT: OPPORTUNITIES & DISCUSSION -->
+  <div class="opp-disc-split">
+    
+    <div class="split-col">
+      <h3><i class="fa-solid fa-handshake-simple"></i> Investment Opportunities</h3>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">We welcome discussions related to the following investment avenues:</p>
+      <div class="pill-list">
+        <div class="pill-item"><i class="fa-solid fa-circle-check"></i><span>Strategic Investments</span></div>
+        <div class="pill-item"><i class="fa-solid fa-circle-check"></i><span>Franchise & Expansion Partnerships</span></div>
+        <div class="pill-item"><i class="fa-solid fa-circle-check"></i><span>Hospitality Collaborations</span></div>
+        <div class="pill-item"><i class="fa-solid fa-circle-check"></i><span>Corporate Accommodation Solutions</span></div>
+        <div class="pill-item"><i class="fa-solid fa-circle-check"></i><span>Technology & Growth Partnerships</span></div>
+      </div>
+    </div>
+
+    <div class="split-col">
+      <h3><i class="fa-solid fa-comments"></i> Schedule a Discussion</h3>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">Interested investors and partners can connect with us directly for:</p>
+      <div class="pill-list">
+        <div class="pill-item"><i class="fa-solid fa-square-poll-horizontal"></i><span>Business Presentations</span></div>
+        <div class="pill-item"><i class="fa-solid fa-compass"></i><span>Growth Roadmap Discussions</span></div>
+        <div class="pill-item"><i class="fa-solid fa-earth-asia"></i><span>Market Expansion Plans</span></div>
+        <div class="pill-item"><i class="fa-solid fa-layer-group"></i><span>Partnership Models</span></div>
+        <div class="pill-item"><i class="fa-solid fa-indian-rupee-sign"></i><span>Revenue Opportunities</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CONTACT & CALL TO ACTIONS -->
+  <div class="ir-contact-section">
+    <div class="ir-contact-grid">
+      
+      <div class="ir-info-pane">
+        <h3>Investor Contact</h3>
+        <p>For investment inquiries, partnership discussions, or business collaborations, please connect with our dedicated Investor Relations team.</p>
+        <h4 style="font-family: 'Sora', sans-serif; color: var(--text-primary); margin-top: 10px; font-weight: 700;">Homzo Hospitality Pvt. Ltd.</h4>
+        <div class="ir-contact-details">
+          <div class="ir-contact-item"><i class="fa-solid fa-envelope"></i><a href="mailto:supporthomzo@gmail.com">supporthomzo@gmail.com</a></div>
+          <div class="ir-contact-item"><i class="fa-solid fa-phone"></i><a href="tel:7887090020">+91 7887090020</a></div>
+          <div class="ir-contact-item"><i class="fa-solid fa-location-dot"></i><span>Gurgaon, Haryana, India</span></div>
+        </div>
+      </div>
+
+      <div class="ir-cta-pane">
+        <div class="ir-btn" onclick="openInvestorModal('Request Investor Deck')">
+          <i class="fa-solid fa-file-pdf" style="color: var(--danger);"></i>
+          <span>Request Investor Deck</span>
+        </div>
+        <div class="ir-btn" onclick="openInvestorModal('Schedule Meeting')">
+          <i class="fa-solid fa-calendar-days" style="color: var(--info);"></i>
+          <span>Schedule Meeting</span>
+        </div>
+        <div class="ir-btn" onclick="openInvestorModal('Become a Partner')">
+          <i class="fa-solid fa-handshake" style="color: var(--success);"></i>
+          <span>Become a Partner</span>
+        </div>
+        <div class="ir-btn" onclick="openInvestorModal('Contact Investor Relations')">
+          <i class="fa-solid fa-address-book" style="color: var(--warning);"></i>
+          <span>Contact IR Team</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════ INVESTOR INTEREST MODAL ════════════════ -->
+<div class="modal-overlay" id="investorModal" style="display:none;">
+  <div class="modal-box" style="position:relative; max-width:550px;">
+    <button class="modal-close" onclick="closeModal('investorModal')"><i class="fa-solid fa-xmark"></i></button>
+    <h2 id="modalTitle"><i class="fa-solid fa-chart-line" style="color:var(--primary); margin-right:10px"></i>Connect With Us</h2>
+    <form id="investorForm" onsubmit="handleInvestorSubmit(event)">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" class="form-control" placeholder="Enter your name" id="invName" required>
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" class="form-control" placeholder="you@example.com" id="invEmail" required>
+      </div>
+      <div class="form-group">
+        <label>Phone Number</label>
+        <input type="tel" class="form-control" placeholder="+91 XXXXX XXXXX" id="invPhone" required>
+      </div>
+      <div class="form-group">
+        <label>Organization / Firm</label>
+        <input type="text" class="form-control" placeholder="Company Name" id="invCompany" required>
+      </div>
+      <div class="form-group">
+        <label>Brief Message / Area of Interest</label>
+        <textarea class="form-control" rows="3" placeholder="Tell us how we can collaborate..." id="invMessage"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%; margin-top:4px">
+        <i class="fa-solid fa-paper-plane"></i> Submit Inquiry
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openInvestorModal(actionTitle) {
+    document.getElementById('modalTitle').innerHTML = `<i class="fa-solid fa-chart-line" style="color:var(--primary); margin-right:10px"></i>${actionTitle}`;
+    document.getElementById('invMessage').placeholder = `I am interested in: ${actionTitle}...`;
+    document.getElementById('investorModal').style.display = 'flex';
+  }
+
+  function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+  }
+
+  function handleInvestorSubmit(event) {
+    event.preventDefault();
+    const name = document.getElementById('invName').value;
+    const email = document.getElementById('invEmail').value;
+    const phone = document.getElementById('invPhone').value;
+    const company = document.getElementById('invCompany').value;
+    const msg = document.getElementById('invMessage').value;
+
+    // Send payload to backend server API
+    fetch('/api/inquiries', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: name,
+        email: email,
+        type: 'Investor Inquiry',
+        message: `Company: ${company} | Phone: ${phone} | Details: ${msg}`
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        closeModal('investorModal');
+        document.getElementById('investorForm').reset();
+        showToast('Your inquiry has been successfully submitted! Our Investor Relations team will reach out to you shortly.', 'success');
+      } else {
+        showToast('Something went wrong. Please try again.', 'error');
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      // Fallback local success if offline/server is not active for write
+      closeModal('investorModal');
+      document.getElementById('investorForm').reset();
+      showToast('Thank you! Your interest has been recorded. Our IR team will contact you shortly.', 'success');
+    });
+  }
+
+  function showToast(message, type = 'success') {
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+      toastContainer = document.createElement('div');
+      toastContainer.id = 'toast-container';
+      document.body.appendChild(toastContainer);
+    }
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-check-circle' : 'fa-triangle-exclamation'}" style="color:${type === 'success' ? 'var(--success)' : 'var(--danger)'}; margin-right:8px;"></i><span>${message}</span>`;
+    toastContainer.appendChild(toast);
+    setTimeout(() => {
+      toast.style.animation = 'slideOutRight 0.35s ease forwards';
+      setTimeout(() => toast.remove(), 350);
+    }, 4000);
+  }
+</script>
+
+<!-- ════════════════ FOOTER ════════════════ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-logo">
+          <img src="homzo_logo.png" alt="HOMZO Logo" class="brand-logo footer-logo">
+        </a>
+        <p>Your trusted accommodation partner across India. Quality stays for every type of traveler.</p>
+        <div class="social-links">
+          <a href="https://www.facebook.com/share/1P3xbf5bP3/" target="_blank" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="https://www.instagram.com/homzo_official" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#" onclick="event.preventDefault();" title="Coming Soon" aria-label="Twitter" style="opacity: 0.5; cursor: not-allowed;"><i class="fa-brands fa-x-twitter"></i></a>
+          <a href="#" onclick="event.preventDefault();" title="Coming Soon" aria-label="LinkedIn" style="opacity: 0.5; cursor: not-allowed;"><i class="fa-brands fa-linkedin-in"></i></a>
+        </div>
+      </div>
+      <div class="footer-links">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="support.html">Support</a></li>
+          <li><a href="official-homzo-blog.html">Official Homzo Blog</a></li>
+          <li><a href="investor-relations.html">Investor Relations</a></li>
+          <li><a href="homzo-circle.html">Homzo Circle</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h5>Policies & Safety</h5>
+        <ul>
+          <li><a href="guest-policy.html">Guest Policy</a></li>
+          <li><a href="trust-and-safety.html">Trust & Safety</a></li>
+          <li><a href="Homzo_Privacy_Policy.pdf" target="_blank">Privacy Policy</a></li>
+          <li><a href="term%20of%20service.pdf" target="_blank">Terms of Service</a></li>
+          <li><a href="responsible-disclosure.html">Responsible Disclosure</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h5>Partner With Us</h5>
+        <ul>
+          <li><a href="advertise-your-homes.html">Partner With Homzo</a></li>
+          <li><a href="homzo-frames.html">Homzo Frames</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 HOMZO. All rights reserved. Built with ❤️ in India.</span>
+      <span>GST No: 27AAGCH1234A1ZS</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

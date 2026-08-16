@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Color Extractor</title>
+</head>
+<body>
+    <img id="img" src="homzo_logo.png" style="display:none;" onload="extractColor()" />
+    <div id="output"></div>
+    <script>
+        function extractColor() {
+            var img = document.getElementById('img');
+            var canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, img.width, img.height);
+            var data = ctx.getImageData(0, 0, img.width, img.height).data;
+            
+            var colors = {};
+            for (var i = 0; i < data.length; i += 4) {
+                var r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
+                // ignore transparent or almost transparent
+                if (a < 128) continue;
+                // ignore white/black/grayscale backgrounds often used
+                if (Math.abs(r-g) < 10 && Math.abs(g-b) < 10 && Math.abs(r-b) < 10) continue;
+                
+                var hex = "#" + (1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1);
+                colors[hex] = (colors[hex] || 0) + 1;
+            }
+            
+            var sorted = Object.keys(colors).sort(function(a, b) { return colors[b] - colors[a]; });
+            var topColors = sorted.slice(0, 5).map(c => c + " (" + colors[c] + " pixels)").join("<br>");
+            document.getElementById('output').innerHTML = "TOP COLORS:<br>" + topColors;
+        }
+    </script>
+</body>
+</html>

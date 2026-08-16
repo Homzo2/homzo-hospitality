@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Guest Policies – Homzo Hospitality</title>
+  <meta name="description" content="Read the official Homzo Guest Policy to understand the rules, check-in requirements, and safety policies for staying at Homzo properties." />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --cream: #FAF7F2;
+      --dark: #1A1410;
+      --gold: #C9A84C;
+      --gold-light: #E8CC80;
+      --muted: #7A6F63;
+      --border: #E2D9CE;
+      --card-bg: #FFFFFF;
+      --accent: #8B4513;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--cream);
+      color: var(--dark);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      line-height: 1.75;
+    }
+
+    /* HEADER */
+    header {
+      background: var(--dark);
+      padding: 28px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.7rem;
+      color: var(--gold);
+      letter-spacing: 2px;
+    }
+
+    .logo span {
+      color: #fff;
+      font-weight: 400;
+    }
+
+    .header-tag {
+      font-size: 0.72rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* HERO */
+    .hero {
+      background: var(--dark);
+      color: #fff;
+      text-align: center;
+      padding: 72px 24px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.15) 0%, transparent 70%);
+    }
+
+    .hero-eyebrow {
+      font-size: 0.7rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 18px;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.2rem, 5vw, 3.6rem);
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+
+    .hero p {
+      font-size: 1rem;
+      color: #B0A99A;
+      max-width: 520px;
+      margin: 0 auto 32px;
+    }
+
+    .divider-gold {
+      width: 56px;
+      height: 2px;
+      background: var(--gold);
+      margin: 0 auto;
+    }
+
+    /* CONTACT BAR */
+    .contact-bar {
+      background: var(--gold);
+      color: var(--dark);
+      text-align: center;
+      padding: 14px 24px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    .contact-bar a { color: var(--dark); font-weight: 700; }
+
+    /* MAIN */
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 60px 24px 80px;
+    }
+
+    /* SECTION */
+    .policy-section {
+      margin-bottom: 52px;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 22px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-icon {
+      width: 42px;
+      height: 42px;
+      background: var(--dark);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 1.1rem;
+    }
+
+    .section-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.45rem;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    /* CARD */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 28px 32px;
+      margin-bottom: 16px;
+    }
+
+    .card p, .card li {
+      font-size: 0.95rem;
+      color: #3D3530;
+      margin-bottom: 10px;
+    }
+
+    .card ul, .card ol {
+      padding-left: 20px;
+    }
+
+    .card li { margin-bottom: 8px; }
+
+    /* TABLE */
+    .policy-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin-top: 8px;
+    }
+
+    .policy-table th {
+      background: var(--dark);
+      color: var(--gold-light);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      padding: 12px 16px;
+      text-align: left;
+    }
+
+    .policy-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      color: #3D3530;
+    }
+
+    .policy-table tr:last-child td { border-bottom: none; }
+    .policy-table tr:nth-child(even) td { background: #FAF7F2; }
+
+    /* NOTE BOX */
+    .note-box {
+      background: #FFF8EC;
+      border-left: 3px solid var(--gold);
+      border-radius: 0 8px 8px 0;
+      padding: 14px 20px;
+      font-size: 0.88rem;
+      color: var(--accent);
+      margin-top: 12px;
+    }
+
+    /* TAG */
+    .tag {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--dark);
+      font-size: 0.68rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+
+    /* CONTACT SECTION */
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .contact-card {
+      background: var(--dark);
+      color: #fff;
+      border-radius: 10px;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .contact-card .icon { font-size: 1.6rem; margin-bottom: 10px; }
+    .contact-card h4 { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--gold-light); margin-bottom: 6px; }
+    .contact-card p { font-size: 0.85rem; color: #B0A99A; line-height: 1.5; }
+    .contact-card a { color: var(--gold); }
+
+    /* FOOTER */
+    footer {
+      background: var(--dark);
+      color: #6B6055;
+      text-align: center;
+      padding: 32px 24px;
+      font-size: 0.8rem;
+      letter-spacing: 0.5px;
+    }
+
+    footer span { color: var(--gold); }
+
+    @media (max-width: 600px) {
+      header { padding: 18px 20px; }
+      main { padding: 40px 16px 60px; }
+      .card { padding: 20px 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">HOMZO <span>HOSPITALITY</span></div>
+  <div class="header-tag">Guest Policies</div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Official Documentation</div>
+  <h1>Guest Policies &<br/>Stay Guidelines</h1>
+  <p>Everything you need to know for a comfortable, transparent, and enjoyable stay at Homzo properties across India.</p>
+  <div class="divider-gold"></div>
+</div>
+
+<!-- CONTACT BAR -->
+<div class="contact-bar">
+  📞 24×7 Support &nbsp;|&nbsp; Call: <a href="tel:7887090020">7887090020</a> &nbsp;|&nbsp; Email: <a href="mailto:supporhomzo@gmail.com">supporhomzo@gmail.com</a>
+</div>
+
+<!-- MAIN CONTENT -->
+<main>
+
+  <!-- GENERAL BOOKING -->
+  <div class="policy-section">
+    <div class="section-header">
+      <div class="section-icon">📋</div>
+      <h2>General Booking Policy</h2>
+    </div>
+    <div class="card">
+      <span class="tag">Important</span>
+      <p>Certain destinations may have specific travel guidelines during particular periods of the year. All guests are required to comply with applicable local laws and regulations.</p>
+      <p>Policies are booking-specific and will be communicated to the guest either at the time of booking or upon check-in.</p>
+      <p>"Homzo" refers to Homzo Hospitality Pvt. Ltd., including its affiliates, employees, and officers. "Property" refers to the hotel or home where a valid booking has been made through Homzo.</p>
+    </div>
+  </div>
+
+  <!-- CHECK-IN -->
+  <div class="policy-section">
+    <div class="section-header">
+      <div class="section-icon">🏨</div>
+      <h2>Check-In Policy</h2>
+    </div>
+    <div class="card">
+      <ul>
+        <li>The primary guest must be <strong>at least 18 years of age</strong> at the time of check-in.</li>
+        <li>Standard check-in time is <strong>12:00 Noon</strong>. Guests may check in any time after that until the reservation is active.</li>
+        <li>A <strong>valid government-issued photo ID</strong> is mandatory for all guests above 18 years of age.</li>
+        <li>Accepted IDs: Aadhaar Card, Driving License, Voter ID, Passport. <em>PAN card is not accepted.</em></li>
+        <li>Original ID must be presented — photocopies or digital copies may not be accepted.</li>
+      </ul>
+      <div class="note-box">⚠️ Check-in will be denied without a valid original government-issued photo ID.</div>
+    </div>
+    <div class="card">
+      <p><strong>If you face difficulty at check-in, Homzo will:</strong></p>
+      <ol>
+        <li>Attempt to resolve the issue within the same property.</li>
+        <li>Arrange alternate accommodation at another Homzo-listed property if available.</li>
+        <li>Offer a full refund if no alternate accommodation can be arranged or accepted.</li>
+      </ol>
+      <div class="note-box">Homzo is not liable for compensation beyond the booking payment amount.</div>
+    </div>
+  </div>
+
+  <!-- EARLY CHECK-IN / LATE CHECK-OUT -->
+  <div class="policy-section">
+    <div class="section-header">
+      <div class="section-icon">⏰</div>
+      <h2>Early Check-In & Late Check-Out</h2>
+    </div>
+    <div class="card">
+      <p style="font-weight:500; margin-bottom:14px;">Early Check-In Charges (Subject to Availability)</p>
+      <table class="policy-table">
+        <thead>
+          <tr><th>Check-In Time</th><th>Charges Applicable</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Before 6:00 AM</td><td>100% of previous day's room rate</td></tr>
+          <tr><td>6:00 AM – 10:00 AM</td><td>0%–30% of previous day's room rate (property-specific)</td></tr>
+          <tr><td>10:00 AM – 12:00 Noon</td><td>Complimentary</td></tr>
+        </tbody>
+      </table>
+      <div class="note-box">Complimentary breakfast is not applicable on the day of early check-in.</div>
+    </div>
+    <div class="card">
+      <p style="font-weight:500; margin-bottom:14px;">Late Check-Out Charges (Subject to Availability)</p>
+      <table class="policy-table">
+        <thead>
+          <tr><th>Check-Out Time</th><th>Charges Applicable</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>11:00 AM – 1:00 PM</td><td>Complimentary</td></tr>
+          <tr><td>1:00 PM – 5:00 PM</td><td>Up to 30% of the day's room rate (property-specific)</td></tr>
+          <tr><td>After 5:00 PM</td><td>100% of the day's room rate</td></tr>
+        </tbody>
+      </table>
+      <div class="note-box">Standard check-out time is <strong>11:00 AM</strong>. Late check-out cannot be pre-confirmed and is subject to availability on the day.</div>
+    </div>
+  </div>
+
+  <!-- BOOKING EXTENSION -->
+  <div class="policy-section">
+    <div class="section-header">
+      <div class="section-icon">📅</div>
+      <h2>Booking Extension</h2>
+    </div>
+    <div class="card">
+      <p>Extension of stay is subject to room availability at the current prevailing rate, which may differ from your original booking rate.</p>
+      <p>For <strong>long stays exceeding 7 nights</strong>, all outstanding payments must be settled on a weekly basis. Continued accommodation is conditional upon clearance of dues.</p>
+    </div>
+  </div>
+
+  <!-- CANCELLATION -->
+  <div class="policy-section">
+    <div class="section-header">
+      <div class="section-icon">❌</div>
+      <h2>Cancellation Policy</h2>
+    </div>
+    <div class="card">
+      <ul>
+        <li>Bookings can be cancelled via the Homzo website or mobile app.</li>
+        <li>Applicable refunds will be processed within <strong>7–14 working days</strong>.</li>
+        <li>Some properties do not accept bookings from unmarried couples or do not accept local ID proofs — this is disclosed prior to booking. Homzo will not be obligated to refund in such cases.</li>
+        <li>Properties reserve the right to deny check-in for invalid ID, unaccompanied minors, or suspicious activity. No refund obligation applies in such cases.</li>
+        <li>For corporate bookings, cancellation terms as per the signed contract will apply.</li>
+      </ul>
+      <div class="note-box">For booking-specific cancellation terms, refer to your booking confirmation voucher.</div>
+    </div>
+  </div>
+
+  <!-- VISITORS & CHILDREN -->
+  <div class="policy-section">
+    <div class="section-header">
+      <div class="section-icon">👨‍👩‍👧</div>
+      <h2>Visitors & Child Policy</h2>
+    </div>
+    <div class="card">
+      <p><strong>Visitors:</strong></p>
+      <ul>
+        <li>Day visitors are generally permitted in guest rooms.</li>
+        <li>Overnight visitors are not permitted.</li>
+        <li>All visitors must present valid government-issued photo ID at the front desk before accessing guest floors or rooms.</li>
+      </ul>
+      <br/>
+      <p><strong>Children:</strong></p>
+      <ul>
+        <li>1 child up to 5 years of age stays <strong>complimentary</strong> without an extra mattress.</li>
+        <li>Breakfast charges may apply for children.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- TRIPLE OCCUPANCY -->
+  <div class="policy-section">
+    <div class="section-header">
+      <div class="section-icon">🛏️</div>
+      <h2>Triple Occupancy</h2>
+    </div>
+    <div class="card">
+      <p>Select properties allow triple occupancy with an extra mattress for the third guest at an additional charge. A full extra bed is generally not provided. Please confirm with the property before booking.</p>
+    </div>
+  </div>
+
+  <!-- PET POLICY -->
+  <div class="policy-section">
+    <div class="section-header">
+      <div class="section-icon">🐾</div>
+      <h2>Pet Policy <span style="font-size:0.75rem; font-family:'DM Sans'; font-weight:300; color:var(--muted);">(Select Properties Only)</span></h2>
+    </div>
+    <div class="card">
+      <ul>
+        <li>Only dogs and cats are permitted. Maximum <strong>1 pet per booking</strong>.</li>
+        <li>Valid vaccination certificate required at check-in.</li>
+        <li>Pets must be on a leash in all common areas. Muzzles and poop bags must be carried at all times.</li>
+        <li>Pets are <strong>not allowed</strong> on beds, in the swimming pool, or in the restaurant.</li>
+        <li>Pet food is not available on-property.</li>
+        <li>Additional cleaning charges or penalties apply for any damage caused by pets.</li>
+        <li>Pets must not cause inconvenience to other guests.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- CODE OF CONDUCT -->
+  <div class="policy-section">
+    <div class="section-header">
+      <div class="section-icon">⚖️</div>
+      <h2>Code of Conduct</h2>
+    </div>
+    <div class="card">
+      <p>Homzo maintains a strict zero-tolerance policy for illegal activities across all properties. The property reserves the right to deny service or request eviction under the following circumstances:</p>
+      <ul>
+        <li>Failure or refusal to pay for accommodation.</li>
+        <li>Disorderly behaviour disturbing the peace of other guests.</li>
+        <li>Damage, defacement, or threats to hotel property or fellow guests.</li>
+        <li>Any conduct deemed inappropriate by property management.</li>
+      </ul>
+      <div class="note-box">Guests may be held liable for any damage caused to property assets beyond normal wear and tear.</div>
+    </div>
+    <div class="card">
+      <p><strong>Smoking, Alcohol & Substances:</strong></p>
+      <ul>
+        <li>Smoking is prohibited in all Homzo Townhouse properties. Individual hotels may impose additional restrictions — check with the front desk.</li>
+        <li>Consumption of alcohol is prohibited in all public areas including lobbies, hallways, and parking areas.</li>
+        <li>Use or possession of substances listed under the NDPS Act, 1985 will result in immediate eviction and reporting to law enforcement.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SAFETY -->
+  <div class="policy-section">
+    <div class="section-header">
+      <div class="section-icon">🛡️</div>
+      <h2>Safety & Security</h2>
+    </div>
+    <div class="card">
+      <ul>
+        <li>Please follow all fire safety and emergency response procedures as directed by property staff.</li>
+        <li>Homzo and its partner properties are not liable for lost, misplaced, damaged, or stolen personal belongings or valuables.</li>
+        <li>An <strong>SOS emergency button</strong> is available within the Homzo app upon check-in for immediate assistance.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SERVICE ON-TIME -->
+  <div class="policy-section">
+    <div class="section-header">
+      <div class="section-icon">✅</div>
+      <h2>Service On-Time Guarantee</h2>
+    </div>
+    <div class="card">
+      <span class="tag">Select Cities</span>
+      <p>At properties displaying the <strong>Service On-Time</strong> badge, Homzo guarantees resolution of any in-stay issue within <strong>1 hour</strong> of reporting.</p>
+      <p>If unresolved, guests will be offered a room change within the same property or a transfer to an alternate Homzo property.</p>
+      <p>Refund amounts, if applicable, are determined based on the severity of the issue as per Homzo's internal guidelines.</p>
+      <div class="note-box">Currently available in: Bengaluru, Kolkata, Delhi, Gurugram, Hyderabad, and Lucknow.</div>
+    </div>
+  </div>
+
+  <!-- CONTACT -->
+  <div class="policy-section">
+    <div class="section-header">
+      <div class="section-icon">📞</div>
+      <h2>Contact & Support</h2>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-card">
+        <div class="icon">📱</div>
+        <h4>Call Us</h4>
+        <p><a href="tel:7887090020">7887090020</a><br/>Available 24×7</p>
+      </div>
+      <div class="contact-card">
+        <div class="icon">🔄</div>
+        <h4>Bookings & Cancellations</h4>
+        <p><a href="tel:7887090020">7887090020</a></p>
+      </div>
+      <div class="contact-card">
+        <div class="icon">✉️</div>
+        <h4>Email Support</h4>
+        <p><a href="mailto:supporhomzo@gmail.com">supporhomzo@gmail.com</a></p>
+      </div>
+      <div class="contact-card">
+        <div class="icon">🏢</div>
+        <h4>Grievance Officer</h4>
+        <p>Email: <a href="mailto:supporhomzo@gmail.com">supporhomzo@gmail.com</a></p>
+      </div>
+    </div>
+    <div class="note-box" style="margin-top:16px;">⚠️ No complaints will be entertained after check-out. Please raise all concerns during your stay. Homzo does not authorise payment collection through any gateway other than its official secure payment platform.</div>
+  </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2025 <span>Homzo Hospitality Pvt. Ltd.</span> — All Rights Reserved</p>
+  <p style="margin-top:6px;">Policies are subject to change. For the latest updates, visit <span>www.homzohospitality.com</span></p>
+</footer>
+
+</body>
+</html>

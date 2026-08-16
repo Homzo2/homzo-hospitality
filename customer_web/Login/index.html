@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homzo - Portal</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="watermark-bg"></div>
+    
+    <div class="container" id="container">
+        <!-- Sign Up Container -->
+        <div class="form-container sign-up-container">
+            <form action="#">
+                <h2>Create Account</h2>
+                <div class="social-container">
+                    <a href="#" class="social"><i class="fab fa-google"></i></a>
+                    <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social"><i class="fab fa-apple"></i></a>
+                </div>
+                <span>or use your email for registration</span>
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="regName" placeholder="Full Name" />
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="regEmail" placeholder="Email" />
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-phone"></i>
+                    <input type="tel" id="regPhone" placeholder="Phone Number" />
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="regPassword" placeholder="Password" />
+                </div>
+                <button type="button" class="btn primary-btn" id="signUpSubmitBtn">Sign Up</button>
+            </form>
+        </div>
+
+        <!-- Sign In Container -->
+        <div class="form-container sign-in-container">
+            <form action="#">
+                <h2>Welcome Back</h2>
+                <div class="social-container">
+                    <a href="#" class="social"><i class="fab fa-google"></i></a>
+                    <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social"><i class="fab fa-apple"></i></a>
+                </div>
+                <span>or use your account</span>
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="loginEmail" placeholder="Email" />
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="loginPassword" placeholder="Password" />
+                </div>
+                <a href="#" class="forgot-password" id="forgotPasswordLink">Forgot your password?</a>
+                <button type="button" class="btn primary-btn" id="signInSubmitBtn">Sign In</button>
+            </form>
+        </div>
+
+        <!-- Overlay Container -->
+        <div class="overlay-container">
+            <div class="overlay">
+                <!-- Overlay Left (For Sign In) -->
+                <div class="overlay-panel overlay-left">
+                    <h1>Welcome to Homzo!</h1>
+                    <p>To keep connected with us please login with your personal info</p>
+                    <button class="btn ghost-btn" id="signIn">Sign In</button>
+                </div>
+                <!-- Overlay Right (For Sign Up) -->
+                <div class="overlay-panel overlay-right">
+                    <h1>New Here?</h1>
+                    <p>Enter your personal details and start your journey with us</p>
+                    <button class="btn ghost-btn" id="signUp">Sign Up</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password Reset Modal -->
+    <div id="resetPasswordModal" class="reset-modal-overlay" style="display: none;">
+      <div class="reset-modal-box">
+        <button class="reset-modal-close" id="closeResetModalBtn">&times;</button>
+        <h3>Reset Password</h3>
+        
+        <div class="reset-modal-content">
+          <!-- Step 1: Send OTP -->
+          <div id="resetStep1">
+            <p class="reset-instruction">Enter your email to receive a password reset OTP code.</p>
+            <div class="reset-input-wrap">
+              <i class="fas fa-envelope"></i>
+              <input type="email" id="resetEmail" placeholder="Email Address" required />
+            </div>
+            <button type="button" class="reset-btn" id="sendOtpBtn">Send OTP Code</button>
+          </div>
+          
+          <!-- Step 2: Verify & Update -->
+          <div id="resetStep2" style="display: none;">
+            <p class="reset-instruction alert">OTP generated. Check console logs in local dev mode.</p>
+            <div class="reset-input-wrap">
+              <i class="fas fa-key"></i>
+              <input type="text" id="resetOtp" placeholder="6-Digit OTP" required />
+            </div>
+            <div class="reset-input-wrap">
+              <i class="fas fa-lock"></i>
+              <input type="password" id="resetNewPassword" placeholder="New Password" required />
+            </div>
+            <div class="reset-input-wrap">
+              <i class="fas fa-lock"></i>
+              <input type="password" id="resetConfirmPassword" placeholder="Confirm Password" required />
+            </div>
+            <button type="button" class="reset-btn" id="verifyResetBtn">Update Password</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <style>
+    .reset-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(8px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 99999;
+    }
+    .reset-modal-box {
+      background: #ffffff;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 380px;
+      padding: 30px;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+      position: relative;
+      font-family: 'Inter', sans-serif;
+      text-align: left;
+    }
+    .reset-modal-box h3 {
+      font-size: 1.3rem;
+      color: #0f172a;
+      margin-top: 0;
+      margin-bottom: 15px;
+      font-weight: 700;
+    }
+    .reset-modal-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #64748b;
+      line-height: 1;
+    }
+    .reset-modal-close:hover {
+      color: #0f172a;
+    }
+    .reset-instruction {
+      font-size: 0.82rem;
+      color: #64748b;
+      margin-bottom: 18px;
+      line-height: 1.4;
+    }
+    .reset-instruction.alert {
+      background: #f8fafc;
+      border-left: 3px solid #d4af37;
+      padding: 8px 12px;
+      border-radius: 0 6px 6px 0;
+    }
+    .reset-input-wrap {
+      position: relative;
+      margin-bottom: 14px;
+    }
+    .reset-input-wrap i {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+      font-size: 14px;
+    }
+    .reset-input-wrap input {
+      width: 100%;
+      padding: 11px 12px 11px 40px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      outline: none;
+      transition: all 0.2s;
+      box-sizing: border-box;
+    }
+    .reset-input-wrap input:focus {
+      border-color: #d4af37;
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+    }
+    .reset-btn {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #d4af37, #aa7c11);
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.88rem;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .reset-btn:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+    }
+    </style>
+
+    <script src="script.js"></script>
+</body>
+</html>

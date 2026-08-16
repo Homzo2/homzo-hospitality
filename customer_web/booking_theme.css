@@ -1,0 +1,267 @@
+:root {
+    --book-teal: #051A24;
+    --book-teal-light: #072533;
+    --book-gold: #E29E25;
+    --book-gold-hover: #C5881D;
+    --book-text-gray: #A2B3BB;
+    --book-input-border: rgba(255, 255, 255, 0.1);
+    --book-input-bg: rgba(255, 255, 255, 0.05);
+}
+
+/* Scoped booking modal box override */
+#bookingModal .modal-box {
+    position: relative;
+    width: 950px;
+    max-width: 95%;
+    height: 640px;
+    max-height: 90vh;
+    padding: 0 !important; /* Remove original padding to let split panels touch the borders */
+    overflow: hidden;
+    border-radius: 28px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+    background-color: var(--book-teal);
+    display: flex;
+}
+
+/* Close button positioning */
+#bookingModal .modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+    color: #ffffff;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: all 0.2s;
+}
+
+#bookingModal .modal-close:hover {
+    background: var(--book-gold);
+    color: var(--book-teal);
+}
+
+/* Left panel: Background Image */
+#bookingModal .booking-lobby-panel {
+    flex: 1.2;
+    background-image: url('Booking theam.png');
+    background-size: cover;
+    background-position: left center;
+    background-repeat: no-repeat;
+    position: relative;
+}
+
+/* Right panel: Scrollable Form */
+#bookingModal .booking-form-panel {
+    flex: 1;
+    background-color: var(--book-teal);
+    display: flex;
+    flex-direction: column;
+    padding: 40px 30px;
+    overflow-y: auto;
+}
+
+/* Typography matching theme mockup */
+#bookingModal .card-logo-header {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#bookingModal .logo-icon-wrap {
+    width: 80px;
+    height: 80px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #EAEAEA;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+}
+
+#bookingModal .theme-logo-img {
+    height: 42px;
+    width: auto;
+    object-fit: contain;
+}
+
+#bookingModal .gold-heart {
+    color: var(--book-gold);
+    font-size: 14px;
+    margin-top: 8px;
+}
+
+#bookingModal h2 {
+    color: #ffffff;
+    font-size: 1.8rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 5px;
+    font-family: 'Inter', sans-serif;
+    display: block;
+}
+
+#bookingModal h2 span {
+    color: var(--book-gold);
+}
+
+#bookingModal .subtitle {
+    color: var(--book-text-gray);
+    font-size: 0.9rem;
+    text-align: center;
+    margin-bottom: 25px;
+    line-height: 1.4;
+}
+
+/* Input elements */
+#bookingModal .form-group {
+    margin-bottom: 15px;
+}
+
+#bookingModal label {
+    display: block;
+    color: var(--book-gold);
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+#bookingModal .input-icon-wrap {
+    position: relative;
+    width: 100%;
+}
+
+#bookingModal .input-icon-wrap i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--book-text-gray);
+    font-size: 14px;
+}
+
+#bookingModal .form-control {
+    width: 100%;
+    background-color: var(--book-input-bg);
+    border: 1px solid var(--book-input-border);
+    color: #ffffff;
+    padding: 12px 15px 12px 42px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.3s;
+}
+
+#bookingModal .form-control:focus {
+    outline: none;
+    border-color: var(--book-gold);
+    background-color: var(--book-teal-light);
+    box-shadow: 0 0 0 3px rgba(226, 158, 37, 0.15);
+}
+
+#bookingModal input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    opacity: 0.6;
+    cursor: pointer;
+}
+
+/* Two-column layout grid inside form */
+#bookingModal .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+/* Readonly fields styling */
+#bookingModal .form-control[readonly] {
+    background-color: rgba(255, 255, 255, 0.02) !important;
+    border-color: rgba(255, 255, 255, 0.05);
+    color: #e0e0e0;
+    cursor: not-allowed;
+}
+
+/* Confirm Button styling matching "BOOK YOUR ROOM" */
+#bookingModal .theme-btn-book {
+    width: 100%;
+    background-color: var(--book-gold);
+    color: var(--book-teal);
+    border: none;
+    border-radius: 12px;
+    padding: 15px;
+    font-size: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 15px;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(226, 158, 37, 0.2);
+}
+
+#bookingModal .theme-btn-book:hover {
+    background-color: var(--book-gold-hover);
+    box-shadow: 0 6px 20px rgba(226, 158, 37, 0.3);
+}
+
+#bookingModal .theme-btn-book:active {
+    transform: scale(0.98);
+}
+
+/* Form Footer Icons */
+#bookingModal .form-footer-icons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 25px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 20px;
+    text-align: center;
+}
+
+#bookingModal .footer-icon-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+#bookingModal .footer-icon-item i {
+    color: var(--book-gold);
+    font-size: 16px;
+}
+
+#bookingModal .footer-icon-item span {
+    color: var(--book-text-gray);
+    font-size: 0.65rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 900px) {
+    #bookingModal .booking-lobby-panel {
+        display: none;
+    }
+    #bookingModal .modal-box {
+        max-width: 500px;
+        height: auto;
+        max-height: 85vh;
+    }
+    #bookingModal .booking-form-panel {
+        padding: 30px 20px;
+    }
+}

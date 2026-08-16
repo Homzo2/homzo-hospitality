@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Official Homzo Blog – Creator Studio & Stories</title>
+  <meta name="description" content="Read the Official Homzo Blog for travel guides, hospitality trends, company updates, and stories from our guests and partners." />
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="client.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-base:        #080a0e;
+      --bg-surface:     #0f1217;
+      --bg-card:        #151921;
+      --border:         rgba(255, 255, 255, 0.05);
+      --border-strong:  rgba(255, 255, 255, 0.12);
+      --text-primary:   #f3f5f7;
+      --text-secondary: #949eb0;
+    }
+
+    body {
+      background: var(--bg-base);
+      color: var(--text-primary);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Minimal Navbar */
+    .navbar {
+      background: rgba(15, 18, 23, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .back-home {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: var(--bg-card);
+      padding: 8px 16px;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      transition: var(--transition);
+    }
+    .back-home:hover {
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    /* Minimal Page Header */
+    .page-header {
+      text-align: center;
+      padding: 60px 20px 40px;
+    }
+    .page-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+    .page-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      max-width: 500px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* Creator Layout */
+    .creator-layout {
+      display: grid;
+      grid-template-columns: 1.1fr 1.5fr;
+      gap: 40px;
+      max-width: 1250px;
+      margin: 0 auto;
+      padding: 0 24px 100px;
+    }
+
+    @media (max-width: 992px) {
+      .creator-layout {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+    }
+
+    /* Left Side: Upload Panel */
+    .upload-panel {
+      position: sticky;
+      top: 90px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 30px;
+      height: fit-content;
+      box-shadow: var(--shadow-card);
+    }
+
+    /* Segmented Tab Controls */
+    .type-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      background: var(--bg-surface);
+      padding: 5px;
+      border-radius: var(--radius-md);
+      margin-bottom: 24px;
+      border: 1px solid var(--border);
+    }
+    .type-tab {
+      background: none;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 10px;
+      border-radius: 8px;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .type-tab.active {
+      background: var(--bg-card);
+      color: var(--primary);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+
+    /* Dynamic Upload Options */
+    .upload-field-group {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    .upload-field-group.active {
+      display: block;
+    }
+
+    /* Drag and Drop Zone */
+    .drop-zone {
+      border: 2px dashed var(--border-strong);
+      border-radius: var(--radius-md);
+      padding: 30px 20px;
+      text-align: center;
+      background: var(--bg-surface);
+      cursor: pointer;
+      transition: var(--transition);
+      margin-bottom: 18px;
+      position: relative;
+    }
+    .drop-zone:hover {
+      border-color: var(--primary);
+      background: var(--primary-glow);
+    }
+    .drop-zone-icon {
+      font-size: 2.2rem;
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+    .drop-zone-text {
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .drop-zone-sub {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    .file-loaded-badge {
+      display: none;
+      margin-top: 10px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--success);
+      background: rgba(34,197,94,0.1);
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid rgba(34,197,94,0.2);
+    }
+
+    /* WYSIWYG Article Editor */
+    .editor-container {
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin-bottom: 18px;
+      background: var(--bg-surface);
+    }
+    .editor-toolbar {
+      display: flex;
+      gap: 5px;
+      padding: 8px;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+    }
+    .editor-btn {
+      background: none;
+      color: var(--text-secondary);
+      border: 1px solid transparent;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+    .editor-btn:hover {
+      background: var(--bg-surface);
+      color: var(--primary);
+    }
+    .editor-canvas {
+      min-height: 180px;
+      padding: 16px;
+      outline: none;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: var(--text-primary);
+      overflow-y: auto;
+    }
+    .editor-canvas[placeholder]:empty:before {
+      content: attr(placeholder);
+      color: var(--text-muted);
+    }
+
+    /* Form Elements */
+    .form-group {
+      margin-bottom: 18px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .form-control {
+      width: 100%;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      outline: none;
+      transition: var(--transition);
+    }
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    /* Thumbnail input area */
+    .thumbnail-zone {
+      border: 1px dashed var(--border-strong);
+      padding: 12px;
+      border-radius: var(--radius-md);
+      background: var(--bg-surface);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+    .thumbnail-zone i {
+      font-size: 1.2rem;
+      color: var(--primary);
+    }
+
+    /* Upload Progress */
+    .progress-container {
+      display: none;
+      margin-top: 16px;
+      background: var(--bg-surface);
+      border-radius: 99px;
+      height: 6px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      transition: width 0.1s linear;
+    }
+
+    /* Right Side: Blog Feed */
+    .feed-section {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .feed-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+    }
+    .feed-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+    .feed-filters {
+      display: flex;
+      gap: 8px;
+    }
+    .feed-filter-btn {
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 99px;
+      transition: var(--transition);
+    }
+    .feed-filter-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    /* Content Cards */
+    .blog-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+      transition: var(--transition);
+      animation: slideUp 0.4s ease forwards;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .blog-card:hover {
+      border-color: var(--border-strong);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+    }
+
+    .blog-card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+    }
+    .author-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--border-strong);
+      text-transform: uppercase;
+    }
+    .author-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .author-name {
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+    .post-time {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .blog-card-media {
+      position: relative;
+      background: #00;
+      aspect-ratio: 16/9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .blog-card-media video,
+    .blog-card-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .blog-card-content {
+      padding: 20px;
+    }
+    .blog-card-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 99px;
+      margin-bottom: 10px;
+      letter-spacing: 0.5px;
+    }
+    .badge-video { background: rgba(255, 92, 53, 0.15); color: var(--primary); }
+    .badge-photo { background: rgba(59, 130, 246, 0.15); color: var(--info); }
+    .badge-article { background: rgba(34, 197, 94, 0.15); color: var(--success); }
+
+    .blog-card-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+      line-height: 1.4;
+    }
+    .blog-card-description {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+
+    .read-article-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 14px;
+      color: var(--primary);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .read-article-btn:hover {
+      text-decoration: underline;
+    }
+
+    .blog-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 20px;
+      border-top: 1px solid var(--border);
+      background: var(--bg-surface);
+      font-size: 0.8rem;
+    }
+    .footer-actions {
+      display: flex;
+      gap: 16px;
+    }
+    .action-btn {
+      background: none;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+    .action-btn:hover, .action-btn.active {
+      color: var(--primary);
+    }
+
+    .empty-state {
+      display: none;
+      text-align: center;
+      padding: 60px 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--bg-card);
+    }
+    .empty-state i {
+      font-size: 2.5rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    /* Glass Modal for Full Article View */
+    .article-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(12px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      animation: fadeIn 0.25s ease;
+    }
+    .article-modal-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-xl);
+      padding: 40px;
+      width: 100%;
+      max-width: 750px;
+      max-height: 85vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: var(--shadow-card);
+      animation: scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .article-modal-close {
+      position: absolute;
+      top: 20px;
+      right: 24px;
+      background: none;
+      color: var(--text-secondary);
+      font-size: 1.5rem;
+    }
+    .article-modal-close:hover {
+      color: var(--primary);
+    }
+    .modal-article-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 14px;
+    }
+    .modal-article-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      line-height: 1.3;
+      margin-bottom: 20px;
+    }
+    .modal-article-body {
+      font-size: 0.98rem;
+      line-height: 1.8;
+      color: var(--text-primary);
+    }
+    .modal-article-body p {
+      margin-bottom: 16px;
+    }
+    .modal-article-body h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 24px 0 12px;
+      color: var(--text-primary);
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-watermark"></div>
+
+<!-- ════════════════ NAVBAR ════════════════ -->
+<nav class="navbar">
+  <div class="nav-container">
+    <a href="index.html">
+      <img src="homzo_logo.png" alt="HOMZO Logo" style="height: 38px;">
+    </a>
+    <a href="index.html" class="back-home">
+      <i class="fa-solid fa-arrow-left-long"></i> Back to Homepage
+    </a>
+  </div>
+</nav>
+
+<!-- ════════════════ PAGE HEADER ════════════════ -->
+<header class="page-header">
+  <span class="section-label"><i class="fa-solid fa-circle-nodes"></i> Homzo Hub</span>
+  <h1 class="page-title">Creator <span class="grad-text">Studio</span></h1>
+  <p class="page-subtitle">A clean, distraction-free environment to publish guest vlogs, snapshots, and experiences.</p>
+</header>
+
+<!-- ════════════════ LAYOUT ════════════════ -->
+<div class="creator-layout">
+  
+  <!-- Left Column: Premium Creator Panel -->
+  <aside class="upload-panel">
+    <h2 class="upload-title">New Submission</h2>
+    <p class="upload-subtitle">Choose a content type, fill in the details, and share your stay story with travelers.</p>
+    
+    <!-- Segmented Tab Controls -->
+    <div class="type-tabs">
+      <button class="type-tab active" onclick="switchUploadTab('video')">
+        <i class="fa-solid fa-circle-play"></i> Video
+      </button>
+      <button class="type-tab" onclick="switchUploadTab('photo')">
+        <i class="fa-solid fa-image"></i> Photo
+      </button>
+      <button class="type-tab" onclick="switchUploadTab('article')">
+        <i class="fa-solid fa-file-pen"></i> Article
+      </button>
+    </div>
+
+    <!-- Hidden file inputs -->
+    <input type="file" id="videoFileInput" accept="video/*" style="display: none;" onchange="handleFileLoaded('video', this.files[0])">
+    <input type="file" id="photoFileInput" accept="image/*" style="display: none;" onchange="handleFileLoaded('photo', this.files[0])">
+    <input type="file" id="thumbnailFileInput" accept="image/*" style="display: none;" onchange="handleFileLoaded('thumbnail', this.files[0])">
+
+    <!-- COMMON: Title Field -->
+    <div class="form-group">
+      <label>Content Title</label>
+      <input type="text" id="postTitle" class="form-control" placeholder="E.g., Morning vibes at Andheri West suite">
+    </div>
+
+    <!-- DYNAMIC: Video Upload fields -->
+    <div class="upload-field-group active" id="group-video">
+      <label class="form-group"><span style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary);">Video File</span></label>
+      <div class="drop-zone" onclick="document.getElementById('videoFileInput').click()" id="dropZoneVideo">
+        <div class="drop-zone-icon"><i class="fa-solid fa-clapperboard"></i></div>
+        <div class="drop-zone-text" id="dz-video-text">Select Stay Vlog</div>
+        <div class="drop-zone-sub">Drag & drop your MP4/MOV video here</div>
+        <div class="file-loaded-badge" id="badge-video">File Selected</div>
+      </div>
+      
+      <label class="form-group"><span style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary);">Thumbnail Image (Optional)</span></label>
+      <div class="thumbnail-zone" onclick="document.getElementById('thumbnailFileInput').click()">
+        <i class="fa-solid fa-panorama"></i>
+        <span id="dz-thumbnail-text">Browse custom thumbnail cover image...</span>
+      </div>
+      <div class="file-loaded-badge" id="badge-thumbnail" style="margin-bottom:15px;">Cover Selected</div>
+    </div>
+
+    <!-- DYNAMIC: Photo Upload fields -->
+    <div class="upload-field-group" id="group-photo">
+      <label class="form-group"><span style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary);">Stay Snapshot</span></label>
+      <div class="drop-zone" onclick="document.getElementById('photoFileInput').click()" id="dropZonePhoto">
+        <div class="drop-zone-icon"><i class="fa-solid fa-images"></i></div>
+        <div class="drop-zone-text" id="dz-photo-text">Select Snapshot</div>
+        <div class="drop-zone-sub">Drag & drop your stay photo here</div>
+        <div class="file-loaded-badge" id="badge-photo">Photo Selected</div>
+      </div>
+    </div>
+
+    <!-- DYNAMIC: Article fields -->
+    <div class="upload-field-group" id="group-article">
+      <label class="form-group"><span style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary);">Blog Article Editor</span></label>
+      <div class="editor-container">
+        <div class="editor-toolbar">
+          <button class="editor-btn" type="button" onclick="formatText('bold')" title="Bold"><b>B</b></button>
+          <button class="editor-btn" type="button" onclick="formatText('italic')" title="Italic"><i>I</i></button>
+          <button class="editor-btn" type="button" onclick="formatHeading()" title="Heading">H3</button>
+          <button class="editor-btn" type="button" onclick="formatText('insertUnorderedList')" title="Bullet List"><i class="fa-solid fa-list-ul"></i></button>
+        </div>
+        <div class="editor-canvas" id="editorCanvas" contenteditable="true" placeholder="Compose a beautiful structured stay guide or review here..."></div>
+      </div>
+
+      <label class="form-group"><span style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary);">Article Banner Image (Optional)</span></label>
+      <div class="thumbnail-zone" onclick="document.getElementById('thumbnailFileInput').click()">
+        <i class="fa-solid fa-file-image"></i>
+        <span id="dz-article-thumbnail-text">Browse article cover banner image...</span>
+      </div>
+      <div class="file-loaded-badge" id="badge-article-thumbnail" style="margin-bottom:15px;">Banner Selected</div>
+    </div>
+
+    <!-- COMMON: Description / Comment Field -->
+    <div class="form-group" style="margin-top: 15px;">
+      <label id="descLabel">Description / Comment</label>
+      <textarea id="postComment" class="form-control" rows="3" placeholder="Share your experience or highlights here..."></textarea>
+    </div>
+
+    <!-- COMMON: Author input -->
+    <div class="form-group">
+      <label>Your Name</label>
+      <input type="text" id="postAuthor" class="form-control" placeholder="Enter your full name">
+    </div>
+
+    <!-- Publish Button -->
+    <button class="btn btn-primary" id="publishBtn" onclick="publishContent()" style="width:100%; justify-content:center; margin-top:10px;">
+      <i class="fa-solid fa-circle-check"></i> Publish to Public Blog
+    </button>
+
+    <!-- Progress Indicator -->
+    <div class="progress-container" id="progressBarContainer">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+  </aside>
+
+  <!-- Right Column: Clean Feed Section -->
+  <main class="feed-section">
+    <div class="feed-toolbar">
+      <h2 class="feed-title">Community <span>Feed</span></h2>
+      <div class="feed-filters">
+        <button class="feed-filter-btn active" onclick="filterFeed('all', this)">All</button>
+        <button class="feed-filter-btn" onclick="filterFeed('video', this)">Videos</button>
+        <button class="feed-filter-btn" onclick="filterFeed('photo', this)">Photos</button>
+        <button class="feed-filter-btn" onclick="filterFeed('article', this)">Articles</button>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" id="emptyState">
+      <i class="fa-solid fa-folder-open"></i>
+      <h3>No posts in this category</h3>
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 6px;">Be the first one to create and share your experience!</p>
+    </div>
+
+    <!-- Live Card Feed List -->
+    <div id="feedList" style="display: flex; flex-direction: column; gap: 30px;">
+      <!-- Generated Cards go here -->
+    </div>
+  </main>
+
+</div>
+
+<!-- ════════════════ ARTICLE DETAIL MODAL ════════════════ -->
+<div class="article-modal" id="articleModal">
+  <div class="article-modal-box">
+    <button class="article-modal-close" onclick="closeArticleModal()"><i class="fa-solid fa-xmark"></i></button>
+    <div class="modal-article-meta">
+      <span class="badge badge-success" style="font-size: 10px; text-transform: uppercase;">Article</span>
+      <span>•</span>
+      <span id="modalAuthor">Author Name</span>
+      <span>•</span>
+      <span id="modalTime">Time ago</span>
+    </div>
+    <h2 class="modal-article-title" id="modalTitle">Article Title</h2>
+    <div class="modal-article-body" id="modalBody">
+      <!-- Article contents injected dynamically -->
+    </div>
+  </div>
+</div>
+
+<!-- Toast notifications -->
+<div id="toast-container"></div>
+
+<!-- ════════════════ JAVASCRIPT SYSTEM ════════════════ -->
+<script>
+// --- UI State Management ---
+let currentTab = 'video';
+let selectedFiles = {
+  video: null,
+  photo: null,
+  thumbnail: null
+};
+
+// --- Custom Mock Pre-populated Stories ---
+const mockFeed = [
+  {
+    id: 1,
+    type: 'video',
+    title: 'Loving the quiet study zone at Scholar Nest Andheri',
+    author: 'Arjun Sen',
+    time: '3 hours ago',
+    badge: 'Student Stay',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    thumbnailUrl: 'student_room.png',
+    description: 'The property has extremely quiet study areas and blazing-fast WiFi. It is located very close to the campus and public transit! Highly recommended student stay in Mumbai.',
+    likes: 42,
+    liked: false
+  },
+  {
+    id: 2,
+    type: 'photo',
+    title: 'Clean minimal interior of my Homzo Corporate Suite',
+    author: 'Sarah Jenkins',
+    time: '1 day ago',
+    badge: 'Corporate Stay',
+    photoUrl: 'employee_room.png',
+    description: 'Checked into this beautiful room in Koramangala, Bengaluru. Premium service apartment layout, perfect work desk space, modern bath amenities, and extremely supportive guest service team.',
+    likes: 124,
+    liked: false
+  },
+  {
+    id: 3,
+    type: 'article',
+    title: '5 Tips for Foreign Students Settling into Shared Stays in Delhi',
+    author: 'Elena Petrova',
+    time: '3 days ago',
+    badge: 'International Guest',
+    photoUrl: 'foreigner_room.png',
+    description: 'Moving to a new country is a huge step. Here is my structured guide on food planning, setting up currency accounts, transit maps, and using the high-class verified Homzo hosting resources to settle in smoothly.',
+    articleBody: `
+      <p>Moving to a different country is an exciting adventure, but navigating local housing networks can be overwhelming. During my stay at the Homzo International Suite in Connaught Place, I compiled a set of essential tips for foreign students to settle in without any friction.</p>
+      
+      <h3>1. Verify Amenities Physically Beforehand</h3>
+      <p>Many independent rooms might promise air-conditioning and stable power backups, but it's crucial to rely on professional verification. Homzo provides transparent pre-checked reports for all their listings, which saved me a lot of hassle.</p>
+      
+      <h3>2. Set Up a Seamless Digital Payment Route</h3>
+      <p>UPI is exceptionally widely used in India. Having international-standard payment gateways like the ones supported inside the Homzo Guest platform makes it very safe and fast to pay for rent, deposits, and services without having to carry physical cash.</p>
+      
+      <h3>3. Keep Digital Copies of your Visa and Registrations</h3>
+      <p>Indian regulations require foreign citizens to fill out Form C for housing registration. Staying at verified hotels or accommodation platforms like Homzo ensures the administrative staff files your documentation securely and directly with local registration officers.</p>
+      
+      <h3>4. Plan Your Daily Commutes</h3>
+      <p>Always choose rooms that have quick access to the Delhi Metro networks. It's the cleanest, fastest, and most affordable way to travel to campuses across South Delhi and North Campus alike.</p>
+    `,
+    likes: 72,
+    liked: false
+  }
+];
+
+let feedData = [...mockFeed];
+let activeFilterType = 'all';
+
+// --- Toast Message System ---
+function showToast(msg, type = 'info') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  const icons = { success: 'fa-check-circle', error: 'fa-circle-xmark', info: 'fa-circle-info' };
+  const colors = { success: '#22c55e', error: '#ef4444', info: '#3b82f6' };
+  t.className = `toast ${type}`;
+  t.innerHTML = `<i class="fa-solid ${icons[type]}" style="color:${colors[type]};font-size:18px"></i><span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(() => {
+    t.style.opacity = '0';
+    t.style.transform = 'translateX(60px)';
+    t.style.transition = '0.3s';
+    setTimeout(() => t.remove(), 300);
+  }, 4000);
+}
+
+// --- Dynamic Tab Switcher ---
+window.switchUploadTab = function(tabName) {
+  currentTab = tabName;
+  
+  // Set active tab CSS
+  document.querySelectorAll('.type-tab').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  const activeBtn = Array.from(document.querySelectorAll('.type-tab')).find(btn => btn.textContent.toLowerCase().includes(tabName));
+  if (activeBtn) activeBtn.classList.add('active');
+
+  // Toggle field visibility
+  document.querySelectorAll('.upload-field-group').forEach(group => {
+    group.classList.remove('active');
+  });
+  document.getElementById(`group-${tabName}`).classList.add('active');
+
+  // Modify Labels & Placeholders dynamically
+  const descLabel = document.getElementById('descLabel');
+  const postComment = document.getElementById('postComment');
+  
+  if (tabName === 'video') {
+    descLabel.textContent = "Video Description";
+    postComment.placeholder = "Enter caption or stay highlights for this video story...";
+  } else if (tabName === 'photo') {
+    descLabel.textContent = "Photo Caption";
+    postComment.placeholder = "Enter a short description or commentary for this stay photo...";
+  } else {
+    descLabel.textContent = "Article Short Summary";
+    postComment.placeholder = "Enter a one or two-sentence hook or abstract for your article...";
+  }
+}
+
+// --- Formatting controls for custom Article editor ---
+window.formatText = function(cmd) {
+  document.execCommand(cmd, false, null);
+  document.getElementById('editorCanvas').focus();
+}
+
+window.formatHeading = function() {
+  document.execCommand('formatBlock', false, '<h3>');
+  document.getElementById('editorCanvas').focus();
+}
+
+// --- Handling Selected Files ---
+window.handleFileLoaded = function(type, file) {
+  if (!file) return;
+
+  if (type === 'video') {
+    if (!file.type.startsWith('video/')) {
+      showToast('Please select a valid video format!', 'error');
+      return;
+    }
+    selectedFiles.video = file;
+    document.getElementById('badge-video').style.display = 'inline-block';
+    document.getElementById('dz-video-text').textContent = 'Change Selected Video';
+    document.getElementById('badge-video').textContent = `${file.name.substring(0, 15)}... (${(file.size/(1024*1024)).toFixed(1)} MB)`;
+  } 
+  else if (type === 'photo') {
+    if (!file.type.startsWith('image/')) {
+      showToast('Please select a valid photo image format!', 'error');
+      return;
+    }
+    selectedFiles.photo = file;
+    document.getElementById('badge-photo').style.display = 'inline-block';
+    document.getElementById('dz-photo-text').textContent = 'Change Selected Photo';
+    document.getElementById('badge-photo').textContent = `${file.name.substring(0, 15)}...`;
+  }
+  else if (type === 'thumbnail') {
+    if (!file.type.startsWith('image/')) {
+      showToast('Please select a valid cover image!', 'error');
+      return;
+    }
+    selectedFiles.thumbnail = file;
+    
+    // Update badge/labels for whichever editor thumbnail section is visible
+    const isArticle = currentTab === 'article';
+    const badgeId = isArticle ? 'badge-article-thumbnail' : 'badge-thumbnail';
+    const textId = isArticle ? 'dz-article-thumbnail-text' : 'dz-thumbnail-text';
+    
+    document.getElementById(badgeId).style.display = 'inline-block';
+    document.getElementById(textId).textContent = 'Cover Image Selected';
+    document.getElementById(badgeId).textContent = file.name.substring(0, 20);
+  }
+
+  showToast('File selected successfully!', 'success');
+}
+
+// --- Render Content Feed ---
+function renderFeed() {
+  const feedList = document.getElementById('feedList');
+  const emptyState = document.getElementById('emptyState');
+  feedList.innerHTML = '';
+
+  // Filter local data
+  const filteredData = activeFilterType === 'all' 
+    ? feedData 
+    : feedData.filter(item => item.type === activeFilterType);
+
+  if (filteredData.length === 0) {
+    emptyState.style.display = 'block';
+    return;
+  }
+  emptyState.style.display = 'none';
+
+  filteredData.forEach(item => {
+    const card = document.createElement('article');
+    card.className = 'blog-card';
+
+    // Initials for avatar
+    const initials = item.author ? item.author.split(' ').map(n => n[0]).join('').substring(0, 2) : 'G';
+    
+    // Custom media HTML based on content type
+    let mediaHtml = '';
+    let badgeClass = 'badge-video';
+    
+    if (item.type === 'video') {
+      badgeClass = 'badge-video';
+      mediaHtml = `
+        <div class="blog-card-media">
+          <video src="${item.videoUrl}" controls preload="metadata" poster="${item.thumbnailUrl || ''}"></video>
+        </div>`;
+    } else if (item.type === 'photo') {
+      badgeClass = 'badge-photo';
+      mediaHtml = `
+        <div class="blog-card-media">
+          <img src="${item.photoUrl}" alt="${item.title}" loading="lazy">
+        </div>`;
+    } else if (item.type === 'article') {
+      badgeClass = 'badge-article';
+      // Articles can have optional cover banner or fallback placeholder
+      if (item.photoUrl) {
+        mediaHtml = `
+          <div class="blog-card-media">
+            <img src="${item.photoUrl}" alt="${item.title}" loading="lazy">
+          </div>`;
+      }
+    }
+
+    card.innerHTML = `
+      <div class="blog-card-header">
+        <div class="author-avatar">${initials}</div>
+        <div class="author-info">
+          <span class="author-name">${item.author}</span>
+          <span class="post-time">${item.time}</span>
+        </div>
+      </div>
+      
+      ${mediaHtml}
+      
+      <div class="blog-card-content">
+        <span class="blog-card-badge ${badgeClass}">${item.type}</span>
+        <h3 class="blog-card-title">${item.title}</h3>
+        <p class="blog-card-description">${item.description}</p>
+        
+        ${item.type === 'article' ? `
+          <div class="read-article-btn" onclick="openArticleModal(${item.id})">
+            <i class="fa-solid fa-book-open"></i> Read Full Article
+          </div>` : ''}
+      </div>
+      
+      <div class="blog-card-footer">
+        <div class="footer-actions">
+          <button class="action-btn ${item.liked ? 'active' : ''}" onclick="toggleLike(${item.id}, this)">
+            <i class="fa-${item.liked ? 'solid' : 'regular'} fa-heart"></i>
+            <span>Like (<span class="like-count">${item.likes}</span>)</span>
+          </button>
+        </div>
+        <span style="color: var(--text-secondary); font-weight:600;"><i class="fa-solid fa-circle-check" style="color: var(--success)"></i> Verified Stay Review</span>
+      </div>
+    `;
+
+    feedList.appendChild(card);
+  });
+}
+
+// --- Toggle Likes ---
+window.toggleLike = function(id, btn) {
+  const item = feedData.find(i => i.id === id);
+  if (!item) return;
+
+  item.liked = !item.liked;
+  if (item.liked) {
+    item.likes++;
+    btn.classList.add('active');
+    btn.querySelector('i').className = 'fa-solid fa-heart';
+    showToast('Liked post! ❤️', 'success');
+  } else {
+    item.likes--;
+    btn.classList.remove('active');
+    btn.querySelector('i').className = 'fa-regular fa-heart';
+  }
+  btn.querySelector('.like-count').textContent = item.likes;
+}
+
+// --- Filter Feed ---
+window.filterFeed = function(type, btn) {
+  activeFilterType = type;
+  document.querySelectorAll('.feed-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderFeed();
+}
+
+// --- Article Detail Overlay Modal ---
+window.openArticleModal = function(id) {
+  const item = feedData.find(i => i.id === id);
+  if (!item) return;
+
+  document.getElementById('modalTitle').textContent = item.title;
+  document.getElementById('modalAuthor').textContent = item.author;
+  document.getElementById('modalTime').textContent = item.time;
+  document.getElementById('modalBody').innerHTML = item.articleBody || `<p>${item.description}</p>`;
+  
+  document.getElementById('articleModal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+window.closeArticleModal = function() {
+  document.getElementById('articleModal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+// Close modal if user clicks outside of box
+document.getElementById('articleModal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('articleModal')) {
+    closeArticleModal();
+  }
+});
+
+// --- Publish New Content Action ---
+window.publishContent = function() {
+  const titleVal = document.getElementById('postTitle').value.trim();
+  const commentVal = document.getElementById('postComment').value.trim();
+  const authorVal = document.getElementById('postAuthor').value.trim();
+  
+  if (!titleVal) {
+    showToast('Please enter a content title.', 'error');
+    return;
+  }
+  if (!authorVal) {
+    showToast('Please enter your name.', 'error');
+    return;
+  }
+
+  // Validate tab specific fields
+  let fileToUpload = null;
+  let thumbUrl = null;
+  let articleContentHtml = '';
+
+  if (currentTab === 'video') {
+    if (!selectedFiles.video) {
+      showToast('Please select a video vlog file.', 'error');
+      return;
+    }
+    if (!commentVal) {
+      showToast('Please add comments or description for the video.', 'error');
+      return;
+    }
+    fileToUpload = selectedFiles.video;
+    if (selectedFiles.thumbnail) {
+      thumbUrl = URL.createObjectURL(selectedFiles.thumbnail);
+    }
+  } 
+  else if (currentTab === 'photo') {
+    if (!selectedFiles.photo) {
+      showToast('Please select a photo snapshot file.', 'error');
+      return;
+    }
+    if (!commentVal) {
+      showToast('Please add captions or description for this photo.', 'error');
+      return;
+    }
+    fileToUpload = selectedFiles.photo;
+  } 
+  else if (currentTab === 'article') {
+    articleContentHtml = document.getElementById('editorCanvas').innerHTML.trim();
+    if (!articleContentHtml || articleContentHtml === '<br>') {
+      showToast('Please write some content inside the article editor canvas.', 'error');
+      return;
+    }
+    if (!commentVal) {
+      showToast('Please enter a short summary or excerpt for your article.', 'error');
+      return;
+    }
+    if (selectedFiles.thumbnail) {
+      thumbUrl = URL.createObjectURL(selectedFiles.thumbnail);
+    }
+  }
+
+  // Disable button during publishing
+  const publishBtn = document.getElementById('publishBtn');
+  publishBtn.disabled = true;
+  const originalHtml = publishBtn.innerHTML;
+  publishBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing & Uploading...';
+  
+  const progContainer = document.getElementById('progressBarContainer');
+  const progBar = document.getElementById('progressBar');
+  progContainer.style.display = 'block';
+  progBar.style.width = '0%';
+
+  // Premium publish progress simulation
+  let progress = 0;
+  const interval = setInterval(() => {
+    progress += Math.floor(Math.random() * 15) + 5;
+    if (progress >= 100) {
+      progress = 100;
+      clearInterval(interval);
+
+      // Save content and rebuild feed
+      finalizePublish(titleVal, commentVal, authorVal, fileToUpload, thumbUrl, articleContentHtml, publishBtn, originalHtml, progContainer);
+    }
+    progBar.style.width = `${progress}%`;
+  }, 100);
+}
+
+function finalizePublish(title, description, author, file, coverUrl, articleBody, btn, btnHtml, progContainer) {
+  let itemUrl = '';
+  if (file) {
+    itemUrl = URL.createObjectURL(file);
+  }
+
+  const newPost = {
+    id: Date.now(),
+    type: currentTab,
+    title: title,
+    author: author,
+    time: 'Just now',
+    badge: 'Verified User',
+    description: description,
+    likes: 0,
+    liked: false
+  };
+
+  // Assign parameters based on type
+  if (currentTab === 'video') {
+    newPost.videoUrl = itemUrl;
+    newPost.thumbnailUrl = coverUrl;
+  } else if (currentTab === 'photo') {
+    newPost.photoUrl = itemUrl;
+  } else if (currentTab === 'article') {
+    newPost.photoUrl = coverUrl || 'foreigner_room.png'; // fallback banner
+    newPost.articleBody = articleBody;
+  }
+
+  // Prepend new post
+  feedData.unshift(newPost);
+
+  // Clear Form inputs
+  document.getElementById('postTitle').value = '';
+  document.getElementById('postComment').value = '';
+  document.getElementById('postAuthor').value = '';
+  
+  if (currentTab === 'article') {
+    document.getElementById('editorCanvas').innerHTML = '';
+  }
+
+  // Reset inputs
+  selectedFiles.video = null;
+  selectedFiles.photo = null;
+  selectedFiles.thumbnail = null;
+  
+  document.getElementById('badge-video').style.display = 'none';
+  document.getElementById('dz-video-text').textContent = 'Select Stay Vlog';
+  document.getElementById('badge-photo').style.display = 'none';
+  document.getElementById('dz-photo-text').textContent = 'Select Snapshot';
+  document.getElementById('badge-thumbnail').style.display = 'none';
+  document.getElementById('dz-thumbnail-text').textContent = 'Browse custom thumbnail cover image...';
+  document.getElementById('badge-article-thumbnail').style.display = 'none';
+  document.getElementById('dz-article-thumbnail-text').textContent = 'Browse article cover banner image...';
+
+  // Render updated Feed
+  renderFeed();
+
+  // Reset Publish button
+  setTimeout(() => {
+    progContainer.style.display = 'none';
+    btn.disabled = false;
+    btn.innerHTML = btnHtml;
+    showToast('Your content has been published successfully!', 'success');
+  }, 400);
+}
+
+// --- Initialize ---
+window.addEventListener('DOMContentLoaded', () => {
+  renderFeed();
+});
+</script>
+
+</body>
+</html>
+
+

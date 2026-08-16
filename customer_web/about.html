@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Us - Homzo | Quality Stays. Better Hospitality.</title>
+  <meta name="description" content="Learn more about Homzo Hospitality — our mission, vision, values, and our journey to build a growing network of quality stays under one brand." />
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="client.css">
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+    body {
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .about-header {
+      position: relative;
+      padding: 180px 20px 120px;
+      text-align: center;
+      background-image: 
+        linear-gradient(to bottom, rgba(10, 12, 16, 0.5) 0%, rgba(10, 12, 16, 0.9) 80%, var(--bg-base) 100%),
+        url('Room.png');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .about-title-wrap {
+      max-width: 800px;
+      margin: 0 auto;
+      z-index: 2;
+      position: relative;
+    }
+
+    .about-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      background: rgba(226, 158, 37, 0.1);
+      border: 1px solid rgba(226, 158, 37, 0.3);
+      padding: 8px 20px;
+      border-radius: 50px;
+      margin-bottom: 24px;
+      backdrop-filter: blur(10px);
+    }
+
+    .about-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.8rem, 6vw, 4.5rem);
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      letter-spacing: -1px;
+    }
+
+    .about-title span {
+      font-style: italic;
+      background: linear-gradient(135deg, var(--primary) 30%, #fffbdf 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .about-header .section-sub {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      max-width: 650px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .about-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 80px 24px;
+    }
+
+    .intro-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 60px;
+      align-items: center;
+      margin-bottom: 100px;
+    }
+
+    @media (max-width: 992px) {
+      .intro-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+    }
+
+    .intro-text h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.2rem, 4vw, 3rem);
+      color: #ffffff;
+      margin-bottom: 24px;
+      line-height: 1.2;
+    }
+
+    .intro-text h2 span {
+      color: var(--primary);
+    }
+
+    .intro-text p {
+      font-size: 1.05rem;
+      line-height: 1.85;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+    }
+
+    .luxury-frame {
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      background: rgba(22, 27, 35, 0.4);
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+
+    .luxury-frame::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--primary), transparent);
+    }
+
+    .crest-icon {
+      font-size: 3rem;
+      color: var(--primary);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .luxury-frame h4 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      text-align: center;
+      color: #ffffff;
+      margin-bottom: 15px;
+    }
+
+    .luxury-frame p {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 30px;
+      border-top: 1px solid var(--border);
+      padding-top: 25px;
+    }
+
+    .stat-box {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-top: 6px;
+    }
+
+    .philosophy-section {
+      margin-bottom: 100px;
+    }
+
+    .phil-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+    }
+
+    @media (max-width: 768px) {
+      .phil-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .phil-card {
+      background: rgba(22, 27, 35, 0.3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 45px 40px;
+      position: relative;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .phil-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-card);
+      background: rgba(22, 27, 35, 0.5);
+    }
+
+    .phil-icon {
+      width: 60px;
+      height: 60px;
+      background: rgba(226, 158, 37, 0.08);
+      color: var(--primary);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      border: 1px solid rgba(226, 158, 37, 0.2);
+    }
+
+    .phil-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.9rem;
+      color: #ffffff;
+      margin-top: 10px;
+    }
+
+    .phil-card p {
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--text-secondary);
+    }
+
+    .values-section {
+      margin-bottom: 100px;
+      text-align: center;
+    }
+
+    .values-title-wrap {
+      max-width: 600px;
+      margin: 0 auto 50px;
+    }
+
+    .values-title-wrap h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.6rem;
+      color: #ffffff;
+      margin-bottom: 15px;
+    }
+
+    .values-title-wrap p {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+    }
+
+    .values-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 30px;
+    }
+
+    .value-card {
+      background: rgba(22, 27, 35, 0.2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 40px 30px;
+      transition: var(--transition);
+      text-align: left;
+      position: relative;
+    }
+
+    .value-card:hover {
+      border-color: var(--border-strong);
+      background: rgba(22, 27, 35, 0.6);
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-card);
+    }
+
+    .value-icon {
+      font-size: 2.2rem;
+      color: var(--primary);
+      margin-bottom: 25px;
+    }
+
+    .value-card h4 {
+      font-size: 1.25rem;
+      color: #ffffff;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+
+    .value-card p {
+      font-size: 0.95rem;
+      line-height: 1.65;
+      color: var(--text-secondary);
+    }
+
+    .leadership-section {
+      background: linear-gradient(135deg, rgba(22, 27, 35, 0.4) 0%, rgba(10, 12, 16, 0.8) 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 60px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 40px;
+    }
+
+    @media (max-width: 768px) {
+      .leadership-section {
+        padding: 40px 20px;
+      }
+    }
+
+    .leadership-header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .leadership-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.8rem;
+      color: #ffffff;
+    }
+
+    .founder-grid {
+      display: grid;
+      grid-template-columns: 0.85fr 1.15fr;
+      gap: 60px;
+      align-items: flex-start;
+    }
+
+    @media (max-width: 992px) {
+      .founder-grid {
+        grid-template-columns: 1fr;
+        gap: 50px;
+        justify-items: center;
+      }
+    }
+
+    .founder-visual {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .founder-image-container {
+      width: 280px;
+      height: 350px;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 2px solid var(--primary);
+      box-shadow: var(--shadow-glow);
+      margin-bottom: 25px;
+      position: relative;
+    }
+
+    .founder-image-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .founder-image-container:hover img {
+      transform: scale(1.06);
+    }
+
+    .founder-meta h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+
+    .founder-meta .designation {
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .founder-socials {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .founder-socials a {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      transition: var(--transition);
+      font-size: 1rem;
+    }
+
+    .founder-socials a:hover {
+      background: var(--primary);
+      color: #051A24;
+      border-color: var(--primary);
+      transform: translateY(-3px);
+      box-shadow: 0 4px 12px var(--primary-glow);
+    }
+
+    .founder-bio {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .founder-bio p {
+      font-size: 0.92rem;
+      line-height: 1.8;
+      color: var(--text-secondary);
+    }
+
+    .founder-bio p strong {
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .quote-box {
+      border-left: 3px solid var(--primary);
+      padding-left: 24px;
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.1rem;
+      color: #ffffff;
+      margin: 25px 0;
+      line-height: 1.6;
+    }
+
+    .timeline-badge {
+      display: inline-block;
+      padding: 5px 12px;
+      background: rgba(226, 158, 37, 0.1);
+      border: 1px solid rgba(226, 158, 37, 0.25);
+      color: var(--primary);
+      font-size: 0.85rem;
+      font-weight: 700;
+      border-radius: 6px;
+      margin-right: 8px;
+    }
+
+    .page-watermark {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-image: url('homzo_logo.png');
+      background-repeat: repeat;
+      background-size: 300px;
+      opacity: 0.03;
+      pointer-events: none;
+      z-index: -1;
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-watermark"></div><!-- ════════════════ NAVBAR ════════════════ -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo">
+      <img src="homzo_logo.png" alt="HOMZO Logo" class="brand-logo">
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html#hero" class="nav-link">Home</a></li>
+      <li><a href="about.html" class="nav-link active">About</a></li>
+      <li><a href="index.html#categories" class="nav-link">Categories</a></li>
+      <li><a href="index.html#properties" class="nav-link">Properties</a></li>
+      <li><a href="/careers" class="nav-link">Careers</a></li>
+      <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="nav-hamburger hide-desktop" id="hamburger"><i class="fa-solid fa-bars"></i></button>
+    </div>
+  </div>
+</nav>
+
+<!-- ════════════════ HEADER ════════════════ -->
+<header class="about-header">
+  <div class="about-title-wrap">
+    <div class="about-badge">
+      <i class="fa-solid fa-crown"></i> Elite Stays
+    </div>
+    <h1 class="about-title">Crafting the Future of <span>Hospitality</span></h1>
+    <p class="section-sub">A modern hospitality brand built to simplify and elevate how people discover, book, and enjoy stays.</p>
+  </div>
+</header>
+
+<!-- ════════════════ CONTENT ════════════════ -->
+<div class="about-container">
+  
+  <!-- Who We Are -->
+  <div class="intro-grid">
+    <div class="intro-text">
+      <h2>Who We <span>Are</span></h2>
+      <p>Homzo is a modern, premium hospitality platform built to simplify how guests discover and secure stays. With a focus on flexibility and exceptional comfort, Homzo provides curated, verified, and affordable accommodations tailored for students, working professionals, tourists, and international visitors across India.</p>
+      <p>Our hybrid operational model merges high-end convenience with affordability, bridging the gap between property owners and guests. We are not just a booking service; we are a growing ecosystem centered around trust, seamless technology, and guest satisfaction.</p>
+    </div>
+    <div class="intro-visual">
+      <div class="luxury-frame">
+        <div class="crest-logo" style="text-align: center; margin-bottom: 20px; display: flex; justify-content: center;">
+          <img src="homzo_logo.png" alt="HOMZO Logo" style="height: 60px; width: auto; object-fit: contain;">
+        </div>
+        <h4>Homzo Hospitality</h4>
+        <p>A hospitality ecosystem built on verified quality, transparency, and round-the-clock premium services.</p>
+        <div class="stats-row">
+          <div class="stat-box">
+            <div class="stat-number">100%</div>
+            <div class="stat-label">Verified Stays</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-number">24/7</div>
+            <div class="stat-label">Guest Support</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mission & Vision -->
+  <div class="philosophy-section">
+    <div class="phil-grid">
+      <div class="phil-card">
+        <div class="phil-icon">
+          <i class="fa-solid fa-bullseye"></i>
+        </div>
+        <h3>Our Mission</h3>
+        <p>To deliver reliable, secure, and premium stays with a frictionless digital booking experience, ensuring that every traveler finds a perfect, hassle-free place to call home.</p>
+      </div>
+      <div class="phil-card">
+        <div class="phil-icon">
+          <i class="fa-solid fa-compass"></i>
+        </div>
+        <h3>Our Vision</h3>
+        <p>To establish a trusted, highly scalable global hospitality brand that sets the gold standard for accessible luxury, safety, and comfort in modern housing.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Core Values -->
+  <div class="values-section">
+    <div class="values-title-wrap">
+      <h2>Our Core <span>Values</span></h2>
+      <p>The principles that guide our customer care, property selection, and long-term operations.</p>
+    </div>
+    <div class="values-grid">
+      <div class="value-card">
+        <div class="value-icon"><i class="fa-solid fa-gem"></i></div>
+        <h4>Premium Quality</h4>
+        <p>Every single property undergoes standard physical audits to ensure premium hygiene, comfort, and facilities.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon"><i class="fa-solid fa-shield-halved"></i></div>
+        <h4>Absolute Trust</h4>
+        <p>Transparent pricing policies, easy billing options, and zero hidden costs are key to our partner relations.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+        <h4>Guest Centric</h4>
+        <p>We are dedicated to building products and services around our guests' daily convenience and requests.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon"><i class="fa-solid fa-couch"></i></div>
+        <h4>Unmatched Comfort</h4>
+        <p>From high-speed Wi-Fi to fully functional common spaces, we structure environments to make you feel at home.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leadership -->
+  <div class="leadership-section">
+    <div class="leadership-header">
+      <h2>Executive <span>Leadership</span></h2>
+    </div>
+    <div class="founder-grid">
+      <div class="founder-visual">
+        <div class="founder-image-container">
+          <img src="rishab.1.png" alt="Rishabh Kumar Modanwal">
+        </div>
+        <div class="founder-meta">
+          <h3>Rishabh Kumar Modanwal</h3>
+          <span class="designation">Founder & CEO</span>
+        </div>
+        <div class="founder-socials">
+          <a href="https://www.linkedin.com/in/rishabh-kumar-modanwal-314b9826a" target="_blank" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+          <a href="mailto:ceo@homzohospitality.com" aria-label="Email"><i class="fa-solid fa-envelope"></i></a>
+        </div>
+      </div>
+      <div class="founder-bio">
+        <p>Originally from Fatehpur, Uttar Pradesh, <strong>Rishabh Kumar Modanwal</strong> is the Founder and CEO of Homzo. His entrepreneurial journey represents a story of ground-level experience, operational adaptability, and passion for excellence.</p>
+        
+        <div class="quote-box">
+          "Our goal at Homzo is not just to rent spaces, but to build a reliable, world-class hospitality platform where trust, safety, and luxury comfort are accessible to everyone."
+        </div>
+
+        <p>Rishabh began his professional career in 2021 within the real estate administration sector, developing deep knowledge in property operations and client services. Backed by local expertise, he embarked on his first entrepreneurial venture, starting <strong>R.K Security Services</strong>, where he gained valuable experience in team leadership and risk management.</p>
+        
+        <p>To further refine his operational expertise, he joined <strong>Qs Metrology</strong> in Gurugram as a Store Assistant (March 2024 – September 2025), optimizing inventories and store management protocols. Continuing his career trajectory, he served as a Health Manager at <strong>Hindustan Wellness</strong> (October 2025 – December 2026), managing healthcare client profiles and supervising administrative logistics.</p>
+        
+        <p>Leveraging these diverse operational and management insights, he launched Homzo to transform the Indian hospitality and rental booking landscape, aiming to build a scalable and premium brand that puts customer care first.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════ FOOTER ════════════════ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-logo">
+          <img src="homzo_logo.png" alt="HOMZO Logo" class="brand-logo footer-logo">
+        </a>
+        <p>Your trusted accommodation partner across India. Quality stays for every type of traveler.</p>
+        <div class="social-links">
+          <a href="https://www.facebook.com/share/1P3xbf5bP3/" target="_blank" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="https://www.instagram.com/homzo_official" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#" onclick="event.preventDefault();" title="Coming Soon" aria-label="Twitter" style="opacity: 0.5; cursor: not-allowed;"><i class="fa-brands fa-x-twitter"></i></a>
+          <a href="#" onclick="event.preventDefault();" title="Coming Soon" aria-label="LinkedIn" style="opacity: 0.5; cursor: not-allowed;"><i class="fa-brands fa-linkedin-in"></i></a>
+        </div>
+      </div>
+      <div class="footer-links">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="support.html">Support</a></li>
+          <li><a href="official-homzo-blog.html">Official Homzo Blog</a></li>
+          <li><a href="investor-relations.html">Investor Relations</a></li>
+          <li><a href="homzo-circle.html">Homzo Circle</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h5>Policies & Safety</h5>
+        <ul>
+          <li><a href="guest-policy.html">Guest Policy</a></li>
+          <li><a href="trust-and-safety.html">Trust & Safety</a></li>
+          <li><a href="Homzo_Privacy_Policy.pdf" target="_blank">Privacy Policy</a></li>
+          <li><a href="term%20of%20service.pdf" target="_blank">Terms of Service</a></li>
+          <li><a href="responsible-disclosure.html">Responsible Disclosure</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h5>Partner With Us</h5>
+        <ul>
+          <li><a href="advertise-your-homes.html">Partner With Homzo</a></li>
+          <li><a href="homzo-frames.html">Homzo Frames</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 HOMZO. All rights reserved. Built with ❤️ in India.</span>
+      <span>GST No: 27AAGCH1234A1ZS</span>
+    </div>
+  </div>
+</footer>
+
+<!-- Privacy Policy Modal -->
+<div class="modal-overlay" id="privacyModal" style="display:none;">
+  <div class="modal-box" style="position:relative; max-width:800px; max-height:85vh; overflow-y:auto; padding:30px; text-align:left;">
+    <button class="modal-close" onclick="closeModal('privacyModal')"><i class="fa-solid fa-xmark"></i></button>
+    <h2 style="margin-bottom: 20px;"><i class="fa-solid fa-shield-halved" style="color:var(--primary); margin-right:10px"></i>Privacy Policy</h2>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: var(--text-secondary); white-space: pre-wrap;">HOMZO HOSPITALITY
+Privacy Policy
+Effective Date: 1st January 2025 | Last Updated: April 2025
+Applicable to: Website & Mobile Application
+
+1. Introduction
+Welcome to Homzo Hospitality ("Homzo", "we", "our", or "us"). We are committed to protecting and respecting your personal privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our mobile application (collectively, the "Platform").
+Homzo Hospitality operates as a technology-enabled hospitality platform offering hotel and accommodation booking services as well as food delivery and restaurant discovery services within India. This Policy applies to all users of our Platform, including guests, registered members, and visitors.
+By accessing or using our Platform, you consent to the practices described in this Privacy Policy. If you do not agree with the terms of this Policy, please discontinue use of our Platform.
+
+2. Information We Collect
+We collect various types of information in connection with your use of our services:
+2.1 Personal Identification Information
+Full name, email address, phone number
+Date of birth and gender (where provided)
+Government-issued identification (for hotel check-in verification purposes)
+Profile photograph (if uploaded by the user)
+
+2.2 Booking & Transaction Information
+Hotel reservation details including check-in/check-out dates, room preferences, and guest counts
+Food orders, delivery address, restaurant preferences, and order history
+Payment information including billing address (Note: full card details are processed by our secure third-party payment gateway and are not stored on our servers)
+Transaction IDs, invoice records, and cancellation/refund data
+
+2.3 Device & Usage Information
+IP address, browser type and version, operating system
+Device identifiers, mobile hardware model, and unique device IDs
+Access times, pages viewed, links clicked, and session duration
+Crash reports and performance diagnostics
+
+2.4 Location Data
+Precise GPS location (with your permission) for delivery tracking and nearby property/restaurant discovery
+Approximate location derived from your IP address
+
+2.5 Communications Data
+Messages, reviews, feedback, and support tickets submitted through our Platform
+Communication preferences and notifications settings
+
+3. How We Use Your Information
+We use the information we collect for the following purposes:
+3.1 Service Delivery
+To process hotel and accommodation bookings and confirm reservations
+To facilitate food delivery orders and communicate estimated delivery times
+To process payments, issue invoices, and manage refunds
+To enable check-in/check-out processes and coordinate with partner hotels
+
+3.2 Account Management
+To create and manage your user account
+To authenticate your identity and ensure account security
+To provide personalized service recommendations based on your preferences and history
+
+3.3 Communications
+To send booking confirmations, order updates, and transactional notifications via SMS, email, or push notifications
+To respond to your queries, complaints, or support requests
+To send promotional offers, newsletters, and marketing materials (only with your consent)
+
+3.4 Platform Improvement
+To analyze usage patterns and improve the functionality and user experience of our Platform
+To conduct internal research, data analytics, and business intelligence
+To detect, prevent, and address technical issues, fraud, and security breaches
+
+3.5 Legal & Regulatory Compliance
+To comply with applicable Indian laws, regulations, court orders, and governmental requests
+To enforce our Terms of Service and other legal agreements
+To protect the rights, property, and safety of Homzo, our users, and the public
+
+4. Disclosure of Your Information
+We do not sell or rent your personal data to third parties. However, we may share your information in the following circumstances:
+4.1 Service Partners
+We share necessary booking and contact information with our partner hotels, restaurants, and delivery partners solely for the purpose of fulfilling your service requests. These partners are contractually bound to use your data only as required to deliver the service.
+
+4.2 Payment Processors
+Payment information is shared with our authorized payment gateway partners (such as Razorpay, PayU, or similar) who are compliant with Payment Card Industry Data Security Standards (PCI-DSS) and applicable RBI guidelines.
+
+4.3 Legal Authorities
+We may disclose your information to law enforcement agencies, regulatory authorities, or courts when required by law, legal process, or to protect the rights and safety of our users and the public.
+
+4.4 Business Transfers
+In the event of a merger, acquisition, restructuring, or sale of Homzo Hospitality, your information may be transferred to the successor entity, subject to the same privacy protections described in this Policy.
+
+5. Data Storage & Security
+Your data is stored on secure servers located within India, in compliance with the Information Technology Act, 2000, and the Information Technology (Reasonable Security Practices and Procedures and Sensitive Personal Data or Information) Rules, 2011 ("SPDI Rules").
+We implement industry-standard technical and organizational measures to protect your personal data against unauthorized access, alteration, disclosure, or destruction. These include:
+Secure Socket Layer (SSL) / Transport Layer Security (TLS) encryption for data in transit
+AES-256 encryption for sensitive data at rest
+Role-based access controls and multi-factor authentication for internal systems
+Regular security audits, vulnerability assessments, and penetration testing
+Employee training on data privacy and security protocols
+However, no method of transmission over the internet or electronic storage is completely secure. While we strive to use commercially acceptable means to protect your data, we cannot guarantee absolute security.
+
+6. Data Retention
+We retain your personal data for as long as necessary to provide our services, comply with legal obligations, resolve disputes, and enforce our agreements. Specifically:
+Account data is retained for the duration of your active account and up to 3 years after account deletion
+Booking and transaction records are retained for 7 years in accordance with applicable tax and accounting laws in India
+Communication and support records are retained for 2 years from the date of last interaction
+Marketing preferences are retained until you withdraw consent
+Upon expiry of the applicable retention period, your data will be securely deleted, anonymized, or aggregated in a manner that prevents identification.
+
+7. Your Rights as a Data Subject
+As a user of our Platform, you have the following rights with respect to your personal data:
+Right to Access: You may request a copy of the personal data we hold about you
+Right to Rectification: You may request correction of inaccurate or incomplete information
+Right to Deletion: You may request erasure of your personal data, subject to legal retention requirements
+Right to Withdraw Consent: Where processing is based on consent, you may withdraw it at any time
+Right to Object to Marketing: You may opt out of receiving marketing communications at any time via your account settings or by contacting us
+Right to Data Portability: You may request your data in a structured, machine-readable format
+To exercise any of the above rights, please contact our Grievance Officer at the details provided in Section 10 of this Policy. We will respond to your request within 30 days.
+
+8. Cookies & Tracking Technologies
+Our Platform uses cookies, web beacons, pixels, and similar technologies to enhance your experience, analyze usage, and deliver personalized content.
+
+8.1 Types of Cookies We Use
+Essential Cookies: Required for the Platform to function; cannot be disabled
+Performance Cookies: Help us understand how users interact with our Platform
+Functionality Cookies: Remember your preferences such as language and location
+Targeting/Advertising Cookies: Used to deliver relevant ads (only with your consent)
+
+8.2 Managing Cookies
+You can control cookie preferences through your browser settings. Please note that disabling certain cookies may affect the functionality of our Platform. For more information, please refer to our Cookie Policy available on our website.
+
+9. Children's Privacy
+Our Platform is not directed to individuals under the age of 18 years. We do not knowingly collect personal data from minors. If we become aware that a user is under 18 years of age, we will promptly delete their account and associated data. If you are a parent or guardian and believe your child has provided us with personal information, please contact us immediately.
+
+10. Grievance Officer & Contact Information
+In accordance with the Information Technology Act, 2000, and the SPDI Rules, 2011, the name and contact details of our designated Grievance Officer are as follows:
+
+Grievance Officer: [Name of Grievance Officer]
+Organization: Homzo Hospitality
+Email: grievance@homzohospitality.com
+Phone: [Contact Number]
+Address: [Registered Office Address], India
+Working Hours: Monday to Friday, 10:00 AM – 6:00 PM IST
+
+You may also write to us for any privacy-related queries, complaints, or requests at:
+privacy@homzohospitality.com
+
+11. Changes to This Privacy Policy
+We reserve the right to update or modify this Privacy Policy at any time to reflect changes in our practices, technology, legal requirements, or other factors. We will notify you of material changes by:
+Posting the updated Policy on our Platform with a revised 'Last Updated' date
+Sending an email notification to your registered email address
+Displaying an in-app notification upon your next login
+Your continued use of our Platform after the effective date of any changes constitutes your acceptance of the revised Privacy Policy.
+
+12. Governing Law & Jurisdiction
+This Privacy Policy shall be governed by and construed in accordance with the laws of the Republic of India, including the Information Technology Act, 2000, the Consumer Protection Act, 2019, and all applicable rules and regulations thereunder.
+Any disputes arising in connection with this Privacy Policy shall be subject to the exclusive jurisdiction of the courts located in [City], India.
+
+ACKNOWLEDGMENT
+By using the Homzo Hospitality Platform, you acknowledge that you have read, understood, and agree to be bound by this Privacy Policy. If you do not agree to this Privacy Policy, please refrain from using our services.</div>
+  </div>
+</div>
+
+<script src="client.js"></script>
+</body>
+</html>

@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- SEO Tags -->
+  <title>Careers at Homzo Hospitality - Join Our Team</title>
+  <meta name="description" content="Build your career with Homzo Hospitality. Explore open positions in software engineering, operations, marketing, and hospitality services across India. Join India's next-gen stay platform.">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="http://localhost:3000/careers">
+  <meta property="og:title" content="Careers at Homzo Hospitality - Join Our Team">
+  <meta property="og:description" content="Build your career with Homzo Hospitality. Explore open positions in software engineering, operations, marketing, and hospitality services across India.">
+  <meta property="og:image" content="http://localhost:3000/couple_room.png">
+
+  <!-- Links -->
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="client.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <style>
+    /* Careers specific page styling */
+    .careers-hero {
+      position: relative;
+      padding: 160px 20px 100px;
+      text-align: center;
+      background: linear-gradient(180deg, var(--bg-surface) 0%, var(--bg-base) 100%);
+      overflow: hidden;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .careers-hero::before {
+      content: '';
+      position: absolute;
+      top: -10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(255, 92, 53, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .careers-hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .careers-hero-title {
+      font-family: 'Sora', sans-serif;
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 20px;
+      color: var(--text-primary);
+    }
+
+    .careers-hero-title span {
+      color: var(--primary);
+    }
+
+    .careers-hero-subtitle {
+      font-size: 1.15rem;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      margin-bottom: 35px;
+      max-width: 650px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero-btn-group {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .about-careers-section {
+      padding: 80px 20px;
+    }
+
+    .about-careers-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 50px;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .about-careers-image img {
+      width: 100%;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-strong);
+      box-shadow: var(--shadow-card);
+    }
+
+    .culture-benefits-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 32px;
+    }
+
+    .culture-benefit-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 24px;
+      border-radius: var(--radius-md);
+      transition: var(--transition);
+    }
+
+    .culture-benefit-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-4px);
+    }
+
+    .culture-benefit-card i {
+      color: var(--primary);
+      font-size: 1.5rem;
+      margin-bottom: 16px;
+    }
+
+    .culture-benefit-card h4 {
+      font-size: 1.1rem;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .culture-benefit-card p {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .openings-section {
+      padding: 80px 20px;
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .filter-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 30px;
+      margin-bottom: 40px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .filter-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+      gap: 16px;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .filter-group label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .job-listings-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .job-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: var(--transition);
+    }
+
+    .job-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 4px 20px rgba(255, 92, 53, 0.08);
+      transform: scale(1.01);
+    }
+
+    .job-meta-main {
+      flex: 1;
+    }
+
+    .job-badges {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .j-badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 99px;
+    }
+
+    .j-badge-dept {
+      background: rgba(255, 179, 71, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(255, 179, 71, 0.3);
+    }
+
+    .j-badge-type {
+      background: rgba(59, 130, 246, 0.15);
+      color: var(--info);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .j-badge-loc {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+
+    .j-badge-status-open {
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--success);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .j-badge-status-urgent {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .job-card h3 {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.4rem;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .job-details-excerpt {
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 16px;
+      max-width: 800px;
+    }
+
+    .job-specs {
+      display: flex;
+      gap: 24px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+    }
+
+    .job-specs span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .job-card-actions {
+      margin-left: 30px;
+    }
+
+    .no-jobs-found {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-secondary);
+    }
+
+    .no-jobs-found i {
+      font-size: 3rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    /* General application floating button/modal style */
+    .general-apply-note {
+      text-align: center;
+      margin-top: 50px;
+      padding: 24px;
+      background: rgba(255,255,255,0.02);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-md);
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+    }
+
+    @media (max-width: 991px) {
+      .about-careers-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+      .filter-row {
+        grid-template-columns: 1fr 1fr;
+      }
+      .filter-group:first-child {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .job-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+      }
+      .job-card-actions {
+        margin-left: 0;
+        width: 100%;
+      }
+      .job-card-actions .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .filter-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════ NAVBAR ════════════════ -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="/" class="nav-logo">
+      <img src="homzo_logo.png" alt="HOMZO Logo" class="brand-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+      <span style="display: none; font-family: 'Sora', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--primary); letter-spacing: 1px;">HOMZO</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#hero" class="nav-link">Home</a></li>
+      <li><a href="about.html" class="nav-link">About</a></li>
+      <li><a href="/#categories" class="nav-link">Categories</a></li>
+      <li><a href="/#properties" class="nav-link">Properties</a></li>
+      <li><a href="/careers" class="nav-link active">Careers</a></li>
+      <li><a href="support.html" class="nav-link">Contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="advertise-your-homes.html" class="btn btn-ghost btn-sm hide-mobile"><i class="fa-solid fa-hotel"></i> Partner with Us</a>
+      <button class="nav-hamburger hide-desktop" id="hamburger"><i class="fa-solid fa-bars"></i></button>
+    </div>
+  </div>
+</nav>
+
+<!-- ════════════════ HERO SECTION ════════════════ -->
+<section class="careers-hero">
+  <div class="careers-hero-content">
+    <span class="section-label"><i class="fa-solid fa-briefcase"></i> Work with Homzo</span>
+    <h1 class="careers-hero-title">Build Your Career with <span>Homzo Hospitality</span></h1>
+    <p class="careers-hero-subtitle">Join our growing hospitality network and become part of India's next-generation hospitality ecosystem.</p>
+    <div class="hero-btn-group">
+      <a href="#openings" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i> View Open Positions</a>
+      <a href="#general-apply" class="btn btn-ghost"><i class="fa-solid fa-file-arrow-up"></i> Submit Resume</a>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ ABOUT CAREERS SECTION ════════════════ -->
+<section class="about-careers-section">
+  <div class="about-careers-grid">
+    <div class="about-careers-info">
+      <span class="section-label"><i class="fa-solid fa-users"></i> Life at Homzo</span>
+      <h2 class="section-title">Shape the Future of <span>Stay & Accommodation</span></h2>
+      <p style="color: var(--text-secondary); line-height: 1.7; margin-bottom: 20px;">
+        At Homzo Hospitality, we are on a mission to redefine the rental stay industry in India. By bridging the gap between quality accommodations and flexible customer service, we make guests feel at home wherever they go.
+      </p>
+      <p style="color: var(--text-secondary); line-height: 1.7;">
+        Joining Homzo means working with an agile, high-performing team focused on building sustainable business models, deploying clean technology, and delivering real hospitality value. We support equality, professional growth, and provide a launchpad for your career.
+      </p>
+      
+      <div class="culture-benefits-grid">
+        <div class="culture-benefit-card">
+          <i class="fa-solid fa-rocket"></i>
+          <h4>Growth Opportunities</h4>
+          <p>Gain valuable exposure as we scale our network to new cities and accommodation tiers across India.</p>
+        </div>
+        <div class="culture-benefit-card">
+          <i class="fa-solid fa-hotel"></i>
+          <h4>Hospitality Exposure</h4>
+          <p>Learn end-to-end customer operations, partner relations, and hotel business management hands-on.</p>
+        </div>
+        <div class="culture-benefit-card">
+          <i class="fa-solid fa-lightbulb"></i>
+          <h4>Innovation-Driven</h4>
+          <p>Work on tech-enabled operations, booking portals, and smart property automation utilities.</p>
+        </div>
+        <div class="culture-benefit-card">
+          <i class="fa-solid fa-handshake"></i>
+          <h4>Equal Opportunity</h4>
+          <p>We believe in a diverse, respectful work culture where talent dictates growth, regardless of background.</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="about-careers-image">
+      <img src="couple_room.png" alt="Homzo Premium Stay Environment">
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ CURRENT OPENINGS SECTION ════════════════ -->
+<section class="openings-section" id="openings">
+  <div class="container" style="max-width: 1200px; margin: 0 auto;">
+    
+    <div style="text-align: center; margin-bottom: 50px;">
+      <span class="section-label"><i class="fa-solid fa-list"></i> Current Openings</span>
+      <h2 class="section-title">Explore Active <span>Opportunities</span></h2>
+      <p class="section-sub" style="margin: 0 auto;">Find the perfect match for your skills and career aspirations.</p>
+    </div>
+
+    <!-- Advanced Search & Filters -->
+    <div class="filter-panel">
+      <div class="filter-row">
+        <div class="filter-group">
+          <label for="searchTitle">Search Job Title</label>
+          <input type="text" id="searchTitle" class="form-control" placeholder="e.g. Software Engineer..." style="background: rgba(255,255,255,0.03);">
+        </div>
+        <div class="filter-group">
+          <label for="filterLocation">Location</label>
+          <select id="filterLocation" class="form-control" style="background: rgba(255,255,255,0.03);">
+            <option value="all">All Locations</option>
+            <option value="Bengaluru">Bengaluru</option>
+            <option value="Mumbai">Mumbai</option>
+            <option value="Delhi">Delhi</option>
+            <option value="Remote">Remote</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filterDept">Department</label>
+          <select id="filterDept" class="form-control" style="background: rgba(255,255,255,0.03);">
+            <option value="all">All Departments</option>
+            <option value="Engineering">Engineering</option>
+            <option value="Operations">Operations</option>
+            <option value="Marketing">Marketing</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filterType">Employment Type</label>
+          <select id="filterType" class="form-control" style="background: rgba(255,255,255,0.03);">
+            <option value="all">All Types</option>
+            <option value="Full-Time">Full-Time</option>
+            <option value="Part-Time">Part-Time</option>
+            <option value="Internship">Internship</option>
+            <option value="Contract">Contract</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filterExp">Experience Level</label>
+          <select id="filterExp" class="form-control" style="background: rgba(255,255,255,0.03);">
+            <option value="all">All Levels</option>
+            <option value="Entry Level">Entry Level</option>
+            <option value="Entry-Mid">Entry-Mid</option>
+            <option value="Mid-Senior">Mid-Senior</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Job Cards Grid -->
+    <div class="job-listings-grid" id="jobListingsGrid">
+      <!-- Injected dynamically via JS -->
+      <div style="text-align: center; padding: 40px 0;">
+        <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary);"></i>
+        <p style="margin-top: 12px; color: var(--text-secondary);">Loading open positions...</p>
+      </div>
+    </div>
+
+    <!-- General Application Section -->
+    <div class="general-apply-note" id="general-apply">
+      <h4>Don't see a matching role?</h4>
+      <p style="margin: 8px 0 16px; font-size: 0.9rem;">We are always looking for stellar talent to join our operations, sales, and tech divisions.</p>
+      <button class="btn btn-ghost btn-sm" onclick="openGeneralApplication()"><i class="fa-solid fa-paper-plane"></i> Submit Your Profile</button>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════ FOOTER ════════════════ -->
+<footer class="footer">
+  <div class="container" style="max-width: 1200px; margin: 0 auto;">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="/" class="nav-logo">
+          <img src="homzo_logo.png" alt="HOMZO Logo" class="brand-logo footer-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+          <span style="display: none; font-family: 'Sora', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--primary); letter-spacing: 1px;">HOMZO</span>
+        </a>
+        <p>Your trusted accommodation partner across India. Quality stays for every type of traveler.</p>
+        <div class="social-links">
+          <a href="https://www.facebook.com/share/1P3xbf5bP3/" target="_blank"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="https://www.instagram.com/homzo_official" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+        </div>
+      </div>
+      
+      <div class="footer-links">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="support.html">Support</a></li>
+          <li><a href="/careers">Careers</a></li>
+          <li><a href="official-homzo-blog.html">Official Homzo Blog</a></li>
+          <li><a href="investor-relations.html">Investor Relations</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-links">
+        <h5>Careers Helpdesk</h5>
+        <ul style="color: var(--text-secondary); font-size: 0.88rem; display: flex; flex-direction: column; gap: 8px;">
+          <li><i class="fa-solid fa-envelope" style="color: var(--primary); margin-right: 8px;"></i> <a href="mailto:supporhomzo@gmail.com">supporhomzo@gmail.com</a></li>
+          <li><i class="fa-solid fa-phone" style="color: var(--primary); margin-right: 8px;"></i> +91 7887090020</li>
+          <li><i class="fa-solid fa-clock" style="color: var(--primary); margin-right: 8px;"></i> Mon-Sat, 9 AM - 6 PM IST</li>
+        </ul>
+      </div>
+
+      <div class="footer-links">
+        <h5>Policies</h5>
+        <ul>
+          <li><a href="guest-policy.html">Guest Policy</a></li>
+          <li><a href="trust-and-safety.html">Trust & Safety</a></li>
+          <li><a href="Homzo_Privacy_Policy.pdf" target="_blank">Privacy Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <span>© 2025 HOMZO. All rights reserved. Built with ❤️ in India.</span>
+      <span>GST No: 27AAGCH1234A1ZS</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  let jobsData = [];
+
+  // Navbar scrolled effect
+  window.addEventListener('scroll', () => {
+    const nav = document.getElementById('navbar');
+    if (window.scrollY > 40) {
+      nav.classList.add('scrolled');
+    } else {
+      nav.classList.remove('scrolled');
+    }
+  });
+
+  // Mobile hamburger menu toggle
+  document.getElementById('hamburger').addEventListener('click', () => {
+    const links = document.getElementById('navLinks');
+    links.classList.toggle('active');
+  });
+
+  // Fetch jobs on load
+  async function fetchJobs() {
+    try {
+      const res = await fetch('/api/careers/jobs');
+      if (res.ok) {
+        jobsData = await res.json();
+        renderJobs(jobsData);
+      } else {
+        document.getElementById('jobListingsGrid').innerHTML = `
+          <div class="no-jobs-found">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <p>Could not fetch job listings. Please refresh or try again later.</p>
+          </div>`;
+      }
+    } catch (e) {
+      document.getElementById('jobListingsGrid').innerHTML = `
+        <div class="no-jobs-found">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <p>Failed to connect to backend server.</p>
+        </div>`;
+    }
+  }
+
+  // Render job list
+  function renderJobs(jobs) {
+    const grid = document.getElementById('jobListingsGrid');
+    if (jobs.length === 0) {
+      grid.innerHTML = `
+        <div class="no-jobs-found">
+          <i class="fa-solid fa-folder-open"></i>
+          <h3>No open positions matching your filters</h3>
+          <p>Try resetting the filters or check back later.</p>
+        </div>`;
+      return;
+    }
+
+    grid.innerHTML = jobs.map(job => {
+      const isUrgent = job.Status === 'Urgent Hiring';
+      const statusClass = isUrgent ? 'j-badge-status-urgent' : 'j-badge-status-open';
+      const statusText = job.Status;
+      
+      return `
+        <div class="job-card">
+          <div class="job-meta-main">
+            <div class="job-badges">
+              <span class="j-badge j-badge-dept">${job.Department}</span>
+              <span class="j-badge j-badge-type">${job.Employment_Type}</span>
+              <span class="j-badge j-badge-loc"><i class="fa-solid fa-location-dot"></i> ${job.Location}</span>
+              <span class="j-badge ${statusClass}">${statusText}</span>
+            </div>
+            <h3>${job.Title}</h3>
+            <p class="job-details-excerpt">${job.Description}</p>
+            <div class="job-specs">
+              <span><i class="fa-solid fa-briefcase"></i> Experience: ${job.Experience_Level}</span>
+              <span><i class="fa-solid fa-users"></i> Vacancies: ${job.Vacancies}</span>
+              ${job.Salary ? `<span><i class="fa-solid fa-wallet"></i> ${job.Salary}</span>` : ''}
+              ${job.Deadline ? `<span><i class="fa-solid fa-calendar-xmark"></i> Apply by: ${job.Deadline}</span>` : ''}
+            </div>
+          </div>
+          <div class="job-card-actions">
+            <a href="/careers/job/${job.ID}" class="btn btn-primary btn-sm">View Details <i class="fa-solid fa-arrow-right"></i></a>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Filter functionality
+  function filterJobs() {
+    const titleVal = document.getElementById('searchTitle').value.toLowerCase().trim();
+    const locVal = document.getElementById('filterLocation').value;
+    const deptVal = document.getElementById('filterDept').value;
+    const typeVal = document.getElementById('filterType').value;
+    const expVal = document.getElementById('filterExp').value;
+
+    const filtered = jobsData.filter(job => {
+      const matchesTitle = job.Title.toLowerCase().includes(titleVal) || 
+                           job.Description.toLowerCase().includes(titleVal) ||
+                           job.Skills.toLowerCase().includes(titleVal);
+      const matchesLoc = locVal === 'all' || job.Location === locVal;
+      const matchesDept = deptVal === 'all' || job.Department === deptVal;
+      const matchesType = typeVal === 'all' || job.Employment_Type === typeVal;
+      const matchesExp = expVal === 'all' || job.Experience_Level === expVal;
+
+      return matchesTitle && matchesLoc && matchesDept && matchesType && matchesExp;
+    });
+
+    renderJobs(filtered);
+  }
+
+  // Bind filter events
+  document.getElementById('searchTitle').addEventListener('input', filterJobs);
+  document.getElementById('filterLocation').addEventListener('change', filterJobs);
+  document.getElementById('filterDept').addEventListener('change', filterJobs);
+  document.getElementById('filterType').addEventListener('change', filterJobs);
+  document.getElementById('filterExp').addEventListener('change', filterJobs);
+
+  function openGeneralApplication() {
+    window.location.href = '/careers/job/general-application';
+  }
+
+  // Run on load
+  window.addEventListener('DOMContentLoaded', fetchJobs);
+</script>
+
+</body>
+</html>

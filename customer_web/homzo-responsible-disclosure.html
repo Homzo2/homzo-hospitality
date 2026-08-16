@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Responsible Disclosure Policy | Homzo Hospitality</title>
+  <meta name="description" content="Homzo Hospitality's Responsible Disclosure Policy — Learn how to responsibly report security vulnerabilities in our platforms, apps, and services." />
+  <meta name="robots" content="index, follow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:       #0D1F3C;
+      --blue:       #1A56A0;
+      --blue-mid:   #2E74C0;
+      --blue-light: #4A90D9;
+      --sky:        #EAF2FB;
+      --gold:       #C5A84B;
+      --white:      #FFFFFF;
+      --off-white:  #F8FAFD;
+      --gray-100:   #F1F4F8;
+      --gray-300:   #C8D1DC;
+      --gray-500:   #7A8899;
+      --gray-700:   #3A4A5C;
+      --gray-900:   #1C2B3A;
+      --shadow-sm:  0 2px 8px rgba(13,31,60,0.07);
+      --shadow-md:  0 6px 24px rgba(13,31,60,0.10);
+      --shadow-lg:  0 16px 48px rgba(13,31,60,0.13);
+      --radius:     12px;
+      --radius-lg:  20px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--white);
+      color: var(--gray-900);
+      line-height: 1.7;
+      font-size: 16px;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--gray-100);
+      padding: 0 5vw;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 72px;
+    }
+    .nav-brand {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none;
+    }
+    .nav-logo-mark {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--navy), var(--blue-mid));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .nav-logo-mark svg { width: 20px; height: 20px; fill: white; }
+    .nav-brand-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.25rem; font-weight: 700; letter-spacing: .02em;
+      color: var(--navy);
+    }
+    .nav-badge {
+      font-size: 0.7rem; font-weight: 600; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--blue);
+      background: var(--sky); border-radius: 20px;
+      padding: 4px 12px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(160deg, var(--navy) 0%, #163059 55%, #1e4a82 100%);
+      padding: 110px 5vw 100px;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+    .hero-inner {
+      max-width: 780px; position: relative; z-index: 1;
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 30px; padding: 7px 16px;
+      font-size: 0.78rem; font-weight: 600; letter-spacing: .1em;
+      text-transform: uppercase; color: rgba(255,255,255,0.85);
+      margin-bottom: 28px;
+    }
+    .hero-eyebrow svg { width: 14px; height: 14px; flex-shrink: 0; }
+    .hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.6rem, 6vw, 4.2rem);
+      font-weight: 700; line-height: 1.1;
+      color: var(--white); letter-spacing: -.01em;
+      margin-bottom: 22px;
+    }
+    .hero h1 span { color: var(--gold); }
+    .hero-sub {
+      font-size: 1.15rem; font-weight: 300;
+      color: rgba(255,255,255,0.75);
+      max-width: 560px; line-height: 1.65;
+    }
+    .hero-divider {
+      width: 64px; height: 3px;
+      background: linear-gradient(90deg, var(--gold), transparent);
+      border-radius: 2px; margin-top: 40px;
+    }
+
+    /* ── LAYOUT ── */
+    .container { max-width: 900px; margin: 0 auto; padding: 0 5vw; }
+    .section { padding: 80px 0; }
+    .section + .section { border-top: 1px solid var(--gray-100); }
+
+    .section-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--blue);
+      margin-bottom: 14px;
+    }
+    .section-label::before {
+      content: ''; display: block;
+      width: 20px; height: 2px;
+      background: var(--blue-light); border-radius: 1px;
+    }
+    h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.9rem, 4vw, 2.6rem);
+      font-weight: 700; color: var(--navy);
+      line-height: 1.2; letter-spacing: -.01em;
+      margin-bottom: 20px;
+    }
+    h3 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1.05rem; font-weight: 600;
+      color: var(--navy); margin-bottom: 8px;
+    }
+    p { color: var(--gray-700); margin-bottom: 16px; }
+    p:last-child { margin-bottom: 0; }
+
+    /* ── INTRO PILLARS ── */
+    .pillars {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 20px; margin-top: 48px;
+    }
+    .pillar {
+      background: var(--off-white);
+      border: 1px solid var(--gray-100);
+      border-radius: var(--radius);
+      padding: 28px 22px;
+      transition: box-shadow .25s, transform .25s;
+    }
+    .pillar:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
+    .pillar-icon {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, var(--blue), var(--blue-mid));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 16px;
+    }
+    .pillar-icon svg { width: 22px; height: 22px; stroke: white; fill: none; stroke-width: 1.8; }
+    .pillar h3 { font-size: .95rem; color: var(--navy); margin-bottom: 6px; }
+    .pillar p { font-size: .88rem; color: var(--gray-500); margin: 0; }
+
+    /* ── REPORT BOX ── */
+    .report-card {
+      background: linear-gradient(135deg, var(--navy) 0%, #1e4a82 100%);
+      border-radius: var(--radius-lg);
+      padding: 48px;
+      color: white;
+      margin-top: 40px;
+      position: relative; overflow: hidden;
+    }
+    .report-card::after {
+      content: '';
+      position: absolute; right: -60px; bottom: -60px;
+      width: 240px; height: 240px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .report-card h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.55rem; font-weight: 600;
+      color: white; margin-bottom: 6px;
+    }
+    .report-card .email-row {
+      display: flex; align-items: center; gap: 12px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 10px; padding: 16px 20px;
+      margin: 22px 0 32px;
+    }
+    .report-card .email-row svg {
+      width: 22px; height: 22px; stroke: var(--gold);
+      fill: none; stroke-width: 1.8; flex-shrink: 0;
+    }
+    .report-card .email-link {
+      font-size: 1.05rem; font-weight: 500;
+      color: white; text-decoration: none;
+      letter-spacing: .01em;
+    }
+    .report-card .email-link:hover { text-decoration: underline; }
+    .report-items { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    .report-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 10px; padding: 14px 16px;
+    }
+    .report-item svg {
+      width: 18px; height: 18px; stroke: var(--gold);
+      fill: none; stroke-width: 2; flex-shrink: 0; margin-top: 2px;
+    }
+    .report-item span { font-size: .9rem; color: rgba(255,255,255,0.85); line-height: 1.4; }
+
+    /* ── COMMITMENT ── */
+    .commitment-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 22px; margin-top: 40px;
+    }
+    .commitment-card {
+      background: var(--white);
+      border: 1px solid var(--gray-100);
+      border-radius: var(--radius);
+      padding: 30px 24px;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow .25s, transform .25s;
+      position: relative;
+    }
+    .commitment-card:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
+    .commitment-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 3px; border-radius: var(--radius) var(--radius) 0 0;
+      background: linear-gradient(90deg, var(--blue), var(--blue-light));
+    }
+    .step-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.8rem; font-weight: 700;
+      color: var(--gray-100); line-height: 1;
+      margin-bottom: 10px;
+    }
+
+    /* ── TWO-COL LIST SECTIONS ── */
+    .two-col-section { margin-top: 40px; }
+    .list-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 14px;
+    }
+    .list-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      background: var(--off-white);
+      border: 1px solid var(--gray-100);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      transition: background .2s;
+    }
+    .list-item:hover { background: var(--sky); }
+    .list-item-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .list-item-icon.green { background: #E8F8F1; }
+    .list-item-icon.green svg { stroke: #21A96A; }
+    .list-item-icon.red { background: #FEECEC; }
+    .list-item-icon.red svg { stroke: #D9363E; }
+    .list-item-icon svg { width: 17px; height: 17px; fill: none; stroke-width: 2.2; }
+    .list-item-text { font-size: .93rem; color: var(--gray-700); line-height: 1.5; }
+    .list-item-text strong { display: block; color: var(--navy); font-weight: 600; margin-bottom: 2px; }
+
+    /* ── SAFE HARBOR ── */
+    .safe-harbor-box {
+      background: var(--sky);
+      border-left: 4px solid var(--blue);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 36px 40px;
+      margin-top: 40px;
+    }
+    .safe-harbor-box svg {
+      width: 36px; height: 36px; stroke: var(--blue);
+      fill: none; stroke-width: 1.5; margin-bottom: 16px;
+    }
+    .safe-harbor-box h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem; font-weight: 600; color: var(--navy);
+      margin-bottom: 12px;
+    }
+    .safe-harbor-box p { color: var(--gray-700); font-size: .96rem; }
+    .safe-harbor-box ul {
+      list-style: none; margin-top: 16px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .safe-harbor-box ul li {
+      display: flex; align-items: center; gap: 10px;
+      font-size: .93rem; color: var(--gray-700);
+    }
+    .safe-harbor-box ul li::before {
+      content: ''; display: block;
+      width: 7px; height: 7px;
+      background: var(--blue); border-radius: 50%; flex-shrink: 0;
+    }
+
+    /* ── CONTACT ── */
+    .contact-section {
+      background: var(--gray-100);
+      padding: 80px 5vw;
+      text-align: center;
+    }
+    .contact-inner { max-width: 560px; margin: 0 auto; }
+    .contact-icon-wrap {
+      width: 72px; height: 72px;
+      background: linear-gradient(135deg, var(--blue), var(--navy));
+      border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 28px;
+      box-shadow: 0 10px 30px rgba(26,86,160,0.25);
+    }
+    .contact-icon-wrap svg {
+      width: 34px; height: 34px; stroke: white;
+      fill: none; stroke-width: 1.6;
+    }
+    .contact-section h2 { margin-bottom: 12px; }
+    .contact-section p { color: var(--gray-500); margin-bottom: 28px; }
+    .contact-btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: linear-gradient(135deg, var(--blue), var(--blue-mid));
+      color: white; text-decoration: none;
+      padding: 16px 32px; border-radius: 50px;
+      font-weight: 600; font-size: .97rem;
+      box-shadow: 0 8px 24px rgba(26,86,160,0.3);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .contact-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(26,86,160,0.4); }
+    .contact-btn svg { width: 18px; height: 18px; stroke: white; fill: none; stroke-width: 2; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--navy);
+      padding: 32px 5vw;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
+    }
+    .footer-brand {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .footer-brand-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem; font-weight: 600; color: white;
+    }
+    .footer-copy {
+      font-size: .82rem; color: rgba(255,255,255,0.4);
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .hero-inner > * {
+      animation: fadeUp .7s ease both;
+    }
+    .hero-inner > *:nth-child(1) { animation-delay: .05s; }
+    .hero-inner > *:nth-child(2) { animation-delay: .15s; }
+    .hero-inner > *:nth-child(3) { animation-delay: .25s; }
+    .hero-inner > *:nth-child(4) { animation-delay: .35s; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      .report-card { padding: 30px 22px; }
+      .safe-harbor-box { padding: 26px 24px; }
+      footer { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav aria-label="Site navigation">
+    <a href="#" class="nav-brand" aria-label="Homzo Hospitality Home">
+      <div class="nav-logo-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 9.5L12 3l9 6.5V21H3V9.5z"/><path d="M9 21V14h6v7" fill="rgba(255,255,255,0.3)"/></svg>
+      </div>
+      <span class="nav-brand-text">Homzo Hospitality</span>
+    </a>
+    <span class="nav-badge">Security Policy</span>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero" role="banner">
+    <div class="hero-inner">
+      <div class="hero-eyebrow" aria-label="Document category">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        Security & Trust
+      </div>
+      <h1>Responsible<br /><span>Disclosure</span> Policy</h1>
+      <p class="hero-sub">Helping us maintain a secure and trusted hospitality platform — for every guest, host, and partner.</p>
+      <div class="hero-divider" aria-hidden="true"></div>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- INTRODUCTION -->
+    <section class="section" id="introduction" aria-labelledby="intro-heading">
+      <div class="container">
+        <span class="section-label">Our Commitment</span>
+        <h2 id="intro-heading">Security at the Heart of Hospitality</h2>
+        <p>At Homzo Hospitality, security is not an afterthought — it is a foundational pillar of everything we build. We process sensitive guest information, hotel partner data, and financial transactions daily, and we take the responsibility of protecting that data with the utmost seriousness.</p>
+        <p>We value the independent security research community and recognize the vital role researchers play in keeping digital platforms safe. This policy outlines how you can responsibly disclose potential vulnerabilities to us, and how we commit to working with you in good faith.</p>
+
+        <div class="pillars" role="list">
+          <div class="pillar" role="listitem">
+            <div class="pillar-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <h3>Cybersecurity</h3>
+            <p>Proactive defense of all our digital assets and infrastructure.</p>
+          </div>
+          <div class="pillar" role="listitem">
+            <div class="pillar-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <h3>User Privacy</h3>
+            <p>Safeguarding guest and customer personal data at every touchpoint.</p>
+          </div>
+          <div class="pillar" role="listitem">
+            <div class="pillar-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <h3>Partner Security</h3>
+            <p>Ensuring hotel and business partners can trust our platform.</p>
+          </div>
+          <div class="pillar" role="listitem">
+            <div class="pillar-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            </div>
+            <h3>Responsible Reporting</h3>
+            <p>A clear, ethical process for disclosing vulnerabilities.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW TO REPORT -->
+    <section class="section" id="how-to-report" aria-labelledby="report-heading">
+      <div class="container">
+        <span class="section-label">Report a Vulnerability</span>
+        <h2 id="report-heading">How to Report a Vulnerability</h2>
+        <p>If you believe you have discovered a security vulnerability in any Homzo Hospitality website, mobile application, API, or system, please reach out to our security team immediately. We ask that you follow responsible disclosure principles and contact us privately before any public disclosure.</p>
+
+        <div class="report-card" role="region" aria-label="Contact details for reporting">
+          <h3>Send Your Report To</h3>
+          <p style="color: rgba(255,255,255,0.65); font-size:.9rem; margin:0;">Please use email to submit all vulnerability reports. Do not share details on public forums before we have had the opportunity to investigate.</p>
+          <div class="email-row">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <a href="mailto:supporhomzo@gmail.com" class="email-link" aria-label="Send vulnerability report to supporhomzo@gmail.com">supporhomzo@gmail.com</a>
+          </div>
+
+          <p style="color: rgba(255,255,255,0.65); font-size:.85rem; margin-bottom:16px; font-weight:500; letter-spacing:.06em; text-transform:uppercase;">Please include in your report</p>
+          <div class="report-items" role="list">
+            <div class="report-item" role="listitem">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span>A clear description of the vulnerability and affected component</span>
+            </div>
+            <div class="report-item" role="listitem">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              <span>Step-by-step instructions to reproduce the issue</span>
+            </div>
+            <div class="report-item" role="listitem">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <span>Screenshots, videos, or proof-of-concept code</span>
+            </div>
+            <div class="report-item" role="listitem">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+              <span>The potential impact and severity of the vulnerability</span>
+            </div>
+            <div class="report-item" role="listitem">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span>Your contact name and preferred contact method</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- OUR COMMITMENT -->
+    <section class="section" id="commitment" aria-labelledby="commitment-heading">
+      <div class="container">
+        <span class="section-label">What We Promise</span>
+        <h2 id="commitment-heading">Our Commitment to Researchers</h2>
+        <p>When you report a vulnerability to us in good faith, Homzo Hospitality is committed to working with you transparently and professionally throughout the resolution process.</p>
+        <div class="commitment-grid" role="list">
+          <div class="commitment-card" role="listitem">
+            <div class="step-num" aria-hidden="true">01</div>
+            <h3>Acknowledgment</h3>
+            <p>We will acknowledge receipt of your report within <strong>72 hours</strong>, confirming we have received it and are reviewing the details.</p>
+          </div>
+          <div class="commitment-card" role="listitem">
+            <div class="step-num" aria-hidden="true">02</div>
+            <h3>Investigation</h3>
+            <p>Our security team will conduct a thorough investigation to verify and assess the severity of the reported vulnerability.</p>
+          </div>
+          <div class="commitment-card" role="listitem">
+            <div class="step-num" aria-hidden="true">03</div>
+            <h3>Remediation</h3>
+            <p>We will work diligently to remediate confirmed vulnerabilities in a timely manner, prioritized by impact and severity.</p>
+          </div>
+          <div class="commitment-card" role="listitem">
+            <div class="step-num" aria-hidden="true">04</div>
+            <h3>Communication</h3>
+            <p>We will keep you informed of our progress and notify you when the vulnerability has been resolved.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESEARCHER GUIDELINES -->
+    <section class="section" id="guidelines" aria-labelledby="guidelines-heading">
+      <div class="container">
+        <span class="section-label">Researcher Guidelines</span>
+        <h2 id="guidelines-heading">What We Ask of Researchers</h2>
+        <p>To ensure a productive and ethical research process, we ask that all security researchers adhere to the following guidelines when investigating potential vulnerabilities in Homzo Hospitality systems.</p>
+        <div class="two-col-section">
+          <div class="list-grid" role="list">
+            <div class="list-item" role="listitem">
+              <div class="list-item-icon green" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="list-item-text">
+                <strong>Act in Good Faith</strong>
+                Conduct testing ethically and with genuine intent to improve our platform's security.
+              </div>
+            </div>
+            <div class="list-item" role="listitem">
+              <div class="list-item-icon green" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="list-item-text">
+                <strong>No Data Access or Modification</strong>
+                Do not access, modify, copy, or delete any user or system data beyond what is strictly necessary to demonstrate the vulnerability.
+              </div>
+            </div>
+            <div class="list-item" role="listitem">
+              <div class="list-item-icon green" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="list-item-text">
+                <strong>No Service Disruption</strong>
+                Avoid any actions that could degrade, disrupt, or deny access to Homzo Hospitality services for other users.
+              </div>
+            </div>
+            <div class="list-item" role="listitem">
+              <div class="list-item-icon green" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="list-item-text">
+                <strong>No Privacy Violations</strong>
+                Do not access, expose, or exploit personal data belonging to real users, guests, or hotel partners.
+              </div>
+            </div>
+            <div class="list-item" role="listitem">
+              <div class="list-item-icon green" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="list-item-text">
+                <strong>Allow Reasonable Time to Remediate</strong>
+                Please allow us a reasonable timeframe (up to 90 days) to investigate and remediate before any public disclosure.
+              </div>
+            </div>
+            <div class="list-item" role="listitem">
+              <div class="list-item-icon green" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="list-item-text">
+                <strong>Only Test Your Own Accounts</strong>
+                Use accounts and data that you own or have explicit permission to test. Never test on accounts belonging to other users.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- OUT OF SCOPE -->
+    <section class="section" id="out-of-scope" aria-labelledby="oos-heading">
+      <div class="container">
+        <span class="section-label">Out of Scope</span>
+        <h2 id="oos-heading">Vulnerabilities Outside Our Scope</h2>
+        <p>The following types of issues are outside the scope of this responsible disclosure policy. Reports in these categories will not be considered for acknowledgment or response.</p>
+        <div class="two-col-section">
+          <div class="list-grid" role="list">
+            <div class="list-item" role="listitem">
+              <div class="list-item-icon red" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </div>
+              <div class="list-item-text">
+                <strong>DDoS Attacks</strong>
+                Distributed denial-of-service attacks or any testing involving network flooding or resource exhaustion.
+              </div>
+            </div>
+            <div class="list-item" role="listitem">
+              <div class="list-item-icon red" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </div>
+              <div class="list-item-text">
+                <strong>Spam Attacks</strong>
+                Email bombing, SMS flooding, or any form of mass unsolicited messaging targeting our systems or users.
+              </div>
+            </div>
+            <div class="list-item" role="listitem">
+              <div class="list-item-icon red" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </div>
+              <div class="list-item-text">
+                <strong>Social Engineering</strong>
+                Phishing, vishing, pretexting, or any form of social engineering targeting Homzo employees or contractors.
+              </div>
+            </div>
+            <div class="list-item" role="listitem">
+              <div class="list-item-icon red" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </div>
+              <div class="list-item-text">
+                <strong>Physical Security Issues</strong>
+                Physical intrusion, tailgating, or any security concern related to Homzo's or partner hotels' physical premises.
+              </div>
+            </div>
+            <div class="list-item" role="listitem">
+              <div class="list-item-icon red" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </div>
+              <div class="list-item-text">
+                <strong>Non-Exploitable Findings</strong>
+                Theoretical vulnerabilities, informational issues, or findings without a demonstrable real-world security impact.
+              </div>
+            </div>
+            <div class="list-item" role="listitem">
+              <div class="list-item-icon red" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </div>
+              <div class="list-item-text">
+                <strong>Third-Party Services</strong>
+                Vulnerabilities in third-party platforms or services that are not under Homzo Hospitality's direct control or responsibility.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SAFE HARBOR -->
+    <section class="section" id="safe-harbor" aria-labelledby="harbor-heading">
+      <div class="container">
+        <span class="section-label">Legal Protections</span>
+        <h2 id="harbor-heading">Legal Safe Harbor</h2>
+        <p>We believe that good-faith security research should be encouraged, not punished. Homzo Hospitality is committed to protecting researchers who act responsibly and within the bounds of this policy.</p>
+
+        <div class="safe-harbor-box" role="note" aria-label="Legal Safe Harbor Statement">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+          <h3>Our Safe Harbor Commitment</h3>
+          <p>Homzo Hospitality will not pursue civil or criminal action against security researchers who discover and report vulnerabilities in compliance with this Responsible Disclosure Policy. We consider responsible disclosure activities to be authorized, constructive conduct and will work with our legal team to ensure researchers are protected when they operate in good faith.</p>
+          <ul>
+            <li>No legal action against researchers who act in good faith and follow this policy</li>
+            <li>We will not report you to law enforcement for responsible disclosures</li>
+            <li>We view your research as authorized under this policy when guidelines are followed</li>
+            <li>We may publicly acknowledge your responsible disclosure with your consent</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- CONTACT -->
+  <section class="contact-section" id="contact" aria-labelledby="contact-heading">
+    <div class="contact-inner">
+      <div class="contact-icon-wrap" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </div>
+      <span class="section-label" style="justify-content:center;">Get in Touch</span>
+      <h2 id="contact-heading">Security Contact</h2>
+      <p>Have a security concern, question about this policy, or a vulnerability to report? Our security team is ready to assist you.</p>
+      <a href="mailto:support@homzohospitality.com" class="contact-btn" aria-label="Email our security team at support@homzohospitality.com">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        support@homzohospitality.com
+      </a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer role="contentinfo">
+    <div class="footer-brand" aria-label="Homzo Hospitality">
+      <div class="nav-logo-mark" style="width:30px;height:30px;" aria-hidden="true">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:16px;height:16px;fill:white;"><path d="M3 9.5L12 3l9 6.5V21H3V9.5z"/></svg>
+      </div>
+      <span class="footer-brand-name">Homzo Hospitality</span>
+    </div>
+    <p class="footer-copy">© 2026 Homzo Hospitality. All Rights Reserved.</p>
+  </footer>
+
+</body>
+</html>

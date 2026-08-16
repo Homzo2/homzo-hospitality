@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Job Details - Homzo Hospitality</title>
+  <meta name="description" content="Apply for open career opportunities at Homzo Hospitality. View detailed job descriptions and submit your application." />
+  
+  <link rel="stylesheet" href="../../styles.css">
+  <link rel="stylesheet" href="../../client.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <style>
+    .job-details-container {
+      max-width: 900px;
+      margin: 140px auto 80px;
+      padding: 0 20px;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--primary);
+      font-weight: 600;
+      margin-bottom: 24px;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .back-btn:hover {
+      transform: translateX(-4px);
+    }
+
+    .job-header-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      margin-bottom: 30px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .job-header-title {
+      font-family: 'Sora', sans-serif;
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+    }
+
+    .job-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .detail-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      padding: 6px 14px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+
+    .detail-badge.highlight {
+      background: var(--primary-glow);
+      border-color: rgba(255, 92, 53, 0.3);
+      color: var(--primary);
+    }
+
+    .job-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      border-top: 1px solid var(--border);
+      padding-top: 24px;
+    }
+
+    .info-item h5 {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    .info-item p {
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .job-body-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .job-section {
+      margin-bottom: 35px;
+    }
+
+    .job-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .job-section h3 {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.4rem;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+      border-left: 4px solid var(--primary);
+      padding-left: 12px;
+    }
+
+    .job-section p {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    .job-section ul {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-left: 4px;
+    }
+
+    .job-section ul li {
+      position: relative;
+      padding-left: 24px;
+      font-size: 0.98rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .job-section ul li::before {
+      content: '\f00c';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      position: absolute;
+      left: 0;
+      top: 3px;
+      color: var(--primary);
+      font-size: 0.85rem;
+    }
+
+    .apply-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 92, 53, 0.05);
+      border: 1px dashed var(--primary);
+      padding: 24px 30px;
+      border-radius: var(--radius-md);
+      margin-top: 40px;
+    }
+
+    .apply-bar-text h4 {
+      font-size: 1.15rem;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .apply-bar-text p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    /* Modal inputs styling */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .captcha-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+
+    .captcha-question {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      flex: 1;
+    }
+
+    .captcha-input {
+      max-width: 100px;
+      text-align: center;
+    }
+
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      background: rgba(255,255,255,0.01);
+      position: relative;
+    }
+
+    .upload-zone:hover {
+      border-color: var(--primary);
+      background: rgba(255, 92, 53, 0.02);
+    }
+
+    .upload-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .upload-zone i {
+      font-size: 2rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .upload-zone p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .file-name-preview {
+      margin-top: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    /* OTP Verification Overlay modal */
+    .otp-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(8px);
+    }
+
+    .otp-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: var(--shadow-card);
+    }
+
+    .otp-inputs {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 24px 0;
+    }
+
+    .otp-input {
+      width: 48px;
+      height: 48px;
+      font-size: 1.5rem;
+      text-align: center;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+    }
+
+    .otp-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 10px var(--primary-glow);
+      outline: none;
+    }
+
+    /* Premium success checkmark animation */
+    .success-popup {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 12, 16, 0.95);
+      z-index: 1100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .success-box {
+      text-align: center;
+      max-width: 450px;
+      padding: 40px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      animation: scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .success-checkmark {
+      width: 80px;
+      height: 80px;
+      background: rgba(34, 197, 94, 0.1);
+      border: 2px solid var(--success);
+      color: var(--success);
+      font-size: 2.5rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      animation: bounceIn 0.5s ease;
+    }
+
+    @keyframes bounceIn {
+      0% { transform: scale(0.3); opacity: 0; }
+      50% { transform: scale(1.05); }
+      70% { transform: scale(0.9); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .apply-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 20px;
+        text-align: center;
+      }
+      .apply-bar .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════ NAVBAR ════════════════ -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="/" class="nav-logo">
+      <img src="../../homzo_logo.png" alt="HOMZO Logo" class="brand-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+      <span style="display: none; font-family: 'Sora', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--primary); letter-spacing: 1px;">HOMZO</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/#hero" class="nav-link">Home</a></li>
+      <li><a href="../../about.html" class="nav-link">About</a></li>
+      <li><a href="/#categories" class="nav-link">Categories</a></li>
+      <li><a href="/#properties" class="nav-link">Properties</a></li>
+      <li><a href="/careers" class="nav-link active">Careers</a></li>
+      <li><a href="../../support.html" class="nav-link">Contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="../../advertise-your-homes.html" class="btn btn-ghost btn-sm hide-mobile"><i class="fa-solid fa-hotel"></i> Partner with Us</a>
+      <button class="nav-hamburger hide-desktop" id="hamburger"><i class="fa-solid fa-bars"></i></button>
+    </div>
+  </div>
+</nav>
+
+<!-- ════════════════ MAIN DETAILS CONTAINER ════════════════ -->
+<div class="job-details-container">
+  
+  <div class="back-btn" onclick="window.location.href='/careers'">
+    <i class="fa-solid fa-arrow-left"></i> Back to Careers
+  </div>
+
+  <div id="jobDetailsContent">
+    <!-- Injected dynamically via JS -->
+    <div style="text-align: center; padding: 100px 0;">
+      <i class="fa-solid fa-spinner fa-spin" style="font-size: 2.5rem; color: var(--primary);"></i>
+      <p style="margin-top: 16px; color: var(--text-secondary);">Fetching job specifications...</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════ APPLICATION FORM MODAL ════════════════ -->
+<div class="modal-overlay" id="applyModal" style="display:none;">
+  <div class="modal-box" style="position:relative; max-width:650px; max-height:90vh; overflow-y:auto; text-align:left; padding:35px;">
+    <button class="modal-close" onclick="closeModal('applyModal')"><i class="fa-solid fa-xmark"></i></button>
+    
+    <h2 style="font-family:'Sora',sans-serif; margin-bottom:4px;"><i class="fa-solid fa-file-signature" style="color:var(--primary); margin-right:10px"></i>Apply for Position</h2>
+    <p style="font-size:0.88rem; color:var(--text-secondary); margin-bottom:24px;" id="applyModalSubtitle">Submit your candidacy details</p>
+    
+    <form id="applyForm" onsubmit="handleApplySubmit(event)">
+      <input type="hidden" id="formJobId">
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input type="text" class="form-control" id="formName" placeholder="Enter your full name" required>
+        </div>
+        <div class="form-group">
+          <label>Email Address *</label>
+          <input type="email" class="form-control" id="formEmail" placeholder="you@example.com" required>
+        </div>
+      </div>
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Phone Number *</label>
+          <input type="tel" class="form-control" id="formPhone" placeholder="+91 XXXXX XXXXX" required>
+        </div>
+        <div class="form-group">
+          <label>Current City</label>
+          <input type="text" class="form-control" id="formCity" placeholder="e.g. Mumbai">
+        </div>
+      </div>
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Highest Qualification</label>
+          <input type="text" class="form-control" id="formQual" placeholder="e.g. B.Tech Computer Science">
+        </div>
+        <div class="form-group">
+          <label>Total Experience (years)</label>
+          <input type="text" class="form-control" id="formExp" placeholder="e.g. 2.5 Years">
+        </div>
+      </div>
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label>LinkedIn Profile URL</label>
+          <input type="url" class="form-control" id="formLinkedin" placeholder="https://linkedin.com/in/username">
+        </div>
+        <div class="form-group">
+          <label>Portfolio/Website URL</label>
+          <input type="url" class="form-control" id="formPortfolio" placeholder="https://yourportfolio.com">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>Cover Letter (Optional)</label>
+        <textarea class="form-control" id="formCover" rows="3" placeholder="Briefly describe why you are a great fit for this position..."></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label>Resume Upload (PDF, DOC, DOCX up to 10MB) *</label>
+        <div class="upload-zone">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+          <p>Drag and drop your file here, or click to browse</p>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">PDF, DOC or DOCX only (Max 10MB)</span>
+          <input type="file" id="formResume" accept=".pdf,.doc,.docx" required onchange="handleFileChange(event)">
+          <div class="file-name-preview" id="fileNamePreview" style="display:none;"></div>
+        </div>
+      </div>
+      
+      <!-- Math Captcha Section -->
+      <div class="captcha-wrap">
+        <div class="captcha-question" id="captchaQuestion">Loading CAPTCHA challenge...</div>
+        <input type="hidden" id="captchaToken">
+        <input type="number" class="form-control captcha-input" id="captchaAnswer" placeholder="Answer" required>
+      </div>
+
+      <div class="form-group" style="display:flex; align-items:flex-start; gap:10px; margin-bottom:24px;">
+        <input type="checkbox" id="formTerms" style="margin-top:4px; accent-color:var(--primary);" required>
+        <label for="formTerms" style="font-size:0.85rem; color:var(--text-secondary); line-height:1.4;">
+          I agree to the Privacy Policy and Terms & Conditions of Homzo Hospitality. I confirm all details provided are accurate.
+        </label>
+      </div>
+      
+      <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;" id="submitApplyBtn">
+        <i class="fa-solid fa-paper-plane"></i> Verify Email & Submit Application
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- ════════════════ EMAIL OTP VERIFICATION MODAL ════════════════ -->
+<div class="otp-overlay" id="otpModal" style="display:none;">
+  <div class="otp-box">
+    <div style="font-size: 2.5rem; color: var(--primary); margin-bottom:16px;">
+      <i class="fa-solid fa-envelope-circle-check"></i>
+    </div>
+    <h3 style="font-family:'Sora',sans-serif; color:var(--text-primary); margin-bottom:8px;">Verify Your Email</h3>
+    <p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.4;">
+      We've sent a 6-digit verification code to <strong id="otpEmailTarget" style="color:var(--text-primary)"></strong>.<br>
+      Please enter it below to confirm your application.
+    </p>
+    
+    <div class="otp-inputs">
+      <input type="text" class="otp-input" maxlength="1" onkeyup="moveOtpFocus(this, 1)" id="o1">
+      <input type="text" class="otp-input" maxlength="1" onkeyup="moveOtpFocus(this, 2)" id="o2">
+      <input type="text" class="otp-input" maxlength="1" onkeyup="moveOtpFocus(this, 3)" id="o3">
+      <input type="text" class="otp-input" maxlength="1" onkeyup="moveOtpFocus(this, 4)" id="o4">
+      <input type="text" class="otp-input" maxlength="1" onkeyup="moveOtpFocus(this, 5)" id="o5">
+      <input type="text" class="otp-input" maxlength="1" onkeyup="moveOtpFocus(this, 6)" id="o6">
+    </div>
+    
+    <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 24px;">
+      (Check backend terminal logs for the MOCK OTP code)
+    </div>
+
+    <div style="display:flex; gap:12px;">
+      <button class="btn btn-primary" style="flex:1; justify-content:center;" onclick="confirmOtpAndSubmit()"><i class="fa-solid fa-circle-check"></i> Verify & Apply</button>
+      <button class="btn btn-ghost" style="flex:1; justify-content:center;" onclick="closeOtpModal()"><i class="fa-solid fa-xmark"></i> Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ SUCCESS POPUP ════════════════ -->
+<div class="success-popup" id="successPopup" style="display:none;">
+  <div class="success-box">
+    <div class="success-checkmark"><i class="fa-solid fa-check"></i></div>
+    <h2 style="font-family:'Sora',sans-serif; color:var(--text-primary); margin-bottom:12px;">Application Submitted!</h2>
+    <p style="color:var(--text-secondary); font-size:0.95rem; line-height:1.6; margin-bottom:28px;">
+      Thank you for applying. Our team will review your application and contact you if shortlisted.
+    </p>
+    <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="closeSuccessAndRedirect()"><i class="fa-solid fa-house"></i> Return to Careers</button>
+  </div>
+</div>
+
+<!-- ════════════════ FOOTER ════════════════ -->
+<footer class="footer">
+  <div class="container" style="max-width: 1200px; margin: 0 auto;">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="/" class="nav-logo">
+          <img src="../../homzo_logo.png" alt="HOMZO Logo" class="brand-logo footer-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+          <span style="display: none; font-family: 'Sora', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--primary); letter-spacing: 1px;">HOMZO</span>
+        </a>
+        <p>Your trusted accommodation partner across India. Quality stays for every type of traveler.</p>
+        <div class="social-links">
+          <a href="https://www.facebook.com/share/1P3xbf5bP3/" target="_blank"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="https://www.instagram.com/homzo_official" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+        </div>
+      </div>
+      
+      <div class="footer-links">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="../../about.html">About Us</a></li>
+          <li><a href="../../support.html">Support</a></li>
+          <li><a href="/careers">Careers</a></li>
+          <li><a href="../../official-homzo-blog.html">Official Homzo Blog</a></li>
+          <li><a href="../../investor-relations.html">Investor Relations</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-links">
+        <h5>Careers Helpdesk</h5>
+        <ul style="color: var(--text-secondary); font-size: 0.88rem; display: flex; flex-direction: column; gap: 8px;">
+          <li><i class="fa-solid fa-envelope" style="color: var(--primary); margin-right: 8px;"></i> <a href="mailto:supporhomzo@gmail.com">supporhomzo@gmail.com</a></li>
+          <li><i class="fa-solid fa-phone" style="color: var(--primary); margin-right: 8px;"></i> +91 7887090020</li>
+          <li><i class="fa-solid fa-clock" style="color: var(--primary); margin-right: 8px;"></i> Mon-Sat, 9 AM - 6 PM IST</li>
+        </ul>
+      </div>
+
+      <div class="footer-links">
+        <h5>Policies</h5>
+        <ul>
+          <li><a href="../../guest-policy.html">Guest Policy</a></li>
+          <li><a href="../../trust-and-safety.html">Trust & Safety</a></li>
+          <li><a href="../../Homzo_Privacy_Policy.pdf" target="_blank">Privacy Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <span>© 2025 HOMZO. All rights reserved. Built with ❤️ in India.</span>
+      <span>GST No: 27AAGCH1234A1ZS</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Global states
+  let currentJob = null;
+  const pathParts = window.location.pathname.split('/');
+  const jobId = pathParts[pathParts.length - 1] || pathParts[pathParts.length - 2]; // handle trailing slashes
+
+  // Navbar scrolled effect
+  window.addEventListener('scroll', () => {
+    const nav = document.getElementById('navbar');
+    if (window.scrollY > 40) {
+      nav.classList.add('scrolled');
+    } else {
+      nav.classList.remove('scrolled');
+    }
+  });
+
+  // Modal helpers
+  function openModal(id) {
+    document.getElementById(id).style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+  
+  function closeModal(id) {
+    document.getElementById(id).style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  // Fetch single job details
+  async function fetchJobDetails() {
+    try {
+      const res = await fetch(`/api/careers/jobs/${jobId}`);
+      if (res.ok) {
+        currentJob = await res.json();
+        renderJobDetails(currentJob);
+        injectSchema(currentJob);
+      } else {
+        document.getElementById('jobDetailsContent').innerHTML = `
+          <div style="text-align: center; padding: 80px 20px;">
+            <i class="fa-solid fa-circle-question" style="font-size:3rem; color:var(--text-muted); margin-bottom:16px;"></i>
+            <h3>Job Opening Not Found</h3>
+            <p style="color:var(--text-secondary); margin-top:8px;">This position may have been filled or the link is expired.</p>
+            <a href="/careers" class="btn btn-primary btn-sm" style="margin-top:20px;"><i class="fa-solid fa-arrow-left"></i> Back to Careers</a>
+          </div>`;
+      }
+    } catch (e) {
+      document.getElementById('jobDetailsContent').innerHTML = `
+        <div style="text-align: center; padding: 80px 20px;">
+          <i class="fa-solid fa-triangle-exclamation" style="font-size:3rem; color:var(--danger); margin-bottom:16px;"></i>
+          <h3>Connection Failed</h3>
+          <p style="color:var(--text-secondary); margin-top:8px;">Could not connect to the Homzo recruitment servers.</p>
+        </div>`;
+    }
+  }
+
+  // Render job details
+  function renderJobDetails(job) {
+    const content = document.getElementById('jobDetailsContent');
+    const isUrgent = job.Status === 'Urgent Hiring';
+    
+    // Parse list features
+    const renderList = (text) => {
+      if (!text) return '<li>Not specified</li>';
+      return text.split('\n').filter(Boolean).map(item => `<li>${item}</li>`).join('');
+    };
+
+    content.innerHTML = `
+      <div class="job-header-card">
+        <div class="job-meta-row">
+          <span class="detail-badge highlight"><i class="fa-solid fa-briefcase"></i> ${job.Department}</span>
+          <span class="detail-badge"><i class="fa-solid fa-clock"></i> ${job.Employment_Type}</span>
+          <span class="detail-badge"><i class="fa-solid fa-laptop-house"></i> ${job.Work_Mode}</span>
+          <span class="detail-badge"><i class="fa-solid fa-location-dot"></i> ${job.Location}</span>
+        </div>
+        <h1 class="job-header-title">${job.Title}</h1>
+        
+        <div class="job-info-grid">
+          <div class="info-item">
+            <h5>Experience Level</h5>
+            <p>${job.Experience_Level}</p>
+          </div>
+          <div class="info-item">
+            <h5>Vacancies</h5>
+            <p>${job.Vacancies} Openings</p>
+          </div>
+          ${job.Salary ? `
+          <div class="info-item">
+            <h5>Offered Salary</h5>
+            <p>${job.Salary}</p>
+          </div>` : ''}
+          ${job.Deadline ? `
+          <div class="info-item">
+            <h5>Application Deadline</h5>
+            <p>${job.Deadline}</p>
+          </div>` : ''}
+        </div>
+      </div>
+
+      <div class="job-body-card">
+        <div class="job-section">
+          <h3>Job Description</h3>
+          <p>${job.Description}</p>
+        </div>
+        
+        <div class="job-section">
+          <h3>Key Responsibilities</h3>
+          <ul>
+            ${renderList(job.Responsibilities)}
+          </ul>
+        </div>
+
+        <div class="job-section">
+          <h3>Required Skills</h3>
+          <p>${job.Skills ? job.Skills.split(',').join(', ') : 'Not specified'}</p>
+        </div>
+
+        <div class="job-section">
+          <h3>Qualifications</h3>
+          <ul>
+            ${renderList(job.Qualifications)}
+          </ul>
+        </div>
+
+        ${job.Benefits ? `
+        <div class="job-section">
+          <h3>Perks & Benefits</h3>
+          <ul>
+            ${renderList(job.Benefits)}
+          </ul>
+        </div>` : ''}
+        
+        <div class="apply-bar">
+          <div class="apply-bar-text">
+            <h4>Ready to build with Homzo?</h4>
+            <p>Make sure you have your updated resume (PDF/DOC) ready.</p>
+          </div>
+          <button class="btn btn-primary" onclick="triggerApplyModal()"><i class="fa-solid fa-paper-plane"></i> Apply For This Job</button>
+        </div>
+      </div>
+    `;
+  }
+
+  // Schema Injection (Job Posting JSON-LD)
+  function injectSchema(job) {
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "JobPosting",
+      "title": job.Title,
+      "description": job.Description,
+      "datePosted": job.Date_Added,
+      "validThrough": job.Deadline || undefined,
+      "employmentType": job.Employment_Type.toUpperCase().replace('-', '_'),
+      "hiringOrganization": {
+        "@type": "Organization",
+        "name": "Homzo Hospitality",
+        "sameAs": "http://localhost:3000"
+      },
+      "jobLocation": {
+        "@type": "Place",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": job.Location,
+          "addressCountry": "IN"
+        }
+      },
+      "experienceRequirements": {
+        "@type": "OccupationalExperienceRequirements",
+        "monthsOfExperience": job.Experience_Level.includes('Mid') ? 24 : 0
+      }
+    };
+    
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify(schema);
+    document.head.appendChild(script);
+  }
+
+  // Captcha Generator
+  async function loadCaptcha() {
+    try {
+      const res = await fetch('/api/careers/captcha');
+      if (res.ok) {
+        const data = await res.json();
+        document.getElementById('captchaQuestion').textContent = data.question;
+        document.getElementById('captchaToken').value = data.token;
+        document.getElementById('captchaAnswer').value = '';
+      }
+    } catch (e) {
+      console.error('Failed to load CAPTCHA:', e);
+    }
+  }
+
+  function triggerApplyModal() {
+    if (!currentJob) return;
+    document.getElementById('formJobId').value = currentJob.ID;
+    document.getElementById('applyModalSubtitle').textContent = `Applying for: ${currentJob.Title} (${currentJob.Location})`;
+    loadCaptcha();
+    openModal('applyModal');
+  }
+
+  // File upload preview & validation
+  function handleFileChange(event) {
+    const file = event.target.files[0];
+    const preview = document.getElementById('fileNamePreview');
+    if (!file) {
+      preview.style.display = 'none';
+      return;
+    }
+    
+    // Size check: 10MB
+    const maxSize = 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      alert('File is too large! Maximum limit is 10 MB.');
+      event.target.value = '';
+      preview.style.display = 'none';
+      return;
+    }
+
+    // Type check
+    const allowed = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (!allowed.includes(file.type) && !['pdf', 'doc', 'docx'].includes(ext)) {
+      alert('Invalid file format. Please upload a PDF, DOC, or DOCX document.');
+      event.target.value = '';
+      preview.style.display = 'none';
+      return;
+    }
+
+    preview.textContent = `Attached: ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
+    preview.style.display = 'block';
+  }
+
+  // Submit form trigger - Step 1: Send OTP code
+  async function handleApplySubmit(event) {
+    event.preventDefault();
+    
+    const email = document.getElementById('formEmail').value.trim();
+    const btn = document.getElementById('submitApplyBtn');
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending code...';
+
+    try {
+      const res = await fetch('/api/careers/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, jobId })
+      });
+
+      if (res.ok) {
+        document.getElementById('otpEmailTarget').textContent = email;
+        
+        // Reset OTP inputs
+        for (let i = 1; i <= 6; i++) {
+          document.getElementById('o' + i).value = '';
+        }
+
+        openModal('otpModal');
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Failed to send OTP verification code.');
+        loadCaptcha(); // refresh captcha on error
+      }
+    } catch (e) {
+      alert('Could not verify email. Check connection.');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Verify Email & Submit Application';
+    }
+  }
+
+  // OTP inputs keyboard navigation
+  function moveOtpFocus(input, idx) {
+    if (input.value.length === 1 && idx < 6) {
+      document.getElementById('o' + (idx + 1)).focus();
+    }
+  }
+
+  function closeOtpModal() {
+    closeModal('otpModal');
+  }
+
+  // Submit form trigger - Step 2: Verify OTP and perform actual application submission
+  async function confirmOtpAndSubmit() {
+    let otp = '';
+    for (let i = 1; i <= 6; i++) {
+      const val = document.getElementById('o' + i).value;
+      if (!val) {
+        alert('Please enter all 6 digits of the verification code.');
+        return;
+      }
+      otp += val;
+    }
+
+    closeModal('otpModal');
+    openModal('applyModal'); // keep form modal in background to overlay status
+
+    const btn = document.getElementById('submitApplyBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting file...';
+
+    // Build form data
+    const formData = new FormData();
+    formData.append('jobId', jobId);
+    formData.append('fullName', document.getElementById('formName').value.trim());
+    formData.append('email', document.getElementById('formEmail').value.trim());
+    formData.append('phone', document.getElementById('formPhone').value.trim());
+    formData.append('currentCity', document.getElementById('formCity').value.trim());
+    formData.append('highestQualification', document.getElementById('formQual').value.trim());
+    formData.append('totalExperience', document.getElementById('formExp').value.trim());
+    formData.append('linkedinProfile', document.getElementById('formLinkedin').value.trim());
+    formData.append('portfolioWebsite', document.getElementById('formPortfolio').value.trim());
+    formData.append('coverLetter', document.getElementById('formCover').value.trim());
+    formData.append('resume', document.getElementById('formResume').files[0]);
+    formData.append('captchaAnswer', document.getElementById('captchaAnswer').value.trim());
+    formData.append('captchaToken', document.getElementById('captchaToken').value);
+    formData.append('otp', otp);
+
+    try {
+      const res = await fetch('/api/careers/apply', {
+        method: 'POST',
+        body: formData // multipart body
+      });
+
+      if (res.ok) {
+        closeModal('applyModal');
+        openModal('successPopup');
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Failed to submit application.');
+        loadCaptcha(); // reload captcha on error
+      }
+    } catch (e) {
+      alert('Failed to connect to backend server during submission.');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Verify Email & Submit Application';
+    }
+  }
+
+  function closeSuccessAndRedirect() {
+    closeModal('successPopup');
+    window.location.href = '/careers';
+  }
+
+  // Load details on start
+  window.addEventListener('DOMContentLoaded', fetchJobDetails);
+</script>
+
+</body>
+</html>

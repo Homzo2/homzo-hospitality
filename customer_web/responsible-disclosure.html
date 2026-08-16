@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Responsible Disclosure Policy - HOMZO</title>
+  <meta name="description" content="Learn about Homzo Hospitality's Responsible Disclosure Policy and how to responsibly report security vulnerabilities in our systems." />
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="client.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .page-header {
+      padding: 120px 20px 60px;
+      text-align: center;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+    }
+    .page-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+    }
+    .page-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 60px 20px;
+      min-height: 45vh;
+      position: relative;
+      z-index: 10;
+    }
+    .page-watermark {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-image: url('homzo_logo.png');
+      background-repeat: repeat;
+      background-size: 300px;
+      opacity: 0.02;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    /* Policy Custom Layouts */
+    .policy-section {
+      margin-bottom: 48px;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 22px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border-strong);
+    }
+
+    .section-icon {
+      width: 42px;
+      height: 42px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-strong);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 1.1rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .section-header h2 {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.45rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    /* CARD */
+    .policy-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 28px 32px;
+      margin-bottom: 16px;
+      transition: var(--transition);
+    }
+    .policy-card:hover {
+      border-color: var(--border-strong);
+      box-shadow: var(--shadow-card);
+    }
+
+    .policy-card p, .policy-card li {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+      line-height: 1.7;
+    }
+
+    .policy-card ul, .policy-card ol {
+      padding-left: 20px;
+    }
+
+    .policy-card li { margin-bottom: 8px; }
+
+    /* NOTE BOX */
+    .note-box {
+      background: var(--primary-glow);
+      border-left: 3px solid var(--primary);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: 14px 20px;
+      font-size: 0.88rem;
+      color: var(--text-primary);
+      margin-top: 12px;
+    }
+
+    /* TAG */
+    .tag {
+      display: inline-block;
+      background: var(--primary-glow);
+      color: var(--primary);
+      border: 1px solid rgba(255,92,53,0.3);
+      font-size: 0.68rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    /* GRID LAYOUTS FOR PILLARS / COMMITMENTS */
+    .pillars-grid, .commitments-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+      margin-bottom: 24px;
+    }
+
+    .pillar-card, .commitment-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .pillar-card:hover, .commitment-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(255, 92, 53, 0.1);
+    }
+
+    .pillar-card .icon, .commitment-card .step-num {
+      font-size: 1.5rem;
+      color: var(--primary);
+      margin-bottom: 12px;
+      display: inline-block;
+    }
+
+    .commitment-card .step-num {
+      font-family: 'Sora', sans-serif;
+      font-weight: 700;
+      font-size: 1.8rem;
+      opacity: 0.8;
+    }
+
+    .pillar-card h3, .commitment-card h3 {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.05rem;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .pillar-card p, .commitment-card p {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 0;
+    }
+
+    /* LIST ITEMS */
+    .list-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .list-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .list-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      transition: var(--transition);
+    }
+
+    .list-item:hover {
+      border-color: var(--border-strong);
+      box-shadow: var(--shadow-card);
+    }
+
+    .list-item-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.95rem;
+    }
+
+    .list-item-icon.green {
+      background: rgba(34, 197, 94, 0.12);
+      color: var(--success);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .list-item-icon.red {
+      background: rgba(239, 68, 68, 0.12);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .list-item-text {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .list-item-text strong {
+      display: block;
+      color: var(--text-primary);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    /* SAFE HARBOR BOX */
+    .safe-harbor-box {
+      background: rgba(59, 130, 246, 0.08);
+      border-left: 3px solid var(--info);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: 24px;
+      margin-top: 16px;
+    }
+
+    .safe-harbor-box h3 {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.15rem;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+    }
+
+    .safe-harbor-box p {
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    .safe-harbor-box ul {
+      padding-left: 20px;
+    }
+
+    .safe-harbor-box li {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    /* REPORTING CARD INFO */
+    .report-info-card {
+      background: linear-gradient(135deg, var(--bg-card) 0%, rgba(255, 92, 53, 0.03) 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 32px;
+      margin-top: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .report-info-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+      pointer-events: none;
+      opacity: 0.5;
+    }
+
+    .report-email-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-strong);
+      padding: 14px 24px;
+      border-radius: var(--radius-md);
+      margin: 18px 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .report-email-box i {
+      color: var(--primary);
+    }
+
+    .report-email-box a {
+      color: var(--text-primary);
+      transition: color 0.2s;
+    }
+
+    .report-email-box a:hover {
+      color: var(--primary);
+    }
+
+    .report-checklist h4 {
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+
+    .report-checklist ul {
+      list-style: none;
+      padding-left: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 12px;
+    }
+
+    .report-checklist li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .report-checklist li i {
+      color: var(--primary);
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-watermark"></div>
+
+<!-- ════════════════ NAVBAR ════════════════ -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo">
+      <img src="homzo_logo.png" alt="HOMZO Logo" class="brand-logo">
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html#hero" class="nav-link">Home</a></li>
+      <li><a href="about.html" class="nav-link">About</a></li>
+      <li><a href="index.html#categories" class="nav-link">Categories</a></li>
+      <li><a href="index.html#properties" class="nav-link">Properties</a></li>
+      <li><a href="/careers" class="nav-link">Careers</a></li>
+      <li><a href="index.html#contact" class="nav-link">Contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="nav-hamburger hide-desktop" id="hamburger"><i class="fa-solid fa-bars"></i></button>
+    </div>
+  </div>
+</nav>
+
+<!-- ════════════════ HEADER ════════════════ -->
+<header class="page-header">
+  <h1 class="page-title">Responsible Disclosure Policy</h1>
+</header>
+
+<!-- ════════════════ CONTENT ════════════════ -->
+<div class="page-container">
+
+  <!-- INTRODUCTION -->
+  <div class="policy-section">
+    <div class="section-header">
+      <div class="section-icon">🛡️</div>
+      <h2>Security at the Heart of Hospitality</h2>
+    </div>
+    <div class="policy-card">
+      <p>At Homzo Hospitality, security is not an afterthought — it is a foundational pillar of everything we build. We process sensitive guest information, hotel partner data, and financial transactions daily, and we take the responsibility of protecting that data with the utmost seriousness.</p>
+      <p>We value the independent security research community and recognize the vital role researchers play in keeping digital platforms safe. This policy outlines how you can responsibly disclose potential vulnerabilities to us, and how we commit to working with you in good faith.</p>
+    </div>
+
+    <!-- Pillars Grid -->
+    <div class="pillars-grid">
+      <div class="pillar-card">
+        <span class="icon"><i class="fa-solid fa-shield-halved"></i></span>
+        <h3>Cybersecurity</h3>
+        <p>Proactive defense of all our digital assets and infrastructure.</p>
+      </div>
+      <div class="pillar-card">
+        <span class="icon"><i class="fa-solid fa-user-lock"></i></span>
+        <h3>User Privacy</h3>
+        <p>Safeguarding guest and customer personal data at every touchpoint.</p>
+      </div>
+      <div class="pillar-card">
+        <span class="icon"><i class="fa-solid fa-handshake"></i></span>
+        <h3>Partner Security</h3>
+        <p>Ensuring hotel and business partners can trust our platform.</p>
+      </div>
+      <div class="pillar-card">
+        <span class="icon"><i class="fa-solid fa-bug"></i></span>
+        <h3>Responsible Reporting</h3>
+        <p>A clear, ethical process for disclosing vulnerabilities.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW TO REPORT -->
+  <div class="policy-section">
+    <div class="section-header">
+      <div class="section-icon">📋</div>
+      <h2>How to Report a Vulnerability</h2>
+    </div>
+    <div class="policy-card">
+      <p>If you believe you have discovered a security vulnerability in any Homzo Hospitality website, mobile application, API, or system, please reach out to our security team immediately. We ask that you follow responsible disclosure principles and contact us privately before any public disclosure.</p>
+      
+      <div class="report-info-card">
+        <span class="tag">Contact Details</span>
+        <p style="margin-bottom: 4px;">Please use email to submit all vulnerability reports. Do not share details on public forums before we have had the opportunity to investigate.</p>
+        
+        <div class="report-email-box">
+          <i class="fa-solid fa-envelope"></i>
+          <a href="mailto:supporhomzo@gmail.com">supporhomzo@gmail.com</a>
+        </div>
+
+        <div class="report-checklist">
+          <h4>Please include in your report:</h4>
+          <ul>
+            <li><i class="fa-solid fa-circle-check"></i> <span>A clear description and affected component</span></li>
+            <li><i class="fa-solid fa-circle-check"></i> <span>Step-by-step reproduction instructions</span></li>
+            <li><i class="fa-solid fa-circle-check"></i> <span>Screenshots, videos, or PoC code</span></li>
+            <li><i class="fa-solid fa-circle-check"></i> <span>Potential impact and severity estimate</span></li>
+            <li><i class="fa-solid fa-circle-check"></i> <span>Your name and preferred contact details</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OUR COMMITMENT -->
+  <div class="policy-section">
+    <div class="section-header">
+      <div class="section-icon">🤝</div>
+      <h2>Our Commitment to Researchers</h2>
+    </div>
+    <p style="margin-bottom: 20px; font-size: 0.95rem; color: var(--text-secondary);">When you report a vulnerability to us in good faith, Homzo Hospitality is committed to working with you transparently and professionally throughout the resolution process.</p>
+    
+    <div class="commitments-grid">
+      <div class="commitment-card">
+        <span class="step-num">01</span>
+        <h3>Acknowledgment</h3>
+        <p>We will acknowledge receipt of your report within <strong>72 hours</strong>, confirming we have received it and are reviewing the details.</p>
+      </div>
+      <div class="commitment-card">
+        <span class="step-num">02</span>
+        <h3>Investigation</h3>
+        <p>Our security team will conduct a thorough investigation to verify and assess the severity of the reported vulnerability.</p>
+      </div>
+      <div class="commitment-card">
+        <span class="step-num">03</span>
+        <h3>Remediation</h3>
+        <p>We will work diligently to remediate confirmed vulnerabilities in a timely manner, prioritized by impact and severity.</p>
+      </div>
+      <div class="commitment-card">
+        <span class="step-num">04</span>
+        <h3>Communication</h3>
+        <p>We will keep you informed of our progress and notify you when the vulnerability has been resolved.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- GUIDELINES -->
+  <div class="policy-section">
+    <div class="section-header">
+      <div class="section-icon">📜</div>
+      <h2>What We Ask of Researchers</h2>
+    </div>
+    <div class="policy-card">
+      <p>To ensure a productive and ethical research process, we ask that all security researchers adhere to the following guidelines when investigating potential vulnerabilities in Homzo Hospitality systems.</p>
+    </div>
+
+    <div class="list-grid">
+      <div class="list-item">
+        <div class="list-item-icon green">
+          <i class="fa-solid fa-check"></i>
+        </div>
+        <div class="list-item-text">
+          <strong>Act in Good Faith</strong>
+          Conduct testing ethically and with genuine intent to improve our platform's security.
+        </div>
+      </div>
+      <div class="list-item">
+        <div class="list-item-icon green">
+          <i class="fa-solid fa-check"></i>
+        </div>
+        <div class="list-item-text">
+          <strong>No Data Access or Modification</strong>
+          Do not access, modify, copy, or delete any user or system data beyond what is strictly necessary to demonstrate the vulnerability.
+        </div>
+      </div>
+      <div class="list-item">
+        <div class="list-item-icon green">
+          <i class="fa-solid fa-check"></i>
+        </div>
+        <div class="list-item-text">
+          <strong>No Service Disruption</strong>
+          Avoid any actions that could degrade, disrupt, or deny access to Homzo Hospitality services for other users.
+        </div>
+      </div>
+      <div class="list-item">
+        <div class="list-item-icon green">
+          <i class="fa-solid fa-check"></i>
+        </div>
+        <div class="list-item-text">
+          <strong>No Privacy Violations</strong>
+          Do not access, expose, or exploit personal data belonging to real users, guests, or hotel partners.
+        </div>
+      </div>
+      <div class="list-item">
+        <div class="list-item-icon green">
+          <i class="fa-solid fa-check"></i>
+        </div>
+        <div class="list-item-text">
+          <strong>Allow Reasonable Time to Remediate</strong>
+          Please allow us a reasonable timeframe (up to 90 days) to investigate and remediate before any public disclosure.
+        </div>
+      </div>
+      <div class="list-item">
+        <div class="list-item-icon green">
+          <i class="fa-solid fa-check"></i>
+        </div>
+        <div class="list-item-text">
+          <strong>Only Test Your Own Accounts</strong>
+          Use accounts and data that you own or have explicit permission to test. Never test on accounts belonging to other users.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OUT OF SCOPE -->
+  <div class="policy-section">
+    <div class="section-header">
+      <div class="section-icon">🚫</div>
+      <h2>Vulnerabilities Outside Our Scope</h2>
+    </div>
+    <div class="policy-card">
+      <p>The following types of issues are outside the scope of this responsible disclosure policy. Reports in these categories will not be considered for acknowledgment or response.</p>
+    </div>
+
+    <div class="list-grid">
+      <div class="list-item">
+        <div class="list-item-icon red">
+          <i class="fa-solid fa-xmark"></i>
+        </div>
+        <div class="list-item-text">
+          <strong>DDoS Attacks</strong>
+          Distributed denial-of-service attacks or any testing involving network flooding or resource exhaustion.
+        </div>
+      </div>
+      <div class="list-item">
+        <div class="list-item-icon red">
+          <i class="fa-solid fa-xmark"></i>
+        </div>
+        <div class="list-item-text">
+          <strong>Spam Attacks</strong>
+          Email bombing, SMS flooding, or any form of mass unsolicited messaging targeting our systems or users.
+        </div>
+      </div>
+      <div class="list-item">
+        <div class="list-item-icon red">
+          <i class="fa-solid fa-xmark"></i>
+        </div>
+        <div class="list-item-text">
+          <strong>Social Engineering</strong>
+          Phishing, vishing, pretexting, or any form of social engineering targeting Homzo employees or contractors.
+        </div>
+      </div>
+      <div class="list-item">
+        <div class="list-item-icon red">
+          <i class="fa-solid fa-xmark"></i>
+        </div>
+        <div class="list-item-text">
+          <strong>Physical Security Issues</strong>
+          Physical intrusion, tailgating, or any security concern related to Homzo's or partner hotels' physical premises.
+        </div>
+      </div>
+      <div class="list-item">
+        <div class="list-item-icon red">
+          <i class="fa-solid fa-xmark"></i>
+        </div>
+        <div class="list-item-text">
+          <strong>Non-Exploitable Findings</strong>
+          Theoretical vulnerabilities, informational issues, or findings without a demonstrable real-world security impact.
+        </div>
+      </div>
+      <div class="list-item">
+        <div class="list-item-icon red">
+          <i class="fa-solid fa-xmark"></i>
+        </div>
+        <div class="list-item-text">
+          <strong>Third-Party Services</strong>
+          Vulnerabilities in third-party platforms or services that are not under Homzo Hospitality's direct control or responsibility.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SAFE HARBOR -->
+  <div class="policy-section">
+    <div class="section-header">
+      <div class="section-icon">⚖️</div>
+      <h2>Legal Safe Harbor</h2>
+    </div>
+    <div class="policy-card">
+      <p>We believe that good-faith security research should be encouraged, not punished. Homzo Hospitality is committed to protecting researchers who act responsibly and within the bounds of this policy.</p>
+      
+      <div class="safe-harbor-box">
+        <h3>Our Safe Harbor Commitment</h3>
+        <p>Homzo Hospitality will not pursue civil or criminal action against security researchers who discover and report vulnerabilities in compliance with this Responsible Disclosure Policy. We consider responsible disclosure activities to be authorized, constructive conduct and will work with our legal team to ensure researchers are protected when they operate in good faith.</p>
+        <ul>
+          <li>No legal action against researchers who act in good faith and follow this policy.</li>
+          <li>We will not report you to law enforcement for responsible disclosures.</li>
+          <li>We view your research as authorized under this policy when guidelines are followed.</li>
+          <li>We may publicly acknowledge your responsible disclosure with your consent.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADDITIONAL CONTACT -->
+  <div class="policy-section">
+    <div class="section-header">
+      <div class="section-icon">📞</div>
+      <h2>Security Contact & Support</h2>
+    </div>
+    <div class="policy-card" style="text-align: center; padding: 40px 20px;">
+      <p style="margin-bottom: 20px; font-size: 1.05rem;">Have a security concern, question about this policy, or a vulnerability to report? Our security team is ready to assist you.</p>
+      <a href="mailto:support@homzohospitality.com" class="btn btn-primary">
+        <i class="fa-solid fa-envelope"></i> support@homzohospitality.com
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════ FOOTER ════════════════ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-logo">
+          <img src="homzo_logo.png" alt="HOMZO Logo" class="brand-logo footer-logo">
+        </a>
+        <p>Your trusted accommodation partner across India. Quality stays for every type of traveler.</p>
+        <div class="social-links">
+          <a href="https://www.facebook.com/share/1P3xbf5bP3/" target="_blank" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="https://www.instagram.com/homzo_official" target="_blank" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#" onclick="event.preventDefault();" title="Coming Soon" aria-label="Twitter" style="opacity: 0.5; cursor: not-allowed;"><i class="fa-brands fa-x-twitter"></i></a>
+          <a href="#" onclick="event.preventDefault();" title="Coming Soon" aria-label="LinkedIn" style="opacity: 0.5; cursor: not-allowed;"><i class="fa-brands fa-linkedin-in"></i></a>
+        </div>
+      </div>
+      <div class="footer-links">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="support.html">Support</a></li>
+          <li><a href="official-homzo-blog.html">Official Homzo Blog</a></li>
+          <li><a href="investor-relations.html">Investor Relations</a></li>
+          <li><a href="homzo-circle.html">Homzo Circle</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h5>Policies & Safety</h5>
+        <ul>
+          <li><a href="guest-policy.html">Guest Policy</a></li>
+          <li><a href="trust-and-safety.html">Trust & Safety</a></li>
+          <li><a href="Homzo_Privacy_Policy.pdf" target="_blank">Privacy Policy</a></li>
+          <li><a href="term%20of%20service.pdf" target="_blank">Terms of Service</a></li>
+          <li><a href="responsible-disclosure.html">Responsible Disclosure</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h5>Partner With Us</h5>
+        <ul>
+          <li><a href="advertise-your-homes.html">Partner With Homzo</a></li>
+          <li><a href="homzo-frames.html">Homzo Frames</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 HOMZO. All rights reserved. Built with ❤️ in India.</span>
+      <span>GST No: 27AAGCH1234A1ZS</span>
+    </div>
+  </div>
+</footer>
+
+<script src="client.js"></script>
+</body>
+</html>
