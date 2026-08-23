@@ -583,7 +583,7 @@
 
 <!-- ════════════════ PROPERTY OWNER SECTION ════════════════ -->
 <section class="section partner-banner-section" style="background: linear-gradient(135deg, rgba(212,175,55,0.05) 0%, rgba(10,12,16,0.95) 100%); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 80px 0;">
-  <div class="container" style="max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center;">
+  <div class="container" style="max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr)); gap: 32px; align-items: center;">
     <div>
       <span class="section-label" style="background: rgba(212,175,55,0.1); border: 1px solid rgba(212,175,55,0.3); color: #d4af37;"><i class="fa-solid fa-handshake"></i> Build With Us</span>
       <h2 style="font-family: 'Sora', sans-serif; font-size: 2.4rem; font-weight: 800; line-height: 1.25; margin: 16px 0; color: #fff;">
@@ -598,7 +598,7 @@
     </div>
     <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border); padding: 32px; border-radius: 16px;">
       <h4 style="font-family: 'Sora', sans-serif; color: #fff; margin-top: 0; margin-bottom: 20px; font-size: 1.1rem; font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 10px;">Our Partnership Framework</h4>
-      <ul style="list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+      <ul style="list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 16px;">
         <li style="color: var(--text-secondary); font-size: 0.9rem; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-circle-check" style="color: #d4af37;"></i> Property Evaluation</li>
         <li style="color: var(--text-secondary); font-size: 0.9rem; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-circle-check" style="color: #d4af37;"></i> Homzo Standards</li>
         <li style="color: var(--text-secondary); font-size: 0.9rem; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-circle-check" style="color: #d4af37;"></i> Branding Support</li>
@@ -787,7 +787,7 @@
             <label style="font-size: 0.7rem;">Phone</label>
             <div class="input-icon-wrap">
               <i class="fa-solid fa-phone" style="left: 14px;"></i>
-              <input type="tel" class="form-control" placeholder="Phone" id="custRegPhone" style="padding: 10px 10px 10px 34px; font-size: 0.82rem;">
+              <input type="tel" class="form-control" placeholder="10-digit Phone" id="custRegPhone" style="padding: 10px 10px 10px 34px; font-size: 0.82rem;" maxlength="10" pattern="[0-9]{10}" inputmode="numeric">
             </div>
           </div>
         </div>
@@ -880,7 +880,7 @@
         <div class="pay-success-icon"><i class="fa-solid fa-check"></i></div>
         <h4 style="color:#22c55e">Payment Successful!</h4>
         <p style="font-size:0.85rem; color:#8f9bb3; margin-top:6px" id="paySuccessTxt">Booking BKG1001 paid &amp; confirmed.</p>
-        <button class="btn btn-primary btn-sm" style="margin-top:20px; width:120px" onclick="closeModal('paymentModal')">Close</button>
+        <button class="btn btn-primary btn-sm" style="margin-top:20px; width:120px" onclick="closeModal('paymentModal')">Submit</button>
       </div>
       
       <!-- Standard Checkout flow -->
@@ -995,7 +995,7 @@
           <label>Phone Number</label>
           <div class="input-icon-wrap">
             <i class="fa-solid fa-phone"></i>
-            <input type="tel" class="form-control" placeholder="+91 XXXXX XXXXX" id="bkPhone">
+            <input type="tel" class="form-control" placeholder="10-digit Phone Number" id="bkPhone" maxlength="10" pattern="[0-9]{10}" inputmode="numeric">
           </div>
         </div>
       </div>
@@ -1776,6 +1776,6 @@ Please guide me professionally on which plans or search steps I should take next
 </div>
 
 <div id="toast-container"></div>
-<script src="client.js?v=5"></script>
+<script src="client.js?v=6"></script>
 </body>
 </html>

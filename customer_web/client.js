@@ -328,6 +328,11 @@ document.getElementById('custSignUpSubmitBtn').addEventListener('click', async (
     showToast('Please fill in all fields.', 'error');
     return;
   }
+  const phoneRegex = /^[0-9]{10}$/;
+  if (!phoneRegex.test(phone)) {
+    showToast('Please enter a valid 10-digit phone number.', 'error');
+    return;
+  }
   if (password.length < 6) {
     showToast('Password must be at least 6 characters.', 'error');
     return;
@@ -381,6 +386,20 @@ window.addEventListener('DOMContentLoaded', () => {
     const today = new Date();
     today.setFullYear(today.getFullYear() - 18);
     dobInput.max = today.toISOString().split('T')[0];
+  }
+
+  const bkPhoneInput = document.getElementById('bkPhone');
+  if (bkPhoneInput) {
+    bkPhoneInput.addEventListener('input', (e) => {
+      e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
+    });
+  }
+
+  const custRegPhoneInput = document.getElementById('custRegPhone');
+  if (custRegPhoneInput) {
+    custRegPhoneInput.addEventListener('input', (e) => {
+      e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
+    });
   }
 
   // Initialize Flatpickr date pickers for Search Box
@@ -971,6 +990,11 @@ if (confirmBookBtnEl) {
     }
     if (!phone) {
       showToast('Please enter your phone number.', 'error');
+      return;
+    }
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(phone)) {
+      showToast('Please enter a valid 10-digit phone number.', 'error');
       return;
     }
     if (!dob) {
