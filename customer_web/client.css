@@ -1651,7 +1651,7 @@
 }
 .payment-header {
   background: #1a1e28;
-  padding: 20px 24px;
+  padding: 12px 18px;
   border-bottom: 1px solid #232833;
   display: flex;
   align-items: center;
@@ -1664,56 +1664,56 @@
 }
 .payment-header-title i {
   color: #528ff0;
-  font-size: 1.4rem;
+  font-size: 1.2rem;
 }
 .payment-header-title h4 {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   font-weight: 700;
 }
 .payment-header-title span {
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   color: #8f9bb3;
   display: block;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 .payment-body {
-  padding: 24px;
+  padding: 15px;
 }
 .payment-summary-box {
   background: #151a24;
   border: 1px dashed #2e3545;
   border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 20px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
 }
 .payment-summary-row {
   display: flex;
   justify-content: space-between;
-  font-size: 0.85rem;
-  margin-bottom: 6px;
+  font-size: 0.8rem;
+  margin-bottom: 4px;
   color: #a6b1c2;
 }
 .payment-summary-row.total-row {
   border-top: 1px solid #232833;
-  padding-top: 10px;
-  margin-top: 10px;
+  padding-top: 6px;
+  margin-top: 6px;
   margin-bottom: 0;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: #fff;
 }
 .payment-tabs {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 .payment-tab-btn {
   background: #1a1e28;
   border: 1px solid #232833;
   border-radius: 8px;
-  padding: 12px;
+  padding: 8px;
   text-align: center;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -1733,12 +1733,12 @@
   color: #fff;
 }
 .payment-tab-btn i {
-  font-size: 1.2rem;
+  font-size: 1rem;
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 .payment-tab-btn span {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 600;
 }
 .payment-tab-content {
@@ -1746,8 +1746,8 @@
   background: #151a24;
   border: 1px solid #232833;
   border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
+  padding: 12px 15px;
+  margin-bottom: 10px;
 }
 .payment-tab-content.active {
   display: block;
