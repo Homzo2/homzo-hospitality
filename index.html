@@ -787,7 +787,7 @@
             <label style="font-size: 0.7rem;">Phone</label>
             <div class="input-icon-wrap">
               <i class="fa-solid fa-phone" style="left: 14px;"></i>
-              <input type="tel" class="form-control" placeholder="Phone" id="custRegPhone" style="padding: 10px 10px 10px 34px; font-size: 0.82rem;">
+              <input type="tel" class="form-control" placeholder="10-digit Phone" id="custRegPhone" style="padding: 10px 10px 10px 34px; font-size: 0.82rem;" maxlength="10" pattern="[0-9]{10}" inputmode="numeric">
             </div>
           </div>
         </div>
@@ -880,7 +880,7 @@
         <div class="pay-success-icon"><i class="fa-solid fa-check"></i></div>
         <h4 style="color:#22c55e">Payment Successful!</h4>
         <p style="font-size:0.85rem; color:#8f9bb3; margin-top:6px" id="paySuccessTxt">Booking BKG1001 paid &amp; confirmed.</p>
-        <button class="btn btn-primary btn-sm" style="margin-top:20px; width:120px" onclick="closeModal('paymentModal')">Close</button>
+        <button class="btn btn-primary btn-sm" style="margin-top:20px; width:120px" onclick="closeModal('paymentModal')">Submit</button>
       </div>
       
       <!-- Standard Checkout flow -->
@@ -995,7 +995,7 @@
           <label>Phone Number</label>
           <div class="input-icon-wrap">
             <i class="fa-solid fa-phone"></i>
-            <input type="tel" class="form-control" placeholder="+91 XXXXX XXXXX" id="bkPhone">
+            <input type="tel" class="form-control" placeholder="10-digit Phone Number" id="bkPhone" maxlength="10" pattern="[0-9]{10}" inputmode="numeric">
           </div>
         </div>
       </div>
@@ -1776,6 +1776,6 @@ Please guide me professionally on which plans or search steps I should take next
 </div>
 
 <div id="toast-container"></div>
-<script src="client.js?v=5"></script>
+<script src="client.js?v=6"></script>
 </body>
 </html>
