@@ -11,12 +11,15 @@
   z-index: 500;
   transition: background 0.4s, backdrop-filter 0.4s, box-shadow 0.4s;
   padding: 0;
+  background: rgba(10, 12, 16, 0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
 }
 
 .navbar.scrolled {
-  background: rgba(10, 12, 16, 0.92);
-  backdrop-filter: blur(20px);
-  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.4);
+  background: rgba(10, 12, 16, 0.98);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
 }
 
 .nav-container {
@@ -111,6 +114,40 @@
   color: var(--text-primary);
   font-size: 1.2rem;
   padding: 8px;
+}
+
+/* Responsive navbar for tablets and medium/small desktop viewports (769px to 1200px) */
+@media (max-width: 1200px) and (min-width: 769px) {
+  .nav-container {
+    gap: 16px;
+    padding: 12px 24px;
+  }
+  .navbar.scrolled .nav-container {
+    padding: 8px 24px;
+  }
+  .nav-link {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+  .brand-logo {
+    height: 44px;
+  }
+  .navbar.scrolled .brand-logo {
+    height: 36px;
+  }
+  .nav-actions {
+    gap: 8px;
+  }
+  .nav-actions .btn {
+    padding: 8px 14px;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 1024px) and (min-width: 769px) {
+  .nav-actions .btn-ghost {
+    display: none !important; /* Hide "Partner With Homzo" to save space and prevent wrapping/overflow */
+  }
 }
 
 /* Mobile nav */
