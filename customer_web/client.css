@@ -153,7 +153,7 @@
 /* Mobile nav */
 @media (max-width: 768px) {
   .nav-links {
-    display: none;
+    display: flex; /* keep flex, control visibility with opacity/transform */
     position: fixed;
     top: 72px;
     left: 0;
@@ -164,14 +164,24 @@
     gap: 8px;
     border-bottom: 1px solid var(--border);
     z-index: 400;
+    opacity: 0;
+    transform: translateY(-20px);
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
   }
 
   .nav-links.open {
-    display: flex;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
   }
 
   .nav-container {
     padding: 16px 20px;
+  }
+
+  .navbar.scrolled .nav-container {
+    padding: 10px 20px !important;
   }
 }
 
@@ -420,11 +430,63 @@
   }
 
   .hero {
-    padding: 80px 0 0;
+    padding-top: 60px !important;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+  }
+
+  .hero-img {
+    object-position: 65% center !important; /* Keep the bed and desk visible on crop */
   }
 
   .hero-content {
-    padding: 0 20px 24px;
+    padding: 0 16px 16px !important;
+  }
+
+  .hero-badge {
+    margin-top: 24px !important;
+    margin-bottom: 12px !important;
+    padding: 6px 14px !important;
+    font-size: 0.72rem !important;
+  }
+
+  .hero-title {
+    font-size: clamp(38px, 10vw, 48px) !important; /* Responsive mobile heading size approx 42-48px */
+    font-weight: 800;
+    line-height: 1.15 !important;
+    margin-bottom: 12px !important;
+  }
+
+  .hero-sub {
+    font-size: 0.88rem !important;
+    line-height: 1.5 !important;
+    margin-bottom: 20px !important;
+    max-width: 100% !important;
+  }
+
+  .hero-ctas {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 10px !important;
+    margin: 16px 0 24px !important;
+    width: 100% !important;
+  }
+
+  .hero-ctas .btn {
+    width: 85% !important;
+    max-width: 320px !important;
+    justify-content: center !important;
+    padding: 11px 20px !important;
+    font-size: 0.85rem !important;
+    box-sizing: border-box !important;
+    white-space: nowrap !important;
   }
 
   .search-box {
@@ -434,12 +496,40 @@
   }
 
   .hero-stats {
-    flex-wrap: wrap;
-    gap: 16px;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 10px !important;
+    margin-top: 10px !important;
+  }
+
+  .hero-stats .stat span {
+    font-size: 0.8rem !important;
+    text-align: center !important;
+    display: block !important;
   }
 
   .stat-div {
     display: none;
+  }
+
+  /* Scale down particle gold/dark shapes so they don't cover text/buttons */
+  .p1 {
+    width: 260px !important;
+    height: 260px !important;
+    top: -40px !important;
+    right: -40px !important;
+  }
+  .p2 {
+    width: 140px !important;
+    height: 140px !important;
+    bottom: 40px !important;
+    left: -40px !important;
+  }
+  .p3 {
+    width: 100px !important;
+    height: 100px !important;
+    bottom: 140px !important;
+    right: 30px !important;
   }
 }
 
