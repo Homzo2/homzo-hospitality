@@ -430,11 +430,12 @@
   }
 
   .hero {
-    padding-top: 60px !important;
-    min-height: 100vh;
+    padding-top: 85px !important;
+    padding-bottom: 24px !important;
+    min-height: auto !important;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start !important;
   }
 
   .hero-bg {
@@ -451,7 +452,7 @@
   }
 
   .hero-badge {
-    margin-top: 24px !important;
+    margin-top: 0 !important; /* Remove top margin to decrease space from header */
     margin-bottom: 12px !important;
     padding: 6px 14px !important;
     font-size: 0.72rem !important;
@@ -492,7 +493,7 @@
   .search-box {
     border-radius: 20px;
     padding: 20px;
-    margin: 0 16px;
+    margin: 20px 16px 0 !important; /* Add top margin for clean separation */
   }
 
   .hero-stats {
