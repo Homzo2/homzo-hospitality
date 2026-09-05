@@ -1084,38 +1084,8 @@ function requireRole(role) {
 
 // Legacy Seeding & Checking Logic
 function runLegacySeedScripts() {
-  // Seed default properties if they don't have Mumbai/Delhi/Bangalore signed hotels
-  try {
-    const seedFlagPath = path.resolve(__dirname, '.seeded_properties');
-    const propertiesData = readExcelDb(propertiesDbPath);
-    if (propertiesData.length === 0 && !fs.existsSync(seedFlagPath)) {
-      let nextId = 1;
-      
-      for (let i = 1; i <= 8; i++) {
-        propertiesData.push({
-          ID: nextId++, Name: `Mumbai Premier Hotel ${i}`, Location: 'Mumbai', Type: 'hotel', Price: 3000, Beds: 2, Baths: 2, Area: 350, Image: 'couple_room.png', Status: 'Signed', Date_Added: new Date().toISOString(), Inventory: 10
-        });
-      }
-      for (let i = 1; i <= 6; i++) {
-        propertiesData.push({
-          ID: nextId++, Name: `Delhi Residency ${i}`, Location: 'Delhi', Type: 'hotel', Price: 2500, Beds: 2, Baths: 2, Area: 320, Image: 'tourist_room.png', Status: 'Signed', Date_Added: new Date().toISOString(), Inventory: 10
-        });
-      }
-      for (let i = 1; i <= 2; i++) {
-        propertiesData.push({
-          ID: nextId++, Name: `Bangalore Suites ${i}`, Location: 'Bangalore', Type: 'hotel', Price: 3500, Beds: 2, Baths: 2, Area: 400, Image: 'employee_room.png', Status: 'Signed', Date_Added: new Date().toISOString(), Inventory: 10
-        });
-      }
-      writeExcelDb(propertiesDbPath, 'Properties', propertiesData);
-      fs.writeFileSync(seedFlagPath, 'true');
-      console.log('Seeded properties with Signed status and Inventory = 10.');
-    } else if (propertiesData.length > 0 && !fs.existsSync(seedFlagPath)) {
-      // Mark as seeded if properties already exist initially
-      fs.writeFileSync(seedFlagPath, 'true');
-    }
-  } catch (e) {
-    console.error('Failed to seed properties:', e);
-  }
+  // Automatic property seeding disabled: Properties must only appear when onboarded by Admin or Partners
+  // (No dummy/seed properties will be auto-generated)
 
   // Seed default cities if empty - DISABLED for custom expansion targets
   /*
@@ -2826,6 +2796,7 @@ app.post('/api/properties', (req, res) => {
     Baths: baths || 1,
     Area: area || 300,
     Image: img || 'default.png',
+    Inventory: 10,
     Status: 'active',
     Date_Added: new Date().toISOString(),
     Latitude: latitude ? parseFloat(latitude) : null,
