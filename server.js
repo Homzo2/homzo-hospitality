@@ -286,6 +286,26 @@ app.get('/api/test/notifications', (req, res) => {
   res.json(sentNotificationsHistory);
 });
 
+app.get('/api/debug-files', (req, res) => {
+  try {
+    const rootFiles = fs.readdirSync(__dirname);
+    let customerWebFiles = [];
+    try {
+      customerWebFiles = fs.readdirSync(path.join(__dirname, 'customer_web'));
+    } catch (e) {
+      customerWebFiles = { error: e.message };
+    }
+    res.json({
+      __dirname,
+      cwd: process.cwd(),
+      rootFiles,
+      customerWebFiles
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 const multer = require('multer');
 
 // Database file paths
@@ -398,12 +418,13 @@ const nodemailer = require('nodemailer');
 const JWT_SECRET = process.env.JWT_SECRET || 'Homzo_Jwt_Sec_Token_2026_!!';
 
 // Initialize SMTP Transporter
+console.log(`[SMTP CONFIG DIAGNOSTIC] Host: "${process.env.SMTP_HOST}", Port: "${process.env.SMTP_PORT}", User: "${process.env.SMTP_USER}", Pass Length: ${process.env.SMTP_PASS ? process.env.SMTP_PASS.length : 0}`);
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.mailtrap.io',
   port: parseInt(process.env.SMTP_PORT) || 2525,
   auth: {
-    user: process.env.SMTP_USER || '',
-    pass: process.env.SMTP_PASS || ''
+    user: (process.env.SMTP_USER || '').trim(),
+    pass: (process.env.SMTP_PASS || '').trim()
   }
 });
 
@@ -423,8 +444,81 @@ function recordNotification(type, to, content) {
   }
 }
 
+// Utility to sanitize and format phone numbers for SMS & WhatsApp gateways
+function formatPhoneNumber(phone) {
+  if (!phone) return '';
+  let digits = String(phone).replace(/\D/g, '');
+  if (digits.length === 11 && digits.startsWith('0')) {
+    digits = digits.substring(1);
+  }
+  if (digits.length === 10) {
+    digits = '91' + digits;
+  }
+  return digits;
+}
+
 async function sendSMSHelper(to, message) {
   recordNotification('sms', to, message);
+  const cleanPhone = formatPhoneNumber(to);
+
+  // 1. Fast2SMS API Integration (India - Free / Wallet Credits)
+  if (process.env.FAST2SMS_API_KEY && cleanPhone) {
+    try {
+      const nationalNumber = cleanPhone.length === 12 && cleanPhone.startsWith('91') ? cleanPhone.substring(2) : cleanPhone;
+      const res = await fetch('https://www.fast2sms.com/dev/bulkV2', {
+        method: 'POST',
+        headers: {
+          'authorization': process.env.FAST2SMS_API_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          route: 'q',
+          message: message,
+          language: 'english',
+          flash: 0,
+          numbers: nationalNumber
+        })
+      });
+      const data = await res.json();
+      if (data.return) {
+        console.log(`[FAST2SMS SENT] To: ${to} (Request ID: ${data.request_id})`);
+        return true;
+      }
+      console.error(`[FAST2SMS ERROR] Response:`, data);
+    } catch (err) {
+      console.error(`[FAST2SMS EXCEPTION] Failed to send SMS to ${to}:`, err.message);
+    }
+  }
+
+  // 2. Twilio SMS Integration
+  if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN && process.env.TWILIO_PHONE_NUMBER && cleanPhone) {
+    try {
+      const auth = Buffer.from(`${process.env.TWILIO_ACCOUNT_SID}:${process.env.TWILIO_AUTH_TOKEN}`).toString('base64');
+      const params = new URLSearchParams({
+        From: process.env.TWILIO_PHONE_NUMBER,
+        To: '+' + cleanPhone,
+        Body: message
+      });
+      const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${process.env.TWILIO_ACCOUNT_SID}/Messages.json`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Basic ${auth}`,
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: params.toString()
+      });
+      const data = await res.json();
+      if (res.ok) {
+        console.log(`[TWILIO SMS SENT] SID: ${data.sid} To: ${to}`);
+        return true;
+      }
+      console.error(`[TWILIO SMS ERROR] Failed:`, data);
+    } catch (err) {
+      console.error(`[TWILIO SMS EXCEPTION] Failed to send SMS to ${to}:`, err.message);
+    }
+  }
+
+  // Fallback to console simulation
   console.log(`\n==================================================`);
   console.log(`[SIMULATED SMS SENT] To: ${to}`);
   console.log(`Body: ${message}`);
@@ -434,6 +528,68 @@ async function sendSMSHelper(to, message) {
 
 async function sendWhatsAppHelper(to, message) {
   recordNotification('whatsapp', to, message);
+  const cleanPhone = formatPhoneNumber(to);
+
+  // 1. Meta WhatsApp Cloud API (Official - 1,000 Free Conversations/Month)
+  if (process.env.WHATSAPP_ACCESS_TOKEN && process.env.WHATSAPP_PHONE_NUMBER_ID && cleanPhone) {
+    try {
+      const res = await fetch(`https://graph.facebook.com/v21.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          messaging_product: 'whatsapp',
+          recipient_type: 'individual',
+          to: cleanPhone,
+          type: 'text',
+          text: {
+            preview_url: false,
+            body: message
+          }
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.messages && data.messages.length > 0) {
+        console.log(`[META WHATSAPP SENT] Message ID: ${data.messages[0].id} To: ${to}`);
+        return true;
+      }
+      console.error(`[META WHATSAPP ERROR] Failed:`, data);
+    } catch (err) {
+      console.error(`[META WHATSAPP EXCEPTION] Failed to send WhatsApp to ${to}:`, err.message);
+    }
+  }
+
+  // 2. Twilio WhatsApp Integration (Sandbox or Dedicated)
+  if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN && process.env.TWILIO_WHATSAPP_NUMBER && cleanPhone) {
+    try {
+      const auth = Buffer.from(`${process.env.TWILIO_ACCOUNT_SID}:${process.env.TWILIO_AUTH_TOKEN}`).toString('base64');
+      const params = new URLSearchParams({
+        From: process.env.TWILIO_WHATSAPP_NUMBER.startsWith('whatsapp:') ? process.env.TWILIO_WHATSAPP_NUMBER : `whatsapp:${process.env.TWILIO_WHATSAPP_NUMBER}`,
+        To: `whatsapp:+${cleanPhone}`,
+        Body: message
+      });
+      const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${process.env.TWILIO_ACCOUNT_SID}/Messages.json`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Basic ${auth}`,
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: params.toString()
+      });
+      const data = await res.json();
+      if (res.ok) {
+        console.log(`[TWILIO WHATSAPP SENT] SID: ${data.sid} To: ${to}`);
+        return true;
+      }
+      console.error(`[TWILIO WHATSAPP ERROR] Failed:`, data);
+    } catch (err) {
+      console.error(`[TWILIO WHATSAPP EXCEPTION] Failed to send WhatsApp to ${to}:`, err.message);
+    }
+  }
+
+  // Fallback to console simulation
   console.log(`\n==================================================`);
   console.log(`[SIMULATED WHATSAPP SENT] To: ${to}`);
   console.log(`Body: ${message}`);
@@ -441,19 +597,67 @@ async function sendWhatsAppHelper(to, message) {
   return true;
 }
 
-// SMTP Mail Sender helper with console fallback
+// Email Sender helper supporting Resend (Free 3,000 emails/month), Google Apps Script, SMTP & Simulation
 async function sendMailHelper(to, subject, text, html) {
   recordNotification('email', to, `Subject: ${subject}\n\n${text}`);
   const mailOptions = {
-    from: process.env.SMTP_FROM || '"HOMZO Hospitality" <no-reply@homzo.in>',
+    from: process.env.RESEND_FROM || process.env.SMTP_FROM || '"HOMZO Hospitality" <no-reply@homzo.in>',
     to,
     subject,
     text,
     html: html || text.replace(/\n/g, '<br>')
   };
 
+  // 1. Resend API Integration (resend.com - 3,000 Free Emails/Month)
+  if (process.env.RESEND_API_KEY) {
+    try {
+      const fromAddress = process.env.RESEND_FROM || 'Homzo <onboarding@resend.dev>';
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          from: fromAddress,
+          to: [to],
+          subject: subject,
+          text: text,
+          html: mailOptions.html
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.id) {
+        console.log(`[RESEND EMAIL SENT] Message ID: ${data.id} To: ${to}`);
+        return true;
+      }
+      console.error(`[RESEND ERROR] Failed response:`, data);
+    } catch (err) {
+      console.error(`[RESEND EXCEPTION] Failed to send email via Resend:`, err.message);
+    }
+  }
+
+  // 2. Google Apps Script Web App Integration (Completely Free & Bypasses SMTP Port Blocks)
+  if (process.env.GOOGLE_SCRIPT_URL) {
+    try {
+      const response = await fetch(process.env.GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to, subject, body: text, html: mailOptions.html })
+      });
+      const data = await response.json();
+      if (data.success) {
+        console.log(`[GOOGLE SCRIPT EMAIL SENT] Successfully sent email to ${to}`);
+        return true;
+      }
+      console.error(`[GOOGLE SCRIPT ERROR] Failed response:`, data);
+    } catch (err) {
+      console.error(`[GOOGLE SCRIPT EXCEPTION] Failed to send email via Google Script URL:`, err.message);
+    }
+  }
+
+  // 3. Standard SMTP Transporter (Nodemailer)
   const hasConfig = process.env.SMTP_USER && process.env.SMTP_PASS && process.env.SMTP_USER !== 'your_email@gmail.com';
-  
   if (hasConfig) {
     try {
       const info = await transporter.sendMail(mailOptions);
