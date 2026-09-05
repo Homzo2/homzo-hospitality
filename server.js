@@ -6,6 +6,13 @@ const xlsx = require('xlsx');
 const path = require('path');
 const crypto = require('crypto');
 
+const {
+  initWhatsAppGateway,
+  sendWhatsAppMessage,
+  getWhatsAppStatus,
+  resetWhatsAppSession
+} = require('./whatsapp_gateway');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -276,6 +283,26 @@ app.get('/partner', (req, res) => {
   res.redirect('/management_console/partner.html');
 });
 
+// WhatsApp Web QR & Gateway Routes
+app.get('/whatsapp-qr', (req, res) => {
+  res.sendFile(path.join(__dirname, 'customer_web', 'whatsapp-qr.html'));
+});
+
+app.get('/api/whatsapp/status', (req, res) => {
+  res.json(getWhatsAppStatus());
+});
+
+app.post('/api/whatsapp/reset', async (req, res) => {
+  const result = await resetWhatsAppSession();
+  res.json(result);
+});
+
+app.post('/api/whatsapp/test-send', async (req, res) => {
+  const { phone, message } = req.body;
+  const result = await sendWhatsAppMessage(phone, message || 'Hello from Homzo WhatsApp Gateway! 🏨');
+  res.json(result);
+});
+
 app.use('/', express.static(path.join(__dirname, 'customer_web')));
 app.use('/admin_console', express.static(path.join(__dirname, 'admin_console')));
 app.use('/management_console', express.static(path.join(__dirname, 'management_console')));
@@ -465,23 +492,32 @@ async function sendSMSHelper(to, message) {
   if (process.env.FAST2SMS_API_KEY && cleanPhone) {
     try {
       const nationalNumber = cleanPhone.length === 12 && cleanPhone.startsWith('91') ? cleanPhone.substring(2) : cleanPhone;
+      const otpMatch = message.match(/\b(\d{6})\b/);
+      const isOtp = message.toLowerCase().includes('otp') && otpMatch;
+
+      const payload = isOtp ? {
+        route: 'otp',
+        variables_values: otpMatch[1],
+        numbers: nationalNumber
+      } : {
+        route: 'q',
+        message: message,
+        language: 'english',
+        flash: 0,
+        numbers: nationalNumber
+      };
+
       const res = await fetch('https://www.fast2sms.com/dev/bulkV2', {
         method: 'POST',
         headers: {
           'authorization': process.env.FAST2SMS_API_KEY,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          route: 'q',
-          message: message,
-          language: 'english',
-          flash: 0,
-          numbers: nationalNumber
-        })
+        body: JSON.stringify(payload)
       });
       const data = await res.json();
       if (data.return) {
-        console.log(`[FAST2SMS SENT] To: ${to} (Request ID: ${data.request_id})`);
+        console.log(`[FAST2SMS SENT] To: ${to} (Request ID: ${data.request_id || 'OK'})`);
         return true;
       }
       console.error(`[FAST2SMS ERROR] Response:`, data);
@@ -530,7 +566,18 @@ async function sendWhatsAppHelper(to, message) {
   recordNotification('whatsapp', to, message);
   const cleanPhone = formatPhoneNumber(to);
 
-  // 1. Meta WhatsApp Cloud API (Official - 1,000 Free Conversations/Month)
+  // 1. Linked Phone WhatsApp Web Gateway (100% Free Lifetime - Linked Phone)
+  try {
+    const webResult = await sendWhatsAppMessage(to, message);
+    if (webResult.success) {
+      console.log(`[WHATSAPP WEB GATEWAY SENT] Message ID: ${webResult.messageId} To: ${to}`);
+      return true;
+    }
+  } catch (webErr) {
+    console.error(`[WHATSAPP WEB GATEWAY ERROR]:`, webErr.message);
+  }
+
+  // 2. Meta WhatsApp Cloud API (Official - 1,000 Free Conversations/Month)
   if (process.env.WHATSAPP_ACCESS_TOKEN && process.env.WHATSAPP_PHONE_NUMBER_ID && cleanPhone) {
     try {
       const res = await fetch(`https://graph.facebook.com/v21.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`, {
@@ -1381,13 +1428,13 @@ app.post('/api/auth/logout', authenticateToken, (req, res) => {
 // In-memory store for OTPs
 const otpStore = new Map();
 
-app.post('/api/auth/forgot-password', (req, res) => {
-  const { email } = req.body;
+app.post('/api/auth/forgot-password', async (req, res) => {
+  const { email, channel } = req.body;
   if (!email) {
     return res.status(400).json({ error: 'Email is required.' });
   }
   
-  const emailLower = email.toLowerCase();
+  const emailLower = email.toLowerCase().trim();
   
   // Find in partners
   const partners = readExcelDb(partnersDbPath);
@@ -1411,16 +1458,48 @@ app.post('/api/auth/forgot-password', (req, res) => {
     expiresAt: Date.now() + 10 * 60 * 1000 // 10 minutes expiry
   });
   
-  // Send OTP email
+  const matchedPhone = (partner ? partner.Phone : '') || (user ? user.Phone : '') || (customer ? customer.Phone : '') || '';
+  
   const otpSubject = 'Your Homzo Verification OTP Code';
   const otpBody = `Hello,\n\nYou have requested a password reset on the Homzo Platform.\n\nYour 6-Digit Verification OTP Code is:\n\n${otp}\n\nThis OTP code will expire in 10 minutes. If you did not request this, please ignore this email.\n\nBest Regards,\nHomzo Security Team`;
+  const otpMsg = `Hello! Your Homzo verification OTP is *${otp}*. Valid for 10 minutes. Please do not share it with anyone.`;
   
-  sendMailHelper(email, otpSubject, otpBody);
-  const matchedPhone = (partner ? partner.Phone : '') || (user ? user.Phone : '') || (customer ? customer.Phone : '') || 'N/A';
-  sendSMSHelper(matchedPhone, `Your Homzo Verification OTP is: ${otp}. Valid for 10 minutes.`);
-  sendWhatsAppHelper(matchedPhone, `Hello! Your Homzo verification OTP is *${otp}*. Please do not share it with anyone.`);
+  let deliveryMethod = 'email';
+  let successMsg = `Verification OTP has been sent to your email (${email}).`;
+
+  if (channel === 'whatsapp') {
+    if (matchedPhone && matchedPhone !== 'N/A') {
+      await sendWhatsAppHelper(matchedPhone, otpMsg);
+      deliveryMethod = 'whatsapp';
+      successMsg = `Verification OTP has been sent to your WhatsApp number (+${matchedPhone.replace(/\D/g, '')}).`;
+    } else {
+      await sendMailHelper(email, otpSubject, otpBody);
+      deliveryMethod = 'email_fallback';
+      successMsg = `No mobile number found on account. OTP sent to your registered email instead.`;
+    }
+  } else if (channel === 'sms') {
+    if (matchedPhone && matchedPhone !== 'N/A') {
+      await sendSMSHelper(matchedPhone, `Your Homzo Verification OTP is: ${otp}. Valid for 10 minutes.`);
+      deliveryMethod = 'sms';
+      successMsg = `Verification OTP has been sent via SMS to your mobile phone.`;
+    } else {
+      await sendMailHelper(email, otpSubject, otpBody);
+      deliveryMethod = 'email_fallback';
+      successMsg = `No mobile number found on account. OTP sent to your registered email instead.`;
+    }
+  } else if (channel === 'email') {
+    await sendMailHelper(email, otpSubject, otpBody);
+    deliveryMethod = 'email';
+    successMsg = `Verification OTP has been sent to your email (${email}).`;
+  } else {
+    // If channel is omitted (e.g. automated QA integration test), dispatch to all
+    await sendMailHelper(email, otpSubject, otpBody);
+    await sendSMSHelper(matchedPhone || 'N/A', `Your Homzo Verification OTP is: ${otp}. Valid for 10 minutes.`);
+    await sendWhatsAppHelper(matchedPhone || 'N/A', otpMsg);
+    successMsg = `Verification OTP has been sent to your email and phone.`;
+  }
   
-  res.json({ success: true, message: 'Verification OTP has been sent to your email (check console if in simulation mode).' });
+  res.json({ success: true, message: successMsg, channel: deliveryMethod });
 });
 
 app.post('/api/auth/reset-password', (req, res) => {
@@ -6507,6 +6586,7 @@ async function start() {
     app.listen(PORT, () => {
       console.log(`Excel Backend Server is running on http://localhost:${PORT}`);
       initGoogleSheets();
+      initWhatsAppGateway();
     });
   } catch (err) {
     console.error('Failed to initialize database/cache:', err);
