@@ -76,16 +76,8 @@
     </h1>
     <p class="hero-sub">Discover comfortable, verified and thoughtfully managed stays, built around the way you travel, work and live.</p>
     <div class="hero-ctas" style="display: flex; gap: 16px; margin: 24px 0 32px; justify-content: center; flex-wrap: wrap; z-index: 10;">
-      <a href="#properties" class="btn btn-primary" style="padding: 12px 28px; font-weight: 700; border-radius: 8px; text-decoration: none;"><i class="fa-solid fa-magnifying-glass"></i> Explore Stays</a>
+      <a href="#properties" id="heroExploreBtn" class="btn btn-primary" style="padding: 12px 28px; font-weight: 700; border-radius: 8px; text-decoration: none;"><i class="fa-solid fa-magnifying-glass"></i> Explore Stays</a>
       <a href="advertise-your-homes.html" class="btn btn-ghost" style="padding: 12px 28px; font-weight: 700; border-radius: 8px; border: 1px solid var(--primary); color: var(--primary); text-decoration: none;"><i class="fa-solid fa-handshake"></i> Partner With Homzo</a>
-    </div>
-
-    <div class="hero-stats">
-      <div class="stat"><span style="font-size: 0.95rem; font-weight: 500; color: var(--text-primary);">50+ Verified Properties</span></div>
-      <div class="stat-div"></div>
-      <div class="stat"><span style="font-size: 0.95rem; font-weight: 500; color: var(--text-primary);">1,000+ Happy Guests</span></div>
-      <div class="stat-div"></div>
-      <div class="stat"><span style="font-size: 0.95rem; font-weight: 500; color: var(--text-primary);">4.9★ Average Rating</span></div>
     </div>
   </div>
 
@@ -182,12 +174,20 @@
 </section>
 
 <!-- ════════════════ INTRODUCTION SECTION ════════════════ -->
-<section class="section intro-brand-section" style="padding: 60px 0 20px; background: var(--bg-base); text-align: center;">
-  <div class="container" style="max-width: 800px; margin: 0 auto; box-sizing: border-box; padding: 0 20px;">
-    <span class="section-label" style="background: rgba(212,175,55,0.1); border: 1px solid rgba(212,175,55,0.3); color: #d4af37;"><i class="fa-solid fa-circle-info"></i> More than a room. A better stay.</span>
-    <p style="font-size: 1.35rem; color: var(--text-primary); line-height: 1.6; font-weight: 500; margin-top: 16px;">
-      Homzo is building a growing network of quality stays where comfort, cleanliness, safety and service come together under one trusted hospitality brand.
-    </p>
+<section class="section intro-brand-section">
+  <!-- Animated Luxury Hotel Lobby Background -->
+  <div class="intro-bg-container">
+    <div class="intro-hotel-animated-bg"></div>
+    <div class="intro-hotel-overlay"></div>
+  </div>
+
+  <div class="container" style="position: relative; z-index: 2;">
+    <div class="intro-card-glass">
+      <span class="section-label" style="background: rgba(212,175,55,0.15); border: 1px solid rgba(212,175,55,0.4); color: #d4af37; font-size: 0.82rem; letter-spacing: 1px;"><i class="fa-solid fa-circle-info"></i> MORE THAN A ROOM. A BETTER STAY.</span>
+      <p style="font-size: 1.35rem; color: #ffffff; line-height: 1.65; font-weight: 500; margin-top: 18px; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">
+        Homzo is building a growing network of quality stays where comfort, cleanliness, safety and service come together under one trusted hospitality brand.
+      </p>
+    </div>
   </div>
 </section>
 
@@ -455,32 +455,43 @@
 </section>
 
 <!-- ════════════════ WHY HOMZO ════════════════ -->
-<section class="section why-section">
-  <div class="container">
+<section class="section why-section" id="whyHomzoSection">
+  <!-- Animated Hotel Background Layer -->
+  <div class="why-bg-container">
+    <div class="why-hotel-animated-bg"></div>
+    <div class="why-hotel-overlay"></div>
+    <div class="why-orb why-orb-1"></div>
+    <div class="why-orb why-orb-2"></div>
+  </div>
+
+  <div class="container" style="position: relative; z-index: 2;">
     <div style="text-align:center; margin-bottom:56px;">
-      <span class="section-label"><i class="fa-solid fa-trophy"></i> Why Stay With Homzo?</span>
+      <span class="section-label" style="background: rgba(212,175,55,0.12); border: 1px solid rgba(212,175,55,0.3); color: #d4af37;"><i class="fa-solid fa-trophy"></i> Why Stay With Homzo?</span>
       <h2 class="section-title">The <span>HOMZO</span> Experience</h2>
+      <p style="color: var(--text-secondary); max-width: 580px; margin: 12px auto 0; font-size: 0.95rem; line-height: 1.6;">
+        Thoughtfully designed spaces, rigorous hygiene, and authentic hospitality across every stay.
+      </p>
     </div>
     <div class="why-grid">
       <div class="why-card">
-        <div class="why-icon" style="background: rgba(255,92,53,0.12); color: var(--primary)"><i class="fa-solid fa-shield-halved"></i></div>
+        <div class="why-icon" style="background: linear-gradient(135deg, rgba(212,175,55,0.2), rgba(255,92,53,0.1)); border: 1px solid rgba(212,175,55,0.35); color: #d4af37;"><i class="fa-solid fa-shield-halved"></i></div>
         <h4>Verified Stays</h4>
-        <p>Properties go through Homzo's onboarding and quality standards.</p>
+        <p>Properties go through Homzo's comprehensive onboarding, hygiene checklist, and quality standards.</p>
       </div>
       <div class="why-card">
-        <div class="why-icon" style="background: rgba(168,85,247,0.12); color:#a855f7"><i class="fa-solid fa-bolt"></i></div>
+        <div class="why-icon" style="background: linear-gradient(135deg, rgba(168,85,247,0.2), rgba(139,92,246,0.1)); border: 1px solid rgba(168,85,247,0.35); color: #c084fc;"><i class="fa-solid fa-bolt"></i></div>
         <h4>Consistent Experience</h4>
-        <p>We work towards maintaining consistent quality across our stays.</p>
+        <p>Uniform comfort with fresh linens, sanitized washrooms, and high-speed Wi-Fi across all stays.</p>
       </div>
       <div class="why-card">
-        <div class="why-icon" style="background: rgba(59,130,246,0.12); color: var(--info)"><i class="fa-solid fa-headset"></i></div>
-        <h4>Guest Support</h4>
-        <p>Support throughout your stay.</p>
+        <div class="why-icon" style="background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(59,130,246,0.1)); border: 1px solid rgba(56,189,248,0.35); color: #38bdf8;"><i class="fa-solid fa-headset"></i></div>
+        <h4>24/7 Guest Support</h4>
+        <p>Instant support throughout your stay via phone, WhatsApp, or concierge whenever you need help.</p>
       </div>
       <div class="why-card">
-        <div class="why-icon" style="background: rgba(34,197,94,0.12); color: var(--success)"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+        <div class="why-icon" style="background: linear-gradient(135deg, rgba(34,197,94,0.2), rgba(16,185,129,0.1)); border: 1px solid rgba(34,197,94,0.35); color: #4ade80;"><i class="fa-solid fa-indian-rupee-sign"></i></div>
         <h4>Transparent Pricing</h4>
-        <p>Comfortable stays with clear and transparent pricing.</p>
+        <p>Honest, all-inclusive rates with zero hidden charges or surprise check-in fees. What you see is what you pay.</p>
       </div>
     </div>
   </div>
@@ -488,10 +499,19 @@
 
 <!-- ════════════════ AMENITIES ════════════════ -->
 <section class="section amenities-section" id="amenities">
-  <div class="container">
-    <div style="text-align:center; margin-bottom:56px;">
-      <span class="section-label"><i class="fa-solid fa-star"></i> What's Included</span>
+  <!-- Animated Delhi Tourist Landmark Background Layer -->
+  <div class="amenities-bg-container">
+    <div class="delhi-tourist-animated-bg"></div>
+    <div class="delhi-tourist-overlay"></div>
+  </div>
+
+  <div class="container" style="position: relative; z-index: 2;">
+    <div style="text-align:center; margin-bottom:24px;">
+      <span class="section-label" style="background: rgba(212,175,55,0.15); border: 1px solid rgba(212,175,55,0.4); color: #d4af37;"><i class="fa-solid fa-star"></i> What's Included</span>
       <h2 class="section-title">World-Class <span>Amenities</span></h2>
+      <p style="color: #cbd5e1; max-width: 600px; margin: 10px auto 0; font-size: 0.92rem; line-height: 1.5; text-shadow: 0 2px 8px rgba(0,0,0,0.6);">
+        Everything you need for an effortless, comfortable, and memorable stay.
+      </p>
     </div>
     <div class="amenity-grid">
       <div class="amenity-item"><i class="fa-solid fa-wifi"></i><span>High-Speed WiFi</span></div>
@@ -641,7 +661,7 @@
           </div>
           <div class="contact-item">
             <div class="ci-icon"><i class="fa-solid fa-location-dot"></i></div>
-            <div><strong>HQ</strong><span>Mumbai, Maharashtra, India</span></div>
+            <div><strong>HQ</strong><span>Molucious Building 8167, Sector 69, Gurugram</span></div>
           </div>
         </div>
       </div>

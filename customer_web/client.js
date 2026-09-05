@@ -1216,6 +1216,7 @@ async function fetchProperties() {
   const propertiesSec = document.getElementById('properties');
   const testimonials = document.getElementById('testimonials');
   const launchingSoonSec = document.getElementById('launchingSoonSection');
+  const heroExploreBtn = document.getElementById('heroExploreBtn');
 
   if (properties.length === 0) {
     if (searchBox) searchBox.style.display = 'none';
@@ -1223,12 +1224,14 @@ async function fetchProperties() {
     if (propertiesSec) propertiesSec.style.display = 'none';
     if (testimonials) testimonials.style.display = 'none';
     if (launchingSoonSec) launchingSoonSec.style.display = 'block';
+    if (heroExploreBtn) heroExploreBtn.href = '#launchingSoonSection';
   } else {
     if (searchBox) searchBox.style.display = 'block';
     if (categories) categories.style.display = 'block';
     if (propertiesSec) propertiesSec.style.display = 'block';
     if (testimonials) testimonials.style.display = 'block';
     if (launchingSoonSec) launchingSoonSec.style.display = 'none';
+    if (heroExploreBtn) heroExploreBtn.href = '#properties';
     renderProperties('all', 6);
   }
 
