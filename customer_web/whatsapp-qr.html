@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Homzo WhatsApp Gateway - Link your phone to send automated OTPs and booking confirmations.">
+  <title>Homzo WhatsApp Gateway - Link Your Phone</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #25D366;
+      --primary-dark: #128C7E;
+      --bg: #0b141a;
+      --card-bg: #111b21;
+      --text: #e9edef;
+      --text-muted: #8696a0;
+      --border: #222e35;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      max-width: 500px;
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px 30px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      text-align: center;
+    }
+    .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(37, 211, 102, 0.12);
+      color: var(--primary);
+      padding: 8px 18px;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+    h1 { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+    p.subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 28px; line-height: 1.5; }
+    
+    .qr-card {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 16px;
+      display: inline-block;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      min-width: 250px;
+      min-height: 250px;
+      position: relative;
+    }
+    .qr-card img {
+      width: 240px;
+      height: 240px;
+      display: block;
+      border-radius: 8px;
+    }
+    .qr-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 240px;
+      color: #333;
+      font-weight: 600;
+      font-size: 14px;
+      gap: 12px;
+    }
+
+    .instructions {
+      text-align: left;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin-bottom: 24px;
+    }
+    .instructions h3 { font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--primary); }
+    .instructions ol { padding-left: 20px; color: var(--text-muted); font-size: 13px; line-height: 1.7; }
+    .instructions li b { color: var(--text); }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 30px;
+      background: rgba(255,255,255,0.06);
+      color: var(--text-muted);
+    }
+    .status-badge.connected {
+      background: rgba(37, 211, 102, 0.15);
+      color: var(--primary);
+    }
+    .status-badge .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #f39c12;
+      animation: pulse 1.5s infinite;
+    }
+    .status-badge.connected .dot {
+      background: var(--primary);
+      animation: none;
+    }
+    @keyframes pulse {
+      0% { opacity: 0.4; }
+      50% { opacity: 1; }
+      100% { opacity: 0.4; }
+    }
+
+    .btn-reset {
+      background: rgba(231, 76, 60, 0.15);
+      color: #e74c3c;
+      border: 1px solid rgba(231, 76, 60, 0.3);
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 15px;
+      transition: 0.2s;
+    }
+    .btn-reset:hover {
+      background: #e74c3c;
+      color: #fff;
+    }
+    .btn-home {
+      display: inline-block;
+      margin-top: 20px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13px;
+      transition: 0.2s;
+    }
+    .btn-home:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="logo-badge">
+      <i class="fa-brands fa-whatsapp fa-lg"></i> Homzo WhatsApp Gateway
+    </div>
+
+    <h1>Connect Your WhatsApp</h1>
+    <p class="subtitle">Link your phone to automatically send lifetime unlimited OTPs and booking confirmations.</p>
+
+    <!-- QR Area -->
+    <div id="qrArea">
+      <div class="qr-card">
+        <div id="qrPlaceholder" class="qr-loading">
+          <i class="fa-solid fa-spinner fa-spin fa-2x" style="color: var(--primary-dark)"></i>
+          <span>Generating QR Code...</span>
+        </div>
+        <img id="qrImage" style="display:none;" alt="WhatsApp QR Code">
+      </div>
+
+      <div class="instructions">
+        <h3><i class="fa-solid fa-list-ol"></i> How to scan:</h3>
+        <ol>
+          <li>Open <b>WhatsApp</b> on your phone.</li>
+          <li>Tap <b>Menu (⋮)</b> on Android or <b>Settings (⚙️)</b> on iPhone.</li>
+          <li>Tap <b>Linked devices</b>, then tap <b>Link a device</b>.</li>
+          <li>Point your phone camera at this QR code to scan.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Connected Area -->
+    <div id="connectedArea" style="display: none; padding: 20px 0;">
+      <div style="font-size: 56px; color: var(--primary); margin-bottom: 15px;">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <h2 style="font-size: 20px; margin-bottom: 8px;">WhatsApp Connected!</h2>
+      <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">
+        Active Sender Number: <b id="phoneDisplay" style="color: var(--text);"></b>
+      </p>
+      <div class="status-badge connected">
+        <span class="dot"></span> 100% Free Lifetime Gateway Active
+      </div>
+      <br>
+      <button class="btn-reset" onclick="resetConnection()">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i> Disconnect / Change Number
+      </button>
+    </div>
+
+    <!-- Live Status -->
+    <div id="statusIndicator">
+      <div class="status-badge" id="statusBadge">
+        <span class="dot"></span> <span id="statusText">Waiting for QR Code...</span>
+      </div>
+    </div>
+
+    <div>
+      <a href="/" class="btn-home"><i class="fa-solid fa-arrow-left"></i> Back to Homzo Home</a>
+    </div>
+  </div>
+
+  <script>
+    let pollInterval = null;
+
+    async function checkStatus() {
+      try {
+        const res = await fetch('/api/whatsapp/status');
+        const data = await res.json();
+
+        if (data.isConnected) {
+          document.getElementById('qrArea').style.display = 'none';
+          document.getElementById('connectedArea').style.display = 'block';
+          document.getElementById('phoneDisplay').textContent = '+' + data.connectedPhone;
+          document.getElementById('statusBadge').className = 'status-badge connected';
+          document.getElementById('statusText').textContent = 'Online & Ready';
+        } else {
+          document.getElementById('qrArea').style.display = 'block';
+          document.getElementById('connectedArea').style.display = 'none';
+          
+          if (data.qrCodeDataUrl) {
+            document.getElementById('qrPlaceholder').style.display = 'none';
+            const img = document.getElementById('qrImage');
+            img.src = data.qrCodeDataUrl;
+            img.style.display = 'block';
+            document.getElementById('statusBadge').className = 'status-badge';
+            document.getElementById('statusText').textContent = 'Ready to Scan';
+          } else {
+            document.getElementById('qrPlaceholder').style.display = 'flex';
+            document.getElementById('qrImage').style.display = 'none';
+            document.getElementById('statusText').textContent = 'Generating QR...';
+          }
+        }
+      } catch (err) {
+        console.error('Status check error:', err);
+      }
+    }
+
+    async function resetConnection() {
+      if (!confirm('Are you sure you want to disconnect this WhatsApp number?')) return;
+      try {
+        await fetch('/api/whatsapp/reset', { method: 'POST' });
+        checkStatus();
+      } catch (err) {
+        alert('Failed to reset connection');
+      }
+    }
+
+    checkStatus();
+    pollInterval = setInterval(checkStatus, 3000);
+  </script>
+</body>
+</html>

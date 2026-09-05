@@ -1747,12 +1747,29 @@ Please guide me professionally on which plans or search steps I should take next
       <!-- Step 1: Request OTP -->
       <div id="resetStep1">
         <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:14px; line-height:1.4;">
-          Enter your registered email address to receive a verification OTP.
+          Enter your registered email address and choose where you want to receive your OTP code.
         </p>
-        <div class="form-group" style="margin-bottom:16px;">
+        <div class="form-group" style="margin-bottom:14px;">
           <label>Email Address</label>
           <input type="email" class="form-control" id="resetEmail" placeholder="you@example.com" required>
         </div>
+
+        <div class="form-group" style="margin-bottom:20px;">
+          <label style="display:block; font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; color:var(--text-secondary);">Send OTP via</label>
+          <div style="display:grid; grid-template-columns: repeat(2, 1fr); background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:4px; gap:4px;">
+            <label class="otp-segment" id="labelChannelEmail" style="cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; padding:10px 0; border-radius:8px; font-size:0.85rem; font-weight:600; transition:all 0.2s; background:var(--primary); color:#111;">
+              <input type="radio" name="otpChannel" value="email" checked style="display:none;" onchange="updateChannelSelection()">
+              <i class="fa-solid fa-envelope" style="font-size:0.9rem;"></i>
+              <span>Email</span>
+            </label>
+            <label class="otp-segment" id="labelChannelWhatsapp" style="cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; padding:10px 0; border-radius:8px; font-size:0.85rem; font-weight:600; transition:all 0.2s; color:var(--text-secondary); background:transparent;">
+              <input type="radio" name="otpChannel" value="whatsapp" style="display:none;" onchange="updateChannelSelection()">
+              <i class="fa-brands fa-whatsapp" style="font-size:1rem;"></i>
+              <span>WhatsApp</span>
+            </label>
+          </div>
+        </div>
+
         <button class="btn btn-primary" id="sendOtpBtn" style="width:100%; justify-content:center;">
           <i class="fa-solid fa-paper-plane"></i> Send OTP Code
         </button>
@@ -1760,8 +1777,8 @@ Please guide me professionally on which plans or search steps I should take next
       
       <!-- Step 2: Verify OTP & Reset -->
       <div id="resetStep2" style="display:none;">
-        <p style="font-size:0.85rem; color:var(--text-secondary); background:rgba(255,255,255,0.02); padding:10px; border-left:3px solid var(--primary); border-radius:0 4px 4px 0; margin-bottom:14px; line-height:1.4;">
-          OTP code generated. Check the server console log in simulation mode to read the OTP.
+        <p id="resetOtpNotice" style="font-size:0.85rem; color:var(--text-secondary); background:rgba(255,255,255,0.02); padding:10px; border-left:3px solid var(--primary); border-radius:0 4px 4px 0; margin-bottom:14px; line-height:1.4;">
+          Verification OTP code generated. Please enter the 6-digit code below.
         </p>
         <div class="form-group" style="margin-bottom:12px;">
           <label>Verification OTP</label>

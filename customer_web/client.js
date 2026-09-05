@@ -207,6 +207,23 @@ if (custForgotPasswordBtn) {
 const sendOtpBtn = document.getElementById('sendOtpBtn');
 const verifyResetBtn = document.getElementById('verifyResetBtn');
 
+window.updateChannelSelection = function() {
+  const selected = document.querySelector('input[name="otpChannel"]:checked')?.value || 'email';
+  const channels = ['email', 'whatsapp'];
+  channels.forEach(ch => {
+    const el = document.getElementById('labelChannel' + ch.charAt(0).toUpperCase() + ch.slice(1));
+    if (el) {
+      if (ch === selected) {
+        el.style.background = 'var(--primary)';
+        el.style.color = '#111';
+      } else {
+        el.style.background = 'transparent';
+        el.style.color = 'var(--text-secondary)';
+      }
+    }
+  });
+};
+
 if (sendOtpBtn) {
   sendOtpBtn.addEventListener('click', async () => {
     const email = document.getElementById('resetEmail').value.trim();
@@ -214,24 +231,33 @@ if (sendOtpBtn) {
       showToast('Please enter your email address.', 'error');
       return;
     }
+    const channel = document.querySelector('input[name="otpChannel"]:checked')?.value || 'email';
     sendOtpBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
     sendOtpBtn.disabled = true;
     try {
       const res = await fetch('/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email, channel })
       });
+      const data = await res.json();
       if (res.ok) {
-        showToast('Verification OTP generated successfully! Check console logs.', 'success');
+        showToast(data.message || 'Verification OTP generated successfully!', 'success');
+        const notice = document.getElementById('resetOtpNotice');
+        if (notice) {
+          if (channel === 'whatsapp') {
+            notice.innerHTML = '<i class="fa-brands fa-whatsapp" style="color:#25D366; font-size:1.1rem; margin-right:6px;"></i> OTP code has been sent to your <b>WhatsApp</b>. Please check your phone.';
+          } else {
+            notice.innerHTML = '<i class="fa-solid fa-envelope" style="color:var(--primary); font-size:1.1rem; margin-right:6px;"></i> OTP code has been sent to your <b>Email</b> (' + email + '). Please check your inbox or spam folder.';
+          }
+        }
         document.getElementById('resetStep1').style.display = 'none';
         document.getElementById('resetStep2').style.display = 'block';
         document.getElementById('resetOtp').value = '';
         document.getElementById('resetNewPassword').value = '';
         document.getElementById('resetConfirmPassword').value = '';
       } else {
-        const err = await res.json();
-        showToast(err.error || 'Failed to send OTP code.', 'error');
+        showToast(data.error || 'Failed to send OTP code.', 'error');
       }
     } catch (e) {
       showToast('Connection to backend failed.', 'error');
