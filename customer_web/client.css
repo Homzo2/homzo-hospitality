@@ -9,17 +9,18 @@
   left: 0;
   right: 0;
   z-index: 500;
-  transition: background 0.4s, backdrop-filter 0.4s, box-shadow 0.4s;
+  transition: background 0.3s, backdrop-filter 0.3s, box-shadow 0.3s;
   padding: 0;
-  background: rgba(10, 12, 16, 0.95);
-  backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
-  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.05);
 }
 
 .navbar.scrolled {
-  background: rgba(10, 12, 16, 0.98);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
 }
 
 .nav-container {
@@ -94,8 +95,8 @@
 
 .nav-link:hover,
 .nav-link.active {
-  color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.08);
+  color: var(--primary-dark);
+  background: var(--accent-soft);
   transform: translateY(-1px);
 }
 
@@ -153,16 +154,17 @@
 /* Mobile nav */
 @media (max-width: 768px) {
   .nav-links {
-    display: flex; /* keep flex, control visibility with opacity/transform */
+    display: flex;
     position: fixed;
     top: 72px;
     left: 0;
     right: 0;
-    background: var(--bg-card);
+    background: #FFFFFF;
     flex-direction: column;
     padding: 20px;
     gap: 8px;
     border-bottom: 1px solid var(--border);
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.1);
     z-index: 400;
     opacity: 0;
     transform: translateY(-20px);
@@ -185,14 +187,16 @@
   }
 }
 
-/* ── Hero ── */
+/* ── Hero (Holiday Inn Inspired) ── */
 .hero {
   position: relative;
-  min-height: 100vh;
+  min-height: 85vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-top: 80px;
+  padding-top: 100px;
+  padding-bottom: 60px;
+  background: #0F172A;
   overflow: hidden;
 }
 
@@ -205,66 +209,26 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: brightness(0.35) saturate(0.8);
-  transition: transform 8s ease;
+  filter: brightness(0.65) contrast(1.05);
+  transition: transform 1.5s ease-out;
 }
 
 .hero-img.loaded {
-  transform: scale(1.05);
+  transform: scale(1.02);
 }
 
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg,
-      rgba(10, 12, 16, 0.85) 0%,
-      rgba(10, 12, 16, 0.5) 50%,
-      rgba(10, 12, 16, 0.85) 100%);
+  background: linear-gradient(180deg,
+      rgba(15, 23, 42, 0.6) 0%,
+      rgba(15, 23, 42, 0.45) 50%,
+      rgba(15, 23, 42, 0.8) 100%);
 }
 
-/* Particles */
+/* Disable CPU-heavy particle loops */
 .particle {
-  position: absolute;
-  border-radius: 50%;
-  background: var(--primary);
-  opacity: 0.15;
-  animation: float 8s infinite ease-in-out;
-}
-
-.p1 {
-  width: 400px;
-  height: 400px;
-  top: -100px;
-  right: -100px;
-  animation-delay: 0s;
-}
-
-.p2 {
-  width: 200px;
-  height: 200px;
-  bottom: 100px;
-  left: -60px;
-  animation-delay: 2s;
-}
-
-.p3 {
-  width: 150px;
-  height: 150px;
-  bottom: 200px;
-  right: 200px;
-  animation-delay: 4s;
-}
-
-@keyframes float {
-
-  0%,
-  100% {
-    transform: translateY(0) scale(1);
-  }
-
-  50% {
-    transform: translateY(-30px) scale(1.05);
-  }
+  display: none !important;
 }
 
 .hero-content {
@@ -273,48 +237,50 @@
   margin: 0 auto;
   padding: 0 32px;
   width: 100%;
-  padding-bottom: 40px;
+  padding-bottom: 24px;
+  text-align: center;
 }
 
 .hero-badge {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: var(--primary-glow);
-  border: 1px solid rgba(255, 92, 53, 0.4);
-  color: var(--primary);
-  font-size: 0.8rem;
-  font-weight: 600;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #FFFFFF;
+  font-size: 0.82rem;
+  font-weight: 700;
   padding: 8px 20px;
   border-radius: 999px;
-  margin-top: 60px;
-  margin-bottom: 24px;
-  animation: fadeUp 0.6s ease 0.1s both;
+  margin-top: 30px;
+  margin-bottom: 20px;
 }
 
 .hero-title {
   font-family: 'Sora', sans-serif;
-  font-size: clamp(2.8rem, 6vw, 5rem);
+  font-size: clamp(2.6rem, 5.5vw, 4.4rem);
   font-weight: 800;
-  line-height: 1.1;
-  margin-bottom: 20px;
-  animation: fadeUp 0.6s ease 0.2s both;
+  line-height: 1.15;
+  margin-bottom: 16px;
+  color: #FFFFFF;
+  letter-spacing: -0.5px;
 }
 
 .hero-sub {
-  font-size: 1.1rem;
-  color: var(--text-secondary);
-  max-width: 560px;
-  line-height: 1.7;
-  margin-bottom: 36px;
-  animation: fadeUp 0.6s ease 0.3s both;
+  font-size: 1.15rem;
+  color: #E2E8F0;
+  max-width: 640px;
+  margin: 0 auto 28px;
+  line-height: 1.65;
 }
 
 .hero-stats {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 24px;
-  animation: fadeUp 0.6s ease 0.4s both;
 }
 
 .stat {
@@ -327,41 +293,31 @@
   font-family: 'Sora', sans-serif;
   font-size: 2.2rem;
   font-weight: 800;
-  color: var(--text-primary);
+  color: #FFFFFF;
 }
 
 .stat span {
   font-size: 0.82rem;
-  color: var(--text-secondary);
+  color: #CBD5E1;
 }
 
 .stat-div {
   width: 1px;
-  height: 48px;
-  background: var(--border-strong);
+  height: 44px;
+  background: rgba(255, 255, 255, 0.2);
 }
 
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Search box */
+/* Search box - Elevated White Card */
 .search-box {
   position: relative;
   max-width: 1100px;
   margin: 0 auto;
   border-radius: var(--radius-xl);
-  padding: 28px 32px;
-  animation: fadeUp 0.6s ease 0.5s both;
-  margin-top: 20px;
+  padding: 24px 28px;
+  background: #FFFFFF !important;
+  border: 1px solid var(--border);
+  box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  margin-top: 16px;
   z-index: 10;
 }
 
@@ -373,11 +329,11 @@
 }
 
 .stab {
-  padding: 7px 18px;
+  padding: 8px 18px;
   border-radius: 999px;
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   font-weight: 600;
-  background: rgba(255, 255, 255, 0.06);
+  background: #F1F5F9;
   color: var(--text-secondary);
   border: 1px solid var(--border);
   transition: var(--transition);
@@ -386,14 +342,14 @@
 .stab.active,
 .stab:hover {
   background: var(--primary);
-  color: #fff;
+  color: #FFFFFF;
   border-color: var(--primary);
 }
 
 .search-fields {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr auto;
-  gap: 12px;
+  grid-template-columns: 1.2fr 1fr 1fr 1fr auto;
+  gap: 14px;
   align-items: end;
 }
 
@@ -402,15 +358,31 @@
   align-items: center;
   gap: 6px;
   font-size: 0.78rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-secondary);
   margin-bottom: 8px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
+.sf .form-control {
+  background: #F8FAFC;
+  border: 1px solid #CBD5E1;
+  color: var(--text-primary);
+  height: 48px;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+}
+
+.sf .form-control:focus {
+  background: #FFFFFF;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
 .search-btn {
   height: 48px;
+  padding: 0 28px;
   white-space: nowrap;
 }
 
@@ -787,14 +759,16 @@
   position: absolute;
   top: 14px;
   left: 14px;
-  background: rgba(10, 12, 16, 0.8);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(8px);
   border: 1px solid var(--border);
   border-radius: 999px;
-  padding: 5px 12px;
+  padding: 5px 14px;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: capitalize;
+  color: var(--text-primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 .prop-fav {
@@ -803,7 +777,7 @@
   right: 14px;
   width: 34px;
   height: 34px;
-  background: rgba(10, 12, 16, 0.7);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(8px);
   border-radius: 50%;
   display: flex;
@@ -812,8 +786,9 @@
   cursor: pointer;
   transition: var(--transition);
   border: 1px solid var(--border);
-  color: var(--text-muted);
+  color: #64748B;
   font-size: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 .prop-fav.liked {
@@ -888,89 +863,17 @@
   color: var(--accent);
 }
 
-/* ── Why Homzo ── */
-.why-section {
-  background: var(--bg-surface);
-}
-
-/* ── Enhanced Why Section with Animated Hotel Background ── */
+/* ── Why Homzo (Holiday Inn Hospitality Pillars) ── */
 .why-section {
   position: relative;
-  overflow: hidden;
-  padding: 100px 0;
-  background: #080a0f;
+  padding: 90px 0;
+  background: #F8FAFC;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
 
 .why-bg-container {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.why-hotel-animated-bg {
-  position: absolute;
-  top: -8%;
-  left: -8%;
-  width: 116%;
-  height: 116%;
-  background-image: url('homzo_luxury_room.png');
-  background-size: cover;
-  background-position: center;
-  filter: brightness(0.88) contrast(1.05) saturate(1.15);
-  animation: hotelKenBurns 28s ease-in-out infinite alternate;
-  will-change: transform;
-}
-
-@keyframes hotelKenBurns {
-  0% {
-    transform: scale(1) translate(0, 0);
-  }
-  50% {
-    transform: scale(1.08) translate(-1.5%, -1.5%);
-  }
-  100% {
-    transform: scale(1.04) translate(1.5%, 1%);
-  }
-}
-
-.why-hotel-overlay {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 50% 40%, rgba(8, 11, 18, 0.32) 0%, rgba(5, 7, 12, 0.70) 100%);
-}
-
-.why-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.22;
-  pointer-events: none;
-  animation: orbFloat 14s ease-in-out infinite alternate;
-}
-
-.why-orb-1 {
-  width: 380px;
-  height: 380px;
-  background: radial-gradient(circle, #d4af37, transparent 70%);
-  top: 10%;
-  left: -5%;
-}
-
-.why-orb-2 {
-  width: 420px;
-  height: 420px;
-  background: radial-gradient(circle, #3b82f6, transparent 70%);
-  bottom: 5%;
-  right: -5%;
-  animation-delay: -7s;
-}
-
-@keyframes orbFloat {
-  0% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-30px) scale(1.1); }
-  100% { transform: translateY(20px) scale(0.95); }
+  display: none !important;
 }
 
 .why-grid {
@@ -995,123 +898,69 @@
 
 .why-card {
   position: relative;
-  background: rgba(14, 18, 26, 0.82);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 18px;
-  padding: 34px 26px;
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 32px 24px;
+  transition: var(--transition);
+  box-shadow: var(--shadow-card);
   display: flex;
   flex-direction: column;
 }
 
-.why-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 18px;
-  padding: 1px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), transparent 50%, rgba(212, 175, 55, 0.15));
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-}
-
 .why-card:hover {
-  transform: translateY(-8px);
-  border-color: rgba(212, 175, 55, 0.4);
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45), 0 0 25px rgba(212, 175, 55, 0.12);
-  background: rgba(26, 32, 42, 0.85);
+  transform: translateY(-4px);
+  border-color: rgba(217, 119, 6, 0.3);
+  box-shadow: var(--shadow-hover);
 }
 
 .why-icon {
-  width: 58px;
-  height: 58px;
+  width: 54px;
+  height: 54px;
   border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
-  margin-bottom: 22px;
-  transition: transform 0.3s ease;
+  font-size: 22px;
+  margin-bottom: 20px;
+  transition: transform 0.2s ease;
 }
 
 .why-card:hover .why-icon {
-  transform: scale(1.1);
+  transform: scale(1.08);
 }
 
 .why-card h4 {
   font-family: 'Sora', sans-serif;
   font-size: 1.15rem;
   font-weight: 700;
-  margin-bottom: 12px;
-  color: #fff;
+  margin-bottom: 10px;
+  color: var(--text-primary);
   letter-spacing: -0.2px;
 }
 
 .why-card p {
-  font-size: 0.88rem;
-  color: #94a3b8;
+  font-size: 0.92rem;
+  color: var(--text-secondary);
   line-height: 1.6;
   margin: 0;
 }
 
-/* ── Enhanced Amenities Section with Animated Delhi India Gate Background ── */
-/* ── Enhanced Amenities Section with Animated Delhi India Gate Background ── */
+/* ── Clean Amenities Section ── */
 .amenities-section {
   position: relative;
-  overflow: hidden;
-  padding: 50px 0 60px;
-  background: #080a0f;
+  padding: 80px 0;
+  background: #FFFFFF;
 }
 
 .amenities-bg-container {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.delhi-tourist-animated-bg {
-  position: absolute;
-  top: -8%;
-  left: -8%;
-  width: 116%;
-  height: 116%;
-  background-image: url('delhi_india_gate.jpg');
-  background-size: cover;
-  background-position: center 40%;
-  filter: brightness(0.92) contrast(1.05) saturate(1.15);
-  animation: delhiKenBurns 28s ease-in-out infinite alternate;
-  will-change: transform;
-}
-
-@keyframes delhiKenBurns {
-  0% {
-    transform: scale(1) translate(0, 0);
-  }
-  50% {
-    transform: scale(1.08) translate(-1.5%, -1%);
-  }
-  100% {
-    transform: scale(1.03) translate(1.5%, 0.5%);
-  }
-}
-
-.delhi-tourist-overlay {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 50% 50%, rgba(9, 12, 18, 0.28) 0%, rgba(5, 7, 12, 0.68) 100%);
+  display: none !important;
 }
 
 .amenity-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 12px;
+  gap: 14px;
   max-width: 1100px;
   margin: 0 auto;
 }
@@ -1119,7 +968,7 @@
 @media (max-width: 1100px) {
   .amenity-grid {
     grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
+    gap: 12px;
   }
 }
 
@@ -1136,44 +985,33 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  background: rgba(14, 18, 26, 0.72);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  padding: 10px 12px;
+  gap: 10px;
+  background: #F8FAFC;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
   text-align: center;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  transition: var(--transition);
   cursor: default;
 }
 
 .amenity-item:hover {
-  border-color: rgba(212, 175, 55, 0.6);
-  background: rgba(22, 28, 40, 0.9);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4), 0 0 14px rgba(212, 175, 55, 0.2);
+  border-color: var(--primary);
+  background: #FFFFFF;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
 }
 
 .amenity-item i {
-  font-size: 15px;
-  background: linear-gradient(135deg, #d4af37, #f59e0b);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-size: 16px;
+  color: var(--primary);
   flex-shrink: 0;
-  transition: transform 0.25s ease;
-}
-
-.amenity-item:hover i {
-  transform: scale(1.15);
 }
 
 .amenity-item span {
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   font-weight: 600;
-  color: #f1f5f9;
+  color: var(--text-primary);
   letter-spacing: 0.2px;
   white-space: nowrap;
 }
@@ -1568,7 +1406,7 @@
 .progress-bar-wrap {
   flex: 1;
   height: 8px;
-  background: rgba(255, 255, 255, 0.05);
+  background: #E2E8F0;
   border-radius: 99px;
   overflow: hidden;
   position: relative;
@@ -2212,56 +2050,107 @@ html, body {
   text-align: center;
 }
 
+/* ── Clean Intro Brand Section ── */
+.intro-brand-section {
+  position: relative;
+  padding: 64px 0;
+  background: #F8FAFC;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+
 .intro-bg-container {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.intro-hotel-animated-bg {
-  position: absolute;
-  top: -8%;
-  left: -8%;
-  width: 116%;
-  height: 116%;
-  background-image: url('luxury_hotel_lobby.jpg');
-  background-size: cover;
-  background-position: center;
-  filter: brightness(0.85) contrast(1.05) saturate(1.15);
-  animation: lobbyKenBurns 26s ease-in-out infinite alternate;
-  will-change: transform;
-}
-
-@keyframes lobbyKenBurns {
-  0% {
-    transform: scale(1) translate(0, 0);
-  }
-  50% {
-    transform: scale(1.08) translate(-1.5%, -1%);
-  }
-  100% {
-    transform: scale(1.03) translate(1.5%, 0.5%);
-  }
-}
-
-.intro-hotel-overlay {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 50% 50%, rgba(8, 11, 18, 0.42) 0%, rgba(5, 7, 12, 0.76) 100%);
+  display: none !important;
 }
 
 .intro-card-glass {
   position: relative;
   z-index: 2;
-  background: rgba(14, 18, 26, 0.78);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 20px;
-  padding: 44px 36px;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
-  max-width: 820px;
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 40px 36px;
+  box-shadow: var(--shadow-card);
+  max-width: 840px;
   margin: 0 auto;
+}
+
+/* ── FAQ Accordion Section (Holiday Inn Inspired) ── */
+.faq-section {
+  padding: 80px 0;
+  background: #F8FAFC;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.faq-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.faq-item {
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: var(--transition);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.faq-item:hover {
+  border-color: rgba(217, 119, 6, 0.4);
+}
+
+.faq-question {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: color 0.2s;
+}
+
+.faq-question:hover {
+  color: var(--primary);
+}
+
+.faq-question i {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  transition: transform 0.3s ease;
+}
+
+.faq-item.open .faq-question i {
+  transform: rotate(180deg);
+  color: var(--primary);
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease-out, padding 0.25s ease;
+  padding: 0 24px;
+}
+
+.faq-item.open .faq-answer {
+  max-height: 250px;
+  padding: 0 24px 20px 24px;
+}
+
+.faq-answer p {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  margin: 0;
 }

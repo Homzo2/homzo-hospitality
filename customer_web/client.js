@@ -23,20 +23,46 @@ document.querySelectorAll('.modal-overlay').forEach(m => {
   m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); });
 });
 
-// ─── Navbar scroll ────────────────────────────────────
+// ─── Navbar scroll (60fps Optimized, Zero Lag) ─────────
+let scrollTicking = false;
 window.addEventListener('scroll', () => {
-  const nav = document.getElementById('navbar');
-  if (window.scrollY > 60) nav.classList.add('scrolled'); else nav.classList.remove('scrolled');
-
-  // Active link highlighting
-  const sections = document.querySelectorAll('section[id]');
-  let current = '';
-  sections.forEach(s => { if (window.scrollY >= s.offsetTop - 120) current = s.id; });
-  document.querySelectorAll('.nav-link').forEach(l => {
-    l.classList.remove('active');
-    if (l.getAttribute('href') === '#' + current) l.classList.add('active');
-  });
-});
+  if (!scrollTicking) {
+    window.requestAnimationFrame(() => {
+      const nav = document.getElementById('navbar');
+      if (nav) {
+        if (window.scrollY > 40) {
+          nav.classList.add('scrolled');
+        } else {
+          nav.classList.remove('scrolled');
+        }
+      }
+      
+      // Active link highlighting without excessive DOM queries
+      const scrollPos = window.scrollY + 140;
+      const sections = document.querySelectorAll('section[id]');
+      let current = '';
+      for (let i = 0; i < sections.length; i++) {
+        const s = sections[i];
+        if (s.offsetTop <= scrollPos && s.offsetTop + s.offsetHeight > scrollPos) {
+          current = s.id;
+          break;
+        }
+      }
+      if (current) {
+        const links = document.querySelectorAll('.nav-link');
+        links.forEach(l => {
+          if (l.getAttribute('href') === '#' + current) {
+            l.classList.add('active');
+          } else if (l.getAttribute('href')?.startsWith('#')) {
+            l.classList.remove('active');
+          }
+        });
+      }
+      scrollTicking = false;
+    });
+    scrollTicking = true;
+  }
+}, { passive: true });
 
 // ─── Hamburger ────────────────────────────────────────
 const hamburgerEl = document.getElementById('hamburger');
@@ -147,7 +173,7 @@ function showAuthTab(tab) {
     tabSignUp.classList.remove('active');
     
     tabLogin.style.background = 'var(--primary)';
-    tabLogin.style.color = '#051A24';
+    tabLogin.style.color = '#FFFFFF';
     tabLogin.style.fontWeight = '700';
     
     tabSignUp.style.background = 'transparent';
@@ -160,7 +186,7 @@ function showAuthTab(tab) {
     tabSignUp.classList.add('active');
     
     tabSignUp.style.background = 'var(--primary)';
-    tabSignUp.style.color = '#051A24';
+    tabSignUp.style.color = '#FFFFFF';
     tabSignUp.style.fontWeight = '700';
     
     tabLogin.style.background = 'transparent';
@@ -1748,3 +1774,14 @@ const todayDateStr = new Date().toISOString().split('T')[0];
 document.querySelectorAll('input[type="date"]').forEach(d => {
   if (d.id !== 'bkDOB') d.min = todayDateStr;
 });
+
+// ─── FAQ Accordion Helper ─────────────────────────────
+window.toggleFaq = function(btn) {
+  const item = btn.closest('.faq-item');
+  if (!item) return;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+  if (!isOpen) {
+    item.classList.add('open');
+  }
+};
