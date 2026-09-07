@@ -303,6 +303,11 @@ app.post('/api/whatsapp/test-send', async (req, res) => {
   res.json(result);
 });
 
+// Lightweight health/ping endpoint for uptime monitors and keep-alive cron jobs
+app.get(['/ping', '/health', '/api/ping', '/api/health'], (req, res) => {
+  res.status(200).send('OK');
+});
+
 app.use('/', express.static(path.join(__dirname, 'customer_web')));
 app.use('/admin_console', express.static(path.join(__dirname, 'admin_console')));
 app.use('/management_console', express.static(path.join(__dirname, 'management_console')));
@@ -994,6 +999,8 @@ function authenticateToken(req, res, next) {
       }
       session.assignedProperties = String(partner.Assigned_Properties || '').split(',').filter(Boolean);
       session.partnerId = partner.ID;
+      session.name = partner.Name;
+      session.avatar = partner.Avatar || '';
     }
 
     req.user = session;
@@ -1826,6 +1833,96 @@ app.get('/api/partner/properties', authenticateToken, requireRole('partner'), (r
   res.json(merged);
 });
 
+// Create / Register a new property by Partner
+app.post('/api/partner/properties', authenticateToken, requireRole('partner'), (req, res) => {
+  const { name, type, city, address, totalRooms } = req.body;
+  if (!name || !name.trim()) {
+    return res.status(400).json({ error: 'Property Name is required.' });
+  }
+
+  const propertiesData = readExcelDb(propertiesDbPath);
+  let newId = 1;
+  if (propertiesData.length > 0) {
+    newId = Math.max(...propertiesData.map(p => parseInt(p.ID) || 0)) + 1;
+  }
+
+  const rooms = parseInt(totalRooms) || 10;
+  const newProperty = {
+    ID: newId,
+    Name: name.trim(),
+    Location: city ? `${city.trim()}, India` : 'India',
+    Type: type || 'Hotel',
+    Price: 2500,
+    Beds: 1,
+    Baths: 1,
+    Area: 350,
+    Image: 'default.png',
+    Inventory: rooms,
+    Status: 'active',
+    Onboarding_Stage: 'Draft',
+    Address: address ? address.trim() : '',
+    City: city ? city.trim() : '',
+    State: '',
+    Pincode: '',
+    Contact_Person: req.user.name || '',
+    Phone: '',
+    Email: req.user.email || '',
+    Total_Rooms: rooms,
+    Available_Rooms: rooms,
+    Max_Guests: rooms * 2,
+    Date_Added: new Date().toISOString()
+  };
+
+  propertiesData.push(newProperty);
+  writeExcelDb(propertiesDbPath, 'Properties', propertiesData);
+
+  // Update partner's Assigned_Properties
+  const partners = readExcelDb(partnersDbPath);
+  const pIdx = partners.findIndex(p => p.ID === req.user.partnerId);
+  if (pIdx !== -1) {
+    const assignedArr = String(partners[pIdx].Assigned_Properties || '').split(',').filter(Boolean);
+    if (!assignedArr.includes(String(newId))) {
+      assignedArr.push(String(newId));
+      partners[pIdx].Assigned_Properties = assignedArr.join(',');
+      writeExcelDb(partnersDbPath, 'Partners', partners);
+    }
+  }
+
+  // Initialize PartnerMeta
+  const meta = readExcelDb(partnerMetaDbPath);
+  meta.push({
+    Property_ID: newId,
+    Room_Categories: '[]',
+    Inventory: rooms,
+    Amenities: 'Free Wi-Fi,Air Conditioning,Power Backup,Daily Housekeeping',
+    Policies: 'Standard Homzo house rules apply.',
+    Check_In_Out: 'Check-in: 12:00 PM, Check-out: 11:00 AM',
+    Seasonal_Price: 0,
+    Weekend_Price: 0,
+    Discounts: '[]',
+    Blocked_Dates: ''
+  });
+  writeExcelDb(partnerMetaDbPath, 'PartnerMeta', meta);
+
+  logAction(req.user.email, 'partner', 'create_property', `Created new property "${name.trim()}" (ID: ${newId})`, req);
+
+  res.status(201).json({
+    success: true,
+    message: 'Property created successfully! You can now configure its details.',
+    property: {
+      ...newProperty,
+      id: newId,
+      name: newProperty.Name,
+      location: newProperty.Location,
+      type: newProperty.Type,
+      inventory: rooms,
+      amenities: ['Free Wi-Fi', 'Air Conditioning', 'Power Backup', 'Daily Housekeeping'],
+      policies: 'Standard Homzo house rules apply.',
+      checkInOut: 'Check-in: 12:00 PM, Check-out: 11:00 AM'
+    }
+  });
+});
+
 // Update an assigned property
 app.put('/api/partner/properties/:id', authenticateToken, requireRole('partner'), (req, res) => {
   const propId = parseInt(req.params.id);
@@ -1872,6 +1969,37 @@ app.put('/api/partner/properties/:id', authenticateToken, requireRole('partner')
   writeExcelDb(partnerMetaDbPath, 'PartnerMeta', meta);
   logAction(req.user.email, 'partner', 'update_property', `Updated details for property ID ${propId}`, req);
   res.json({ success: true, message: 'Property updated successfully.' });
+});
+
+// Delete a property by Partner
+app.delete('/api/partner/properties/:id', authenticateToken, requireRole('partner'), (req, res) => {
+  const propId = parseInt(req.params.id);
+  if (!req.user.assignedProperties.includes(String(propId))) {
+    return res.status(403).json({ error: 'Access denied: Property not assigned to you.' });
+  }
+
+  // Remove from properties
+  let properties = readExcelDb(propertiesDbPath);
+  properties = properties.filter(p => parseInt(p.ID) !== propId);
+  writeExcelDb(propertiesDbPath, 'Properties', properties);
+
+  // Remove from meta
+  let meta = readExcelDb(partnerMetaDbPath);
+  meta = meta.filter(m => parseInt(m.Property_ID) !== propId);
+  writeExcelDb(partnerMetaDbPath, 'PartnerMeta', meta);
+
+  // Remove from partner Assigned_Properties
+  const partners = readExcelDb(partnersDbPath);
+  const pIdx = partners.findIndex(p => p.ID === req.user.partnerId);
+  if (pIdx !== -1) {
+    let assignedArr = String(partners[pIdx].Assigned_Properties || '').split(',').filter(Boolean);
+    assignedArr = assignedArr.filter(id => id !== String(propId));
+    partners[pIdx].Assigned_Properties = assignedArr.join(',');
+    writeExcelDb(partnersDbPath, 'Partners', partners);
+  }
+
+  logAction(req.user.email, 'partner', 'delete_property', `Deleted property ID ${propId}`, req);
+  res.json({ success: true, message: 'Property deleted successfully.' });
 });
 
 // --- PARTNER ONBOARDING & DOCUMENT UPLOAD SYSTEM ---
@@ -2234,6 +2362,131 @@ app.get('/api/partner/revenue', authenticateToken, requireRole('partner'), (req,
   res.json(ledger);
 });
 
+// ─── PARTNER PERSONAL PROFILE ENDPOINTS ───
+
+// Get Partner Profile
+app.get('/api/partner/profile', authenticateToken, requireRole('partner'), (req, res) => {
+  const partners = readExcelDb(partnersDbPath);
+  const partner = partners.find(p => p.ID === req.user.partnerId);
+  if (!partner) {
+    return res.status(404).json({ error: 'Partner account not found.' });
+  }
+
+  res.json({
+    id: partner.ID,
+    name: partner.Name || '',
+    email: partner.Email || '',
+    phone: partner.Phone || '',
+    alternatePhone: partner.Alternate_Phone || '',
+    avatar: partner.Avatar || '',
+    businessName: partner.Business_Name || '',
+    address: partner.Address || '',
+    city: partner.City || '',
+    state: partner.State || '',
+    pincode: partner.Pincode || '',
+    status: partner.Status || 'active',
+    verificationStatus: partner.Verification_Status || 'pending',
+    dateCreated: partner.Date_Created || ''
+  });
+});
+
+// Update Partner Profile
+app.put('/api/partner/profile', authenticateToken, requireRole('partner'), (req, res) => {
+  const { name, phone, alternatePhone, businessName, address, city, state, pincode, avatar } = req.body;
+  const partners = readExcelDb(partnersDbPath);
+  const idx = partners.findIndex(p => p.ID === req.user.partnerId);
+  if (idx === -1) {
+    return res.status(404).json({ error: 'Partner account not found.' });
+  }
+
+  if (name && name.trim()) partners[idx].Name = name.trim();
+  if (phone !== undefined) partners[idx].Phone = phone.trim();
+  if (alternatePhone !== undefined) partners[idx].Alternate_Phone = alternatePhone.trim();
+  if (businessName !== undefined) partners[idx].Business_Name = businessName.trim();
+  if (address !== undefined) partners[idx].Address = address.trim();
+  if (city !== undefined) partners[idx].City = city.trim();
+  if (state !== undefined) partners[idx].State = state.trim();
+  if (pincode !== undefined) partners[idx].Pincode = pincode.trim();
+  if (avatar !== undefined) partners[idx].Avatar = avatar;
+
+  writeExcelDb(partnersDbPath, 'Partners', partners);
+  logAction(req.user.email, 'partner', 'update_profile', `Updated personal profile for partner ${partners[idx].Email}`, req);
+
+  res.json({
+    success: true,
+    message: 'Profile updated successfully!',
+    user: {
+      id: partners[idx].ID,
+      name: partners[idx].Name,
+      email: partners[idx].Email,
+      phone: partners[idx].Phone,
+      alternatePhone: partners[idx].Alternate_Phone || '',
+      avatar: partners[idx].Avatar || '',
+      businessName: partners[idx].Business_Name || '',
+      address: partners[idx].Address || '',
+      city: partners[idx].City || '',
+      state: partners[idx].State || '',
+      pincode: partners[idx].Pincode || '',
+      verificationStatus: partners[idx].Verification_Status || 'pending'
+    }
+  });
+});
+
+// Upload Partner Avatar / Profile Photo
+app.post('/api/partner/upload-avatar', authenticateToken, requireRole('partner'), (req, res) => {
+  uploadPartnerDoc.single('avatar')(req, res, function (err) {
+    if (err instanceof multer.MulterError) {
+      return res.status(400).json({ error: `Avatar upload error: ${err.message}` });
+    } else if (err) {
+      return res.status(500).json({ error: `Server error: ${err.message}` });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ error: 'No avatar image uploaded.' });
+    }
+
+    const filepath = `/uploads/partner_docs/${req.file.filename}`;
+    const partners = readExcelDb(partnersDbPath);
+    const idx = partners.findIndex(p => p.ID === req.user.partnerId);
+    if (idx !== -1) {
+      partners[idx].Avatar = filepath;
+      writeExcelDb(partnersDbPath, 'Partners', partners);
+      logAction(req.user.email, 'partner', 'upload_avatar', 'Uploaded partner profile photo', req);
+    }
+
+    res.json({ success: true, avatar: filepath, message: 'Profile photo updated successfully!' });
+  });
+});
+
+// Partner Change Password
+app.put('/api/partner/change-password', authenticateToken, requireRole('partner'), (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ error: 'Both current password and new password are required.' });
+  }
+  if (newPassword.length < 6) {
+    return res.status(400).json({ error: 'New password must be at least 6 characters long.' });
+  }
+
+  const partners = readExcelDb(partnersDbPath);
+  const idx = partners.findIndex(p => p.ID === req.user.partnerId);
+  if (idx === -1) {
+    return res.status(404).json({ error: 'Partner account not found.' });
+  }
+
+  if (!verifyPassword(currentPassword, partners[idx].Password)) {
+    return res.status(400).json({ error: 'Current password is incorrect.' });
+  }
+
+  partners[idx].Password = hashPassword(newPassword);
+  writeExcelDb(partnersDbPath, 'Partners', partners);
+  logAction(req.user.email, 'partner', 'change_password', 'Partner changed password from profile', req);
+
+  res.json({ success: true, message: 'Password changed successfully!' });
+});
+
+// ─── PARTNER VERIFICATION & KYC ENDPOINTS ───
+
 // Get verification details
 app.get('/api/partner/verification', authenticateToken, requireRole('partner'), (req, res) => {
   const partners = readExcelDb(partnersDbPath);
@@ -2243,17 +2496,27 @@ app.get('/api/partner/verification', authenticateToken, requireRole('partner'), 
   }
 
   res.json({
-    gst: partner.GST || '',
+    entityType: partner.Entity_Type || 'Individual',
+    aadhaar: partner.Aadhaar || '',
     pan: partner.PAN || '',
+    gst: partner.GST || '',
+    bankName: partner.Bank_Name || '',
+    bankHolder: partner.Bank_Account_Holder || '',
     bankAccount: partner.Bank_Account || '',
     bankIfsc: partner.Bank_IFSC || '',
+    aadhaarDoc: partner.Aadhaar_Doc || '',
+    panDoc: partner.PAN_Doc || '',
+    gstDoc: partner.GST_Doc || '',
+    chequeDoc: partner.Cheque_Doc || '',
+    addressProofDoc: partner.Address_Proof_Doc || '',
+    kycRemarks: partner.KYC_Remarks || '',
     verificationStatus: partner.Verification_Status || 'pending'
   });
 });
 
 // Update verification details
 app.put('/api/partner/verification', authenticateToken, requireRole('partner'), (req, res) => {
-  const { gst, pan, bankAccount, bankIfsc } = req.body;
+  const { entityType, aadhaar, pan, gst, bankName, bankHolder, bankAccount, bankIfsc } = req.body;
 
   const partners = readExcelDb(partnersDbPath);
   const idx = partners.findIndex(p => p.ID === req.user.partnerId);
@@ -2261,28 +2524,82 @@ app.put('/api/partner/verification', authenticateToken, requireRole('partner'), 
     return res.status(404).json({ error: 'Partner not found.' });
   }
 
-  if (gst !== undefined) partners[idx].GST = gst;
-  if (pan !== undefined) partners[idx].PAN = pan;
-  if (bankAccount !== undefined) partners[idx].Bank_Account = bankAccount;
-  if (bankIfsc !== undefined) partners[idx].Bank_IFSC = bankIfsc;
+  if (entityType !== undefined) partners[idx].Entity_Type = entityType;
+  if (aadhaar !== undefined) partners[idx].Aadhaar = aadhaar.trim();
+  if (pan !== undefined) partners[idx].PAN = pan.trim().toUpperCase();
+  if (gst !== undefined) partners[idx].GST = gst.trim().toUpperCase();
+  if (bankName !== undefined) partners[idx].Bank_Name = bankName.trim();
+  if (bankHolder !== undefined) partners[idx].Bank_Account_Holder = bankHolder.trim();
+  if (bankAccount !== undefined) partners[idx].Bank_Account = bankAccount.trim();
+  if (bankIfsc !== undefined) partners[idx].Bank_IFSC = bankIfsc.trim().toUpperCase();
   
+  // Set status to pending review
   partners[idx].Verification_Status = 'pending';
 
   writeExcelDb(partnersDbPath, 'Partners', partners);
-  logAction(req.user.email, 'partner', 'update_verification', 'Updated GST/PAN/Bank details', req);
+  logAction(req.user.email, 'partner', 'update_verification', 'Updated KYC identity and bank details', req);
 
-  res.json({ success: true, message: 'Verification details submitted for approval.' });
+  res.json({ success: true, message: 'KYC details submitted successfully for admin verification.' });
+});
+
+// Upload KYC Document (Partner personal KYC document)
+app.post('/api/partner/upload-kyc-doc', authenticateToken, requireRole('partner'), (req, res) => {
+  uploadPartnerDoc.single('file')(req, res, function (err) {
+    if (err instanceof multer.MulterError) {
+      return res.status(400).json({ error: `File upload error: ${err.message}` });
+    } else if (err) {
+      return res.status(500).json({ error: `Server error: ${err.message}` });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded.' });
+    }
+
+    const docType = req.query.docType;
+    const partners = readExcelDb(partnersDbPath);
+    const idx = partners.findIndex(p => p.ID === req.user.partnerId);
+    if (idx === -1) {
+      return res.status(404).json({ error: 'Partner not found.' });
+    }
+
+    const filepath = `/uploads/partner_docs/${req.file.filename}`;
+
+    switch (docType) {
+      case 'aadhaar':
+        partners[idx].Aadhaar_Doc = filepath;
+        break;
+      case 'pan':
+        partners[idx].PAN_Doc = filepath;
+        break;
+      case 'gst':
+        partners[idx].GST_Doc = filepath;
+        break;
+      case 'cheque':
+        partners[idx].Cheque_Doc = filepath;
+        break;
+      case 'addressProof':
+        partners[idx].Address_Proof_Doc = filepath;
+        break;
+      default:
+        return res.status(400).json({ error: 'Invalid document type.' });
+    }
+
+    writeExcelDb(partnersDbPath, 'Partners', partners);
+    logAction(req.user.email, 'partner', 'upload_kyc_doc', `Uploaded ${docType} KYC document`, req);
+    res.json({ success: true, filepath, docType, message: 'Document uploaded successfully!' });
+  });
 });
 
 // Get tickets
 app.get('/api/partner/tickets', authenticateToken, requireRole('partner'), (req, res) => {
-  const tickets = readExcelDb(ticketsDbPath).filter(t => t.Partner_Email.toLowerCase() === req.user.email.toLowerCase());
+  const tickets = readExcelDb(ticketsDbPath).filter(t => t.Partner_Email && t.Partner_Email.toLowerCase() === req.user.email.toLowerCase());
   res.json(tickets.map(t => ({
     id: t.ID,
     subject: t.Subject,
     category: t.Category,
+    priority: t.Priority || 'Normal',
     message: t.Message,
-    status: t.Status,
+    status: t.Status || 'open',
     reply: t.Reply || '',
     dateCreated: t.Date_Created
   })));
@@ -2290,7 +2607,7 @@ app.get('/api/partner/tickets', authenticateToken, requireRole('partner'), (req,
 
 // Create ticket
 app.post('/api/partner/tickets', authenticateToken, requireRole('partner'), (req, res) => {
-  const { subject, category, message } = req.body;
+  const { subject, category, message, priority } = req.body;
   if (!subject || !category || !message) {
     return res.status(400).json({ error: 'Subject, category, and message are required.' });
   }
@@ -2304,9 +2621,10 @@ app.post('/api/partner/tickets', authenticateToken, requireRole('partner'), (req
   const newTicket = {
     ID: newId,
     Partner_Email: req.user.email,
-    Subject: subject,
-    Category: category,
-    Message: message,
+    Subject: subject.trim(),
+    Category: category.trim(),
+    Priority: priority ? priority.trim() : 'Normal',
+    Message: message.trim(),
     Status: 'open',
     Reply: '',
     Date_Created: new Date().toISOString()
@@ -2315,8 +2633,22 @@ app.post('/api/partner/tickets', authenticateToken, requireRole('partner'), (req
   tickets.push(newTicket);
   writeExcelDb(ticketsDbPath, 'Tickets', tickets);
 
-  logAction(req.user.email, 'partner', 'create_ticket', `Raised support ticket ID ${newId}`, req);
-  res.status(201).json({ success: true, ticketId: newId });
+  logAction(req.user.email, 'partner', 'create_ticket', `Raised support ticket ID #${newId}: ${subject}`, req);
+  res.status(201).json({ success: true, ticketId: newId, message: 'Support ticket submitted successfully!' });
+});
+
+// Mark ticket as resolved by partner
+app.put('/api/partner/tickets/:id/resolve', authenticateToken, requireRole('partner'), (req, res) => {
+  const ticketId = parseInt(req.params.id);
+  const tickets = readExcelDb(ticketsDbPath);
+  const idx = tickets.findIndex(t => parseInt(t.ID) === ticketId && t.Partner_Email.toLowerCase() === req.user.email.toLowerCase());
+  if (idx === -1) {
+    return res.status(404).json({ error: 'Ticket not found.' });
+  }
+
+  tickets[idx].Status = 'resolved';
+  writeExcelDb(ticketsDbPath, 'Tickets', tickets);
+  res.json({ success: true, message: 'Ticket marked as resolved.' });
 });
 
 // Get notifications
