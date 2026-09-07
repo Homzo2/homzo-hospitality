@@ -104,13 +104,34 @@ function showPortalView() {
   document.getElementById('partnerLayout').style.display = 'flex';
   
   // Update Header details
-  document.getElementById('partnerName').textContent = currentUser.name || 'Property Partner';
-  document.getElementById('partnerAvatar').textContent = (currentUser.name || 'P').charAt(0).toUpperCase();
-  document.getElementById('welcomeHeader').innerHTML = `Welcome back, ${currentUser.name || 'Partner'}! 👋`;
+  updatePartnerUiDetails(currentUser.name, currentUser.avatar);
   
   // Init data loading
   switchPage('dashboard');
   loadNotifications();
+}
+
+function updatePartnerUiDetails(name, avatar) {
+  const dispName = name || 'Partner';
+  const nameEl = document.getElementById('partnerName');
+  if (nameEl) nameEl.textContent = dispName;
+  
+  const topbarProfile = document.getElementById('topbarProfileName');
+  if (topbarProfile) topbarProfile.textContent = dispName;
+  
+  const avEl = document.getElementById('partnerAvatar');
+  if (avEl) {
+    if (avatar) {
+      avEl.innerHTML = `<img src="${avatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+    } else {
+      avEl.textContent = dispName.charAt(0).toUpperCase();
+    }
+  }
+
+  const welcomeEl = document.getElementById('welcomeHeader');
+  if (welcomeEl) {
+    welcomeEl.innerHTML = `Welcome back, ${dispName}! 👋`;
+  }
 }
 
 // ─── Tab Navigation ──────────────────────────────────
@@ -127,6 +148,7 @@ function switchPage(name) {
   
   // Load data based on page
   if (name === 'dashboard') loadDashboardData();
+  if (name === 'profile') loadProfileData();
   if (name === 'properties') loadPropertiesData();
   if (name === 'pricing') loadPricingPageData();
   if (name === 'bookings') loadBookingsData();
@@ -513,30 +535,152 @@ function setupEventListeners() {
     });
   }
 
+  // Partner Profile Form Submit
+  const partnerProfileForm = document.getElementById('partnerProfileForm');
+  if (partnerProfileForm) {
+    partnerProfileForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const saveBtn = document.getElementById('saveProfileBtn');
+      const origText = saveBtn ? saveBtn.innerHTML : '';
+      if (saveBtn) {
+        saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+        saveBtn.disabled = true;
+      }
+
+      const payload = {
+        name: document.getElementById('profName').value.trim(),
+        businessName: document.getElementById('profBusinessName').value.trim(),
+        phone: document.getElementById('profPhone').value.trim(),
+        alternatePhone: document.getElementById('profAlternatePhone').value.trim(),
+        pincode: document.getElementById('profPincode').value.trim(),
+        address: document.getElementById('profAddress').value.trim(),
+        city: document.getElementById('profCity').value.trim(),
+        state: document.getElementById('profState').value.trim()
+      };
+
+      try {
+        const res = await fetch(`${API_BASE}/partner/profile`, {
+          method: 'PUT',
+          headers: getHeaders(),
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          showToast(data.message || 'Profile updated successfully!', 'success');
+          currentUser.name = payload.name;
+          updatePartnerUiDetails(payload.name, currentUser.avatar);
+          loadProfileData();
+        } else {
+          const err = await res.json();
+          showToast(err.error || 'Failed to update profile.', 'error');
+        }
+      } catch (err) {
+        showToast('Connection error updating profile.', 'error');
+      } finally {
+        if (saveBtn) {
+          saveBtn.innerHTML = origText;
+          saveBtn.disabled = false;
+        }
+      }
+    });
+  }
+
+  // Password Change Form Submit
+  const partnerPasswordForm = document.getElementById('partnerPasswordForm');
+  if (partnerPasswordForm) {
+    partnerPasswordForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const currentPassword = document.getElementById('currPassword').value;
+      const newPassword = document.getElementById('newPassword').value;
+      const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+
+      if (newPassword !== confirmNewPassword) {
+        showToast('New passwords do not match.', 'error');
+        return;
+      }
+      if (newPassword.length < 6) {
+        showToast('Password must be at least 6 characters long.', 'error');
+        return;
+      }
+
+      const updateBtn = document.getElementById('updatePasswordBtn');
+      const origText = updateBtn ? updateBtn.innerHTML : '';
+      if (updateBtn) {
+        updateBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Updating...';
+        updateBtn.disabled = true;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/partner/change-password`, {
+          method: 'PUT',
+          headers: getHeaders(),
+          body: JSON.stringify({ currentPassword, newPassword })
+        });
+
+        if (res.ok) {
+          showToast('Password changed successfully!', 'success');
+          document.getElementById('currPassword').value = '';
+          document.getElementById('newPassword').value = '';
+          document.getElementById('confirmNewPassword').value = '';
+        } else {
+          const err = await res.json();
+          showToast(err.error || 'Failed to update password.', 'error');
+        }
+      } catch (err) {
+        showToast('Connection error changing password.', 'error');
+      } finally {
+        if (updateBtn) {
+          updateBtn.innerHTML = origText;
+          updateBtn.disabled = false;
+        }
+      }
+    });
+  }
+
   // KYC details form submit
   const kycDetailsForm = document.getElementById('kycDetailsForm');
   if (kycDetailsForm) {
     kycDetailsForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const gst = document.getElementById('kycGst').value.trim();
-      const pan = document.getElementById('kycPan').value.trim();
-      const bankAccount = document.getElementById('kycAccount').value.trim();
-      const bankIfsc = document.getElementById('kycIfsc').value.trim();
+      const saveBtn = document.getElementById('saveKycDetailsBtn');
+      const origText = saveBtn ? saveBtn.innerHTML : '';
+      if (saveBtn) {
+        saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+        saveBtn.disabled = true;
+      }
+
+      const payload = {
+        entityType: document.getElementById('kycEntityType').value,
+        aadhaar: document.getElementById('kycAadhaar').value.trim(),
+        pan: document.getElementById('kycPan').value.trim().toUpperCase(),
+        gst: document.getElementById('kycGst').value.trim().toUpperCase(),
+        bankHolder: document.getElementById('kycBankHolder').value.trim(),
+        bankName: document.getElementById('kycBankName').value.trim(),
+        bankAccount: document.getElementById('kycAccount').value.trim(),
+        bankIfsc: document.getElementById('kycIfsc').value.trim().toUpperCase()
+      };
 
       try {
         const res = await fetch(`${API_BASE}/partner/verification`, {
           method: 'PUT',
           headers: getHeaders(),
-          body: JSON.stringify({ gst, pan, bankAccount, bankIfsc })
+          body: JSON.stringify(payload)
         });
         if (res.ok) {
-          showToast('Verification KYC details submitted successfully!', 'success');
+          showToast('Verification KYC details submitted successfully for admin review!', 'success');
           loadVerificationData();
         } else {
-          showToast('Failed to save details.', 'error');
+          const err = await res.json();
+          showToast(err.error || 'Failed to save KYC details.', 'error');
         }
       } catch (err) {
         showToast('Server KYC update error.', 'error');
+      } finally {
+        if (saveBtn) {
+          saveBtn.innerHTML = origText;
+          saveBtn.disabled = false;
+        }
       }
     });
   }
@@ -548,24 +692,38 @@ function setupEventListeners() {
       e.preventDefault();
       const subject = document.getElementById('ticketSubject').value.trim();
       const category = document.getElementById('ticketCategory').value;
+      const priorityEl = document.getElementById('ticketPriority');
+      const priority = priorityEl ? priorityEl.value : 'Normal';
       const message = document.getElementById('ticketMessage').value.trim();
+
+      const submitBtn = document.getElementById('btnSubmitTicket') || ticketForm.querySelector('button[type="submit"]');
+      const originalBtnText = submitBtn ? submitBtn.innerHTML : '';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+      }
 
       try {
         const res = await fetch(`${API_BASE}/partner/tickets`, {
           method: 'POST',
           headers: getHeaders(),
-          body: JSON.stringify({ subject, category, message })
+          body: JSON.stringify({ subject, category, priority, message })
         });
-        if (res.ok) {
-          showToast('Support ticket raised successfully!', 'success');
-          document.getElementById('ticketSubject').value = '';
-          document.getElementById('ticketMessage').value = '';
-          loadSupportTickets();
+        const data = await res.json();
+        if (res.ok && data.success) {
+          showToast('Support ticket raised successfully! Our team will respond shortly.', 'success');
+          ticketForm.reset();
+          await loadSupportTickets();
         } else {
-          showToast('Failed to raise ticket.', 'error');
+          showToast(data.error || 'Failed to raise ticket.', 'error');
         }
       } catch (err) {
         showToast('Support server error.', 'error');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalBtnText;
+        }
       }
     });
   }
@@ -689,9 +847,14 @@ async function loadPropertiesData() {
     const listContainer = document.getElementById('partnerPropList');
     if (currentProperties.length > 0) {
       listContainer.innerHTML = currentProperties.map(p => `
-        <button class="sidebar-link" style="width:100%; text-align:left; border:1px solid var(--border); border-radius:var(--radius-sm); background:${selectedPropertyId === p.id ? 'var(--primary-glow)' : 'none'}; color:${selectedPropertyId === p.id ? 'var(--primary)' : 'var(--text-primary)'}; margin-bottom:6px;" onclick="selectProperty(${p.id})">
-          <i class="fa-solid fa-hotel"></i> ${p.name}
-        </button>`).join('');
+        <div style="display:flex; align-items:center; gap:4px; margin-bottom:6px;">
+          <button class="sidebar-link" style="flex:1; text-align:left; border:1px solid var(--border); border-radius:var(--radius-sm); background:${selectedPropertyId === p.id ? 'var(--primary-glow)' : 'none'}; color:${selectedPropertyId === p.id ? 'var(--primary)' : 'var(--text-primary)'}; margin:0;" onclick="selectProperty(${p.id})">
+            <i class="fa-solid fa-hotel"></i> ${p.name}
+          </button>
+          <button type="button" class="btn btn-ghost btn-sm" title="Delete this property" onclick="deletePartnerProperty(event, ${p.id}, '${p.name.replace(/'/g, "\\'")}')" style="padding:6px 8px; color:var(--danger); border-radius:var(--radius-sm); background:rgba(239,68,68,0.06);">
+            <i class="fa-solid fa-trash-can" style="font-size:0.75rem;"></i>
+          </button>
+        </div>`).join('');
         
       if (!selectedPropertyId) {
         selectProperty(currentProperties[0].id);
@@ -699,14 +862,116 @@ async function loadPropertiesData() {
         selectProperty(selectedPropertyId);
       }
     } else {
-      listContainer.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:0.8rem;">No properties assigned. Contact Homzo admin.</div>`;
+      listContainer.innerHTML = `
+        <div style="text-align:center; padding:16px 8px; color:var(--text-muted); font-size:0.8rem;">
+          <p style="margin-bottom:10px;">No properties added yet.</p>
+          <button type="button" class="btn btn-primary btn-sm" onclick="openAddPropertyModal()" style="font-size:0.75rem; width:100%; justify-content:center; display:flex; align-items:center; gap:6px;">
+            <i class="fa-solid fa-plus"></i> Add Property
+          </button>
+        </div>`;
       document.getElementById('propDetailsEditor').style.display = 'none';
       document.getElementById('noPropSelected').style.display = 'flex';
+      selectedPropertyId = null;
     }
   } catch (err) {
     console.error(err);
   }
 }
+
+// ─── Modal & Add Property Handlers ──────────────────
+window.openAddPropertyModal = function() {
+  const modal = document.getElementById('addPropertyModal');
+  if (modal) {
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    const nameInput = document.getElementById('newPropName');
+    if (nameInput) setTimeout(() => nameInput.focus(), 100);
+  }
+};
+
+window.closeAddPropertyModal = function() {
+  const modal = document.getElementById('addPropertyModal');
+  if (modal) {
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+};
+
+window.handleAddNewProperty = async function(event) {
+  if (event) event.preventDefault();
+  const name = document.getElementById('newPropName').value.trim();
+  const type = document.getElementById('newPropType').value;
+  const city = document.getElementById('newPropCity').value.trim();
+  const totalRooms = parseInt(document.getElementById('newPropRooms').value) || 10;
+  const address = document.getElementById('newPropAddress').value.trim();
+
+  if (!name) {
+    showToast('Please enter property name', 'error');
+    return;
+  }
+  if (totalRooms < 5) {
+    showToast("Homzo requires a minimum of 5 rentable rooms", 'error');
+    return;
+  }
+
+  const btn = document.getElementById('btnSubmitNewProp');
+  const originalHtml = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating...';
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/partner/properties`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ name, type, city, address, totalRooms })
+    });
+
+    const data = await res.json();
+    if (res.ok && data.success) {
+      showToast('Property created successfully! Opening configuration...', 'success');
+      closeAddPropertyModal();
+      document.getElementById('addPropertyForm').reset();
+      selectedPropertyId = (data.property && (data.property.id || data.property.ID)) || data.id;
+      await loadPropertiesData();
+      if (typeof switchWzStep === 'function') switchWzStep(1);
+    } else {
+      showToast(data.error || 'Failed to create property.', 'error');
+    }
+  } catch (err) {
+    console.error(err);
+    showToast('Network error while creating property.', 'error');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalHtml;
+    }
+  }
+};
+
+window.deletePartnerProperty = async function(event, id, name) {
+  if (event) event.stopPropagation();
+  if (!confirm(`Are you sure you want to delete "${name}" from your account?`)) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/partner/properties/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      showToast('Property deleted successfully.', 'success');
+      if (selectedPropertyId === id) selectedPropertyId = null;
+      await loadPropertiesData();
+    } else {
+      showToast(data.error || 'Failed to delete property.', 'error');
+    }
+  } catch (err) {
+    console.error(err);
+    showToast('Network error while deleting property.', 'error');
+  }
+};
 
 function selectProperty(id) {
   selectedPropertyId = id;
@@ -1124,45 +1389,248 @@ window.updateBooking = async function(id, status) {
 }
 
 // ─── Revenue Disbursement Loader ────────────────────
+let partnerRevenueLedger = [];
+
+function getNextPayoutDate() {
+  const now = new Date();
+  const y = now.getFullYear(), m = now.getMonth(), d = now.getDate();
+  let target;
+  if (d <= 10) {
+    target = new Date(y, m, 10);
+  } else if (d <= 25) {
+    target = new Date(y, m, 25);
+  } else {
+    target = new Date(y, m + 1, 10);
+  }
+  return target.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
 async function loadRevenueData() {
   try {
+    const nextPayoutEl = document.getElementById('nextPayoutDate');
+    if (nextPayoutEl) nextPayoutEl.textContent = getNextPayoutDate();
+
     const res = await fetch(`${API_BASE}/partner/revenue`, { headers: getHeaders() });
     if (!res.ok) return;
-    const ledger = await res.json();
+    partnerRevenueLedger = await res.json();
+    if (!Array.isArray(partnerRevenueLedger)) partnerRevenueLedger = [];
 
     let gross = 0;
     let commission = 0;
     let net = 0;
 
-    const tbody = document.getElementById('revenueTbody');
-    if (ledger.length > 0) {
-      tbody.innerHTML = ledger.map(item => {
-        gross += item.amount;
-        commission += item.commission;
-        net += item.netPayout;
+    partnerRevenueLedger.forEach(item => {
+      gross += Number(item.amount || 0);
+      commission += Number(item.commission || 0);
+      net += Number(item.netPayout || 0);
+    });
 
-        return `
-          <tr>
-            <td style="font-weight:700; color:var(--primary);">${item.bookingId}</td>
-            <td><strong>${item.guestName}</strong></td>
-            <td>₹${item.amount.toLocaleString()}</td>
-            <td style="color:var(--danger);">₹${item.commission.toLocaleString()}</td>
-            <td style="color:var(--success); font-weight:700;">₹${item.netPayout.toLocaleString()}</td>
-            <td>${new Date(item.date).toLocaleDateString()}</td>
-            <td><span class="badge badge-success">${item.status}</span></td>
-          </tr>`;
-      }).join('');
-    } else {
-      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted);">No processed payouts yet.</td></tr>`;
-    }
+    const grossEl = document.getElementById('payoutGross');
+    const commEl = document.getElementById('payoutCommission');
+    const netEl = document.getElementById('payoutNet');
 
-    document.getElementById('payoutGross').textContent = '₹' + gross.toLocaleString();
-    document.getElementById('payoutCommission').textContent = '₹' + commission.toLocaleString();
-    document.getElementById('payoutNet').textContent = '₹' + net.toLocaleString();
+    if (grossEl) grossEl.textContent = '₹' + gross.toLocaleString();
+    if (commEl) commEl.textContent = '₹' + commission.toLocaleString();
+    if (netEl) netEl.textContent = '₹' + net.toLocaleString();
+
+    renderRevenueLedger(partnerRevenueLedger);
   } catch (err) {
-    console.error(err);
+    console.error('Error loading partner revenue:', err);
   }
 }
+
+function renderRevenueLedger(records) {
+  const tbody = document.getElementById('revenueTbody');
+  if (!tbody) return;
+
+  const countBadge = document.getElementById('ledgerCountBadge');
+  if (countBadge) {
+    countBadge.textContent = `${records.length} ${records.length === 1 ? 'record' : 'records'}`;
+  }
+
+  if (!records || records.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 24px; color:var(--text-muted);"><i class="fa-solid fa-receipt" style="font-size:1.5rem; display:block; margin-bottom:8px; opacity:0.4;"></i>No payout transactions found.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = records.map(item => `
+    <tr>
+      <td style="font-weight:700; color:var(--primary);">${item.bookingId || '—'}</td>
+      <td><strong>${item.guestName || 'Guest'}</strong></td>
+      <td>₹${Number(item.amount || 0).toLocaleString()}</td>
+      <td style="color:var(--danger); font-weight:600;">₹${Number(item.commission || 0).toLocaleString()}</td>
+      <td style="color:var(--success); font-weight:700;">₹${Number(item.netPayout || 0).toLocaleString()}</td>
+      <td>${item.date ? new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}</td>
+      <td><span class="badge badge-success" style="font-size:0.75rem; padding: 4px 10px;"><i class="fa-solid fa-check-circle" style="font-size:0.7rem; margin-right:4px;"></i>${item.status || 'Settled'}</span></td>
+    </tr>
+  `).join('');
+}
+
+function filterLedgerTable() {
+  const q = (document.getElementById('ledgerSearchInput')?.value || '').toLowerCase().trim();
+  if (!q) {
+    renderRevenueLedger(partnerRevenueLedger);
+    return;
+  }
+  const filtered = partnerRevenueLedger.filter(item => 
+    (item.bookingId && item.bookingId.toLowerCase().includes(q)) ||
+    (item.guestName && item.guestName.toLowerCase().includes(q))
+  );
+  renderRevenueLedger(filtered);
+}
+
+function exportLedgerCsv() {
+  if (!partnerRevenueLedger || partnerRevenueLedger.length === 0) {
+    showToast('No payout transactions available to export.', 'info');
+    return;
+  }
+  const headers = ['Booking Ref', 'Guest Name', 'Amount Received', 'Homzo Fee (15%)', 'Net Payout Value', 'Date Processed', 'Status'];
+  const rows = partnerRevenueLedger.map(item => [
+    `"${item.bookingId || ''}"`,
+    `"${(item.guestName || '').replace(/"/g, '""')}"`,
+    item.amount || 0,
+    item.commission || 0,
+    item.netPayout || 0,
+    `"${item.date || ''}"`,
+    `"${item.status || 'Settled'}"`
+  ]);
+  const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement('a');
+  link.setAttribute('href', encodedUri);
+  link.setAttribute('download', `homzo_payouts_ledger_${new Date().toISOString().slice(0,10)}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showToast('Payout ledger exported successfully.', 'success');
+}
+
+// ─── Personal Profile Loader ───────────────────────────
+async function loadProfileData() {
+  try {
+    const res = await fetch(`${API_BASE}/partner/profile`, { headers: getHeaders() });
+    if (!res.ok) return;
+    const p = await res.json();
+
+    // Populate form inputs
+    if (document.getElementById('profName')) document.getElementById('profName').value = p.name || '';
+    if (document.getElementById('profBusinessName')) document.getElementById('profBusinessName').value = p.businessName || '';
+    if (document.getElementById('profEmail')) document.getElementById('profEmail').value = p.email || '';
+    if (document.getElementById('profPhone')) document.getElementById('profPhone').value = p.phone || '';
+    if (document.getElementById('profAlternatePhone')) document.getElementById('profAlternatePhone').value = p.alternatePhone || '';
+    if (document.getElementById('profPincode')) document.getElementById('profPincode').value = p.pincode || '';
+    if (document.getElementById('profAddress')) document.getElementById('profAddress').value = p.address || '';
+    if (document.getElementById('profCity')) document.getElementById('profCity').value = p.city || '';
+    if (document.getElementById('profState')) document.getElementById('profState').value = p.state || '';
+
+    // Update Hero Card details
+    if (document.getElementById('heroProfileName')) document.getElementById('heroProfileName').textContent = p.name || 'Partner';
+    if (document.getElementById('heroProfileEmail')) document.getElementById('heroProfileEmail').textContent = p.email || '';
+    if (document.getElementById('heroProfilePhone')) document.getElementById('heroProfilePhone').textContent = p.phone || 'Not added';
+    if (document.getElementById('heroPartnerId')) document.getElementById('heroPartnerId').textContent = '#' + (p.id || '1');
+    if (document.getElementById('heroMemberSince')) {
+      document.getElementById('heroMemberSince').textContent = p.dateCreated ? new Date(p.dateCreated).toLocaleDateString(undefined, { year: 'numeric', month: 'short' }) : '2026';
+    }
+
+    // Update state and UI
+    currentUser.name = p.name;
+    currentUser.avatar = p.avatar;
+    updatePartnerUiDetails(p.name, p.avatar);
+
+    const img = document.getElementById('profilePhotoImg');
+    const initial = document.getElementById('profilePhotoInitial');
+    if (img && initial) {
+      if (p.avatar) {
+        img.src = p.avatar;
+        img.style.display = 'block';
+        initial.style.display = 'none';
+      } else {
+        img.style.display = 'none';
+        initial.style.display = 'inline';
+        initial.textContent = (p.name || 'P').charAt(0).toUpperCase();
+      }
+    }
+
+    // Status Badges
+    const kycStatus = (p.verificationStatus || 'pending').toUpperCase();
+    const heroKycBadge = document.getElementById('heroKycBadge');
+    const cardKycStatusText = document.getElementById('cardKycStatusText');
+    const sidebarKycBadge = document.getElementById('sidebarKycBadge');
+    const verificationBadge = document.getElementById('verificationStatusBadge');
+
+    if (heroKycBadge) {
+      heroKycBadge.textContent = 'KYC ' + kycStatus;
+      if (kycStatus === 'VERIFIED') {
+        heroKycBadge.style.background = 'rgba(34,197,94,0.15)';
+        heroKycBadge.style.color = 'var(--success)';
+      } else if (kycStatus === 'REJECTED') {
+        heroKycBadge.style.background = 'rgba(239,68,68,0.15)';
+        heroKycBadge.style.color = 'var(--danger)';
+      } else {
+        heroKycBadge.style.background = 'rgba(245,158,11,0.15)';
+        heroKycBadge.style.color = 'var(--warning)';
+      }
+    }
+
+    if (cardKycStatusText) {
+      cardKycStatusText.textContent = kycStatus;
+      cardKycStatusText.style.color = kycStatus === 'VERIFIED' ? 'var(--success)' : (kycStatus === 'REJECTED' ? 'var(--danger)' : 'var(--warning)');
+    }
+
+    if (sidebarKycBadge) {
+      sidebarKycBadge.textContent = kycStatus;
+      sidebarKycBadge.className = `badge badge-sm badge-${kycStatus === 'VERIFIED' ? 'success' : (kycStatus === 'REJECTED' ? 'danger' : 'warning')}`;
+    }
+
+    if (verificationBadge) {
+      verificationBadge.textContent = 'KYC ' + kycStatus;
+      verificationBadge.style.color = kycStatus === 'VERIFIED' ? 'var(--success)' : (kycStatus === 'REJECTED' ? 'var(--danger)' : 'var(--warning)');
+    }
+  } catch (err) {
+    console.error('Error loading partner profile:', err);
+  }
+}
+
+// Upload Avatar / Profile Photo
+window.handleAvatarUpload = async function(input) {
+  if (!input || !input.files || !input.files[0]) return;
+  const file = input.files[0];
+
+  const formData = new FormData();
+  formData.append('avatar', file);
+
+  showToast('Uploading profile picture...', 'info');
+
+  try {
+    const res = await fetch(`${API_BASE}/partner/upload-avatar`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${sessionToken}`
+      },
+      body: formData
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      showToast('Profile picture updated successfully!', 'success');
+      currentUser.avatar = data.avatar;
+      updatePartnerUiDetails(currentUser.name, data.avatar);
+      
+      const img = document.getElementById('profilePhotoImg');
+      const initial = document.getElementById('profilePhotoInitial');
+      if (img && initial) {
+        img.src = data.avatar;
+        img.style.display = 'block';
+        initial.style.display = 'none';
+      }
+    } else {
+      const err = await res.json();
+      showToast(err.error || 'Failed to upload photo.', 'error');
+    }
+  } catch (err) {
+    showToast('Network error uploading avatar.', 'error');
+  }
+};
 
 // ─── Verification & KYC Loader ──────────────────────
 async function loadVerificationData() {
@@ -1171,48 +1639,201 @@ async function loadVerificationData() {
     if (!res.ok) return;
     const kyc = await res.json();
 
-    document.getElementById('kycGst').value = kyc.gst;
-    document.getElementById('kycPan').value = kyc.pan;
-    document.getElementById('kycAccount').value = kyc.bankAccount;
-    document.getElementById('kycIfsc').value = kyc.bankIfsc;
+    if (document.getElementById('kycEntityType')) document.getElementById('kycEntityType').value = kyc.entityType || 'Individual';
+    if (document.getElementById('kycAadhaar')) document.getElementById('kycAadhaar').value = kyc.aadhaar || '';
+    if (document.getElementById('kycPan')) document.getElementById('kycPan').value = kyc.pan || '';
+    if (document.getElementById('kycGst')) document.getElementById('kycGst').value = kyc.gst || '';
+    if (document.getElementById('kycBankHolder')) document.getElementById('kycBankHolder').value = kyc.bankHolder || '';
+    if (document.getElementById('kycBankName')) document.getElementById('kycBankName').value = kyc.bankName || '';
+    if (document.getElementById('kycAccount')) document.getElementById('kycAccount').value = kyc.bankAccount || '';
+    if (document.getElementById('kycIfsc')) document.getElementById('kycIfsc').value = kyc.bankIfsc || '';
+
+    // Verify name match
+    verifyKycBankNameMatch();
+
+    // Documents status
+    updateKycDocLabel('lblKycAadhaar', kyc.aadhaarDoc);
+    updateKycDocLabel('lblKycPan', kyc.panDoc);
+    updateKycDocLabel('lblKycGst', kyc.gstDoc);
+    updateKycDocLabel('lblKycCheque', kyc.chequeDoc);
+    updateKycDocLabel('lblKycAddressProof', kyc.addressProofDoc);
 
     // Badges update
+    const status = (kyc.verificationStatus || 'pending').toLowerCase();
     const badge = document.getElementById('verificationStatusBadge');
-    const banner = document.getElementById('kycBanner');
-    
-    badge.textContent = 'KYC ' + kyc.verificationStatus.toUpperCase();
-    
-    if (kyc.verificationStatus === 'verified') {
-      badge.style.color = 'var(--success)';
-      badge.style.borderColor = 'rgba(34,197,94,0.3)';
-      banner.style.display = 'none';
-      
-      document.getElementById('gstDocStatus').textContent = 'Status: Approved & Verified';
-      document.getElementById('panDocStatus').textContent = 'Status: Approved & Verified';
-      document.getElementById('deedDocStatus').textContent = 'Status: Approved & Verified';
-    } else if (kyc.verificationStatus === 'rejected') {
-      badge.style.color = 'var(--danger)';
-      badge.style.borderColor = 'rgba(239,68,68,0.3)';
-      banner.style.display = 'flex';
-      banner.className = 'verification-banner rejected';
-      banner.querySelector('strong').textContent = 'KYC Submission Rejected';
-      banner.querySelector('span').textContent = 'Your documents were rejected. Please update your details and re-upload scans.';
+    const headerBadge = document.getElementById('kycHeaderBadge');
+    const dashBanner = document.getElementById('kycBanner');
+    const centerBanner = document.getElementById('kycCenterStatusBanner');
+    const centerIcon = document.getElementById('kycCenterIcon');
+    const centerTitle = document.getElementById('kycCenterBannerTitle');
+    const centerDesc = document.getElementById('kycCenterBannerDesc');
+    const sidebarKycBadge = document.getElementById('sidebarKycBadge');
+
+    if (badge) {
+      badge.textContent = 'KYC ' + status.toUpperCase();
+    }
+    if (headerBadge) {
+      headerBadge.textContent = status.toUpperCase();
+    }
+    if (sidebarKycBadge) {
+      sidebarKycBadge.textContent = status.toUpperCase();
+      sidebarKycBadge.className = `badge badge-sm badge-${status === 'verified' ? 'success' : (status === 'rejected' ? 'danger' : 'warning')}`;
+    }
+
+    if (status === 'verified') {
+      if (badge) {
+        badge.style.color = 'var(--success)';
+        badge.style.borderColor = 'rgba(34,197,94,0.3)';
+      }
+      if (headerBadge) {
+        headerBadge.style.background = 'rgba(34,197,94,0.15)';
+        headerBadge.style.color = 'var(--success)';
+        headerBadge.innerHTML = '<i class="fa-solid fa-circle-check"></i> VERIFIED &amp; ACTIVE';
+      }
+      if (dashBanner) dashBanner.style.display = 'none';
+
+      if (centerBanner) {
+        centerBanner.className = 'verification-banner verified';
+        if (centerIcon) centerIcon.innerHTML = '<i class="fa-solid fa-circle-check" style="color:var(--success);"></i>';
+        if (centerTitle) centerTitle.textContent = 'KYC Approved &amp; Verified!';
+        if (centerDesc) centerDesc.textContent = 'Your identity, compliance documents, and bank details have been verified by Homzo. Automatic booking payouts are enabled.';
+      }
+    } else if (status === 'rejected') {
+      if (badge) {
+        badge.style.color = 'var(--danger)';
+        badge.style.borderColor = 'rgba(239,68,68,0.3)';
+      }
+      if (headerBadge) {
+        headerBadge.style.background = 'rgba(239,68,68,0.15)';
+        headerBadge.style.color = 'var(--danger)';
+        headerBadge.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> CORRECTION REQUIRED';
+      }
+      if (dashBanner) {
+        dashBanner.style.display = 'flex';
+        dashBanner.className = 'verification-banner rejected';
+        dashBanner.querySelector('strong').textContent = 'KYC Submission Rejected';
+        dashBanner.querySelector('span').textContent = kyc.kycRemarks || 'Your KYC documents require correction. Please update details and re-upload files.';
+      }
+
+      if (centerBanner) {
+        centerBanner.className = 'verification-banner rejected';
+        if (centerIcon) centerIcon.innerHTML = '<i class="fa-solid fa-circle-xmark" style="color:var(--danger);"></i>';
+        if (centerTitle) centerTitle.textContent = 'KYC Correction Needed';
+        if (centerDesc) centerDesc.textContent = kyc.kycRemarks || 'Admin has requested corrections on your details or documents. Please review and re-submit.';
+      }
     } else {
-      badge.style.color = 'var(--warning)';
-      badge.style.borderColor = 'rgba(245,158,11,0.3)';
-      banner.style.display = 'flex';
-      
-      if (kyc.gst || kyc.pan) {
-        banner.className = 'verification-banner';
-        banner.querySelector('strong').textContent = 'KYC Review In Progress';
-        banner.querySelector('span').textContent = 'Your documents are being reviewed by the Super Admin team. Automatic transfers are locked.';
-        banner.querySelector('button').style.display = 'none';
+      // Pending
+      if (badge) {
+        badge.style.color = 'var(--warning)';
+        badge.style.borderColor = 'rgba(245,158,11,0.3)';
+      }
+      if (headerBadge) {
+        headerBadge.style.background = 'rgba(245,158,11,0.15)';
+        headerBadge.style.color = 'var(--warning)';
+        headerBadge.innerHTML = '<i class="fa-solid fa-clock"></i> KYC IN REVIEW';
+      }
+      if (dashBanner) {
+        dashBanner.style.display = 'flex';
+        if (kyc.aadhaar || kyc.pan || kyc.bankAccount) {
+          dashBanner.className = 'verification-banner';
+          dashBanner.querySelector('strong').textContent = 'KYC Review In Progress';
+          dashBanner.querySelector('span').textContent = 'Your documents are being reviewed by the Super Admin team. Automatic transfers will activate upon approval.';
+          const bBtn = dashBanner.querySelector('button');
+          if (bBtn) bBtn.textContent = 'Check Status';
+        }
+      }
+
+      if (centerBanner) {
+        centerBanner.className = 'verification-banner';
+        if (centerIcon) centerIcon.innerHTML = '<i class="fa-solid fa-clock-rotate-left" style="color:var(--warning);"></i>';
+        if (centerTitle) centerTitle.textContent = 'KYC Review In Progress';
+        if (centerDesc) centerDesc.textContent = 'Your identity, bank details, and compliance documents are under review. You can make updates anytime.';
       }
     }
   } catch (err) {
-    console.error(err);
+    console.error('Error loading verification data:', err);
   }
 }
+
+// Upload Partner KYC Document
+window.uploadPartnerKycDoc = async function(docType, fileInputId, labelId) {
+  const fileInput = document.getElementById(fileInputId);
+  if (!fileInput || !fileInput.files.length) return;
+
+  const file = fileInput.files[0];
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const lbl = document.getElementById(labelId);
+  if (lbl) lbl.innerHTML = `Status: <span style="color:var(--primary);"><i class="fas fa-spinner fa-spin"></i> Uploading...</span>`;
+
+  try {
+    const res = await fetch(`${API_BASE}/partner/upload-kyc-doc?docType=${docType}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${sessionToken}`
+      },
+      body: formData
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      showToast(data.message || 'Document uploaded successfully!', 'success');
+      updateKycDocLabel(labelId, data.filepath);
+      // Reload verification data to sync status
+      loadVerificationData();
+    } else {
+      const err = await res.json();
+      showToast(err.error || 'Document upload failed.', 'error');
+      if (lbl) lbl.innerHTML = `Status: <span style="color:var(--danger)">Upload Failed</span>`;
+    }
+  } catch (err) {
+    showToast('Network error during document upload.', 'error');
+    if (lbl) lbl.innerHTML = `Status: <span style="color:var(--danger)">Error</span>`;
+  }
+};
+
+function updateKycDocLabel(labelId, filepath) {
+  const lbl = document.getElementById(labelId);
+  if (!lbl) return;
+  if (filepath) {
+    lbl.innerHTML = `Status: <span style="color:var(--success); font-weight:600;"><i class="fa-solid fa-circle-check"></i> Uploaded</span> (<a href="${filepath}" target="_blank" style="color:var(--primary); font-weight:700; text-decoration:underline;">View Document</a>)`;
+  } else {
+    lbl.innerHTML = `Status: <span style="color:var(--text-muted);">Not Uploaded</span>`;
+  }
+}
+
+// Name matching validator
+window.verifyKycBankNameMatch = function() {
+  const holderInput = document.getElementById('kycBankHolder');
+  const alertBox = document.getElementById('kycBankMatchAlert');
+  if (!holderInput || !alertBox) return;
+
+  const holder = holderInput.value.trim().toLowerCase();
+  const ownerName = (currentUser && currentUser.name) ? currentUser.name.trim().toLowerCase() : '';
+
+  if (!holder || !ownerName) {
+    alertBox.style.display = 'none';
+    return;
+  }
+
+  const clean = s => s.replace(/(mr|mrs|ms|dr|llp|co|inc|pvt|ltd|firm)\.?\s+/g, '').replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ');
+  const cHolder = clean(holder);
+  const cOwner = clean(ownerName);
+
+  alertBox.style.display = 'block';
+  if (cHolder === cOwner || cHolder.includes(cOwner) || cOwner.includes(cHolder)) {
+    alertBox.style.background = 'rgba(34,197,94,0.06)';
+    alertBox.style.borderColor = 'rgba(34,197,94,0.25)';
+    alertBox.style.color = 'var(--success)';
+    alertBox.innerHTML = `<i class="fa-solid fa-circle-check"></i> Account Holder Name matches Partner Profile Name ("${currentUser.name}").`;
+  } else {
+    alertBox.style.background = 'rgba(245,158,11,0.06)';
+    alertBox.style.borderColor = 'rgba(245,158,11,0.25)';
+    alertBox.style.color = '#fbbf24';
+    alertBox.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> Account Holder Name ("${holderInput.value}") does not closely match Partner Name ("${currentUser.name}"). Admin manual verification will be required.`;
+  }
+};
 
 // ─── Guest Reviews Loader ───────────────────────────
 async function loadReviewsData() {
@@ -1270,33 +1891,130 @@ window.openPartnerReplyModal = function(id) {
 }
 
 // ─── Support Desk Loader ─────────────────────────────
+let currentTicketFilter = 'all';
+
+window.filterSupportTickets = function(filter) {
+  currentTicketFilter = filter;
+  ['all', 'open', 'resolved'].forEach(f => {
+    const btn = document.getElementById(`tabFilter${f.charAt(0).toUpperCase() + f.slice(1)}`);
+    if (btn) {
+      if (f === filter) {
+        btn.style.background = 'var(--primary)';
+        btn.style.color = '#111';
+        btn.style.fontWeight = '600';
+      } else {
+        btn.style.background = 'none';
+        btn.style.color = 'var(--text-secondary)';
+        btn.style.fontWeight = 'normal';
+      }
+    }
+  });
+  renderTicketLog();
+};
+
+window.resolvePartnerTicket = async function(id) {
+  if (!confirm('Mark this support case as resolved?')) return;
+  try {
+    const res = await fetch(`${API_BASE}/partner/tickets/${id}/resolve`, {
+      method: 'PUT',
+      headers: getHeaders()
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      showToast('Support ticket marked as resolved.', 'success');
+      await loadSupportTickets();
+    } else {
+      showToast(data.error || 'Failed to update ticket.', 'error');
+    }
+  } catch (err) {
+    showToast('Failed to resolve ticket.', 'error');
+  }
+};
+
+function renderTicketLog() {
+  const log = document.getElementById('ticketLog');
+  if (!log) return;
+
+  let filtered = currentTickets;
+  if (currentTicketFilter === 'open') {
+    filtered = currentTickets.filter(t => t.status !== 'resolved' && t.status !== 'closed');
+  } else if (currentTicketFilter === 'resolved') {
+    filtered = currentTickets.filter(t => t.status === 'resolved' || t.status === 'closed');
+  }
+
+  if (filtered.length > 0) {
+    log.innerHTML = filtered.map(t => {
+      const isResolved = t.status === 'resolved' || t.status === 'closed';
+      const prio = t.priority || 'Normal';
+      let prioBadge = `<span style="background:rgba(59,130,246,0.12); color:#3b82f6; font-size:0.68rem; padding:3px 8px; border-radius:10px; font-weight:600;"><i class="fa-solid fa-flag"></i> ${prio}</span>`;
+      if (prio === 'Urgent') {
+        prioBadge = `<span style="background:rgba(239,68,68,0.15); color:#ef4444; font-size:0.68rem; padding:3px 8px; border-radius:10px; font-weight:700;"><i class="fa-solid fa-triangle-exclamation"></i> URGENT</span>`;
+      } else if (prio === 'High') {
+        prioBadge = `<span style="background:rgba(245,158,11,0.15); color:#f59e0b; font-size:0.68rem; padding:3px 8px; border-radius:10px; font-weight:600;"><i class="fa-solid fa-arrow-up"></i> HIGH</span>`;
+      }
+
+      const statusBadge = isResolved
+        ? `<span class="badge badge-success" style="font-size:0.7rem; padding:3px 8px; background:rgba(34,197,94,0.15); color:var(--success);"><i class="fa-solid fa-circle-check"></i> RESOLVED</span>`
+        : `<span class="badge badge-warning" style="font-size:0.7rem; padding:3px 8px; background:rgba(245,158,11,0.15); color:var(--warning);"><i class="fa-solid fa-hourglass-half"></i> OPEN</span>`;
+
+      return `
+        <div class="ticket-card" style="background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:var(--radius-sm); padding:16px; margin-bottom:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:8px; flex-wrap:wrap;">
+            <div>
+              <span style="font-size:0.7rem; color:var(--primary); font-weight:700; letter-spacing:0.5px;">#TKT-${String(t.id).padStart(4, '0')}</span>
+              <strong style="display:block; font-size:0.95rem; color:var(--text-primary); margin-top:2px;">${t.subject}</strong>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px;">
+              ${prioBadge}
+              ${statusBadge}
+            </div>
+          </div>
+          <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:10px; display:flex; gap:12px; flex-wrap:wrap;">
+            <span><i class="fa-solid fa-folder-open" style="color:var(--primary); margin-right:4px;"></i>${t.category}</span>
+            <span><i class="fa-solid fa-calendar-day" style="color:var(--primary); margin-right:4px;"></i>${t.dateCreated ? new Date(t.dateCreated).toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' }) : 'Recently'}</span>
+          </div>
+          <p style="font-size:0.83rem; color:var(--text-secondary); line-height:1.45; margin:0 0 10px 0; background:rgba(0,0,0,0.25); padding:10px 12px; border-radius:var(--radius-sm); border:1px solid rgba(255,255,255,0.04);">${t.message}</p>
+          ${t.reply ? `
+            <div style="background:rgba(212,175,55,0.06); border-left:3px solid var(--primary); padding:10px 12px; border-radius:0 var(--radius-sm) var(--radius-sm) 0; margin-top:10px;">
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+                <i class="fa-solid fa-headset" style="color:var(--primary); font-size:0.75rem;"></i>
+                <strong style="font-size:0.75rem; color:var(--primary); text-transform:uppercase; letter-spacing:0.5px;">Homzo Operations Team Response:</strong>
+              </div>
+              <p style="font-size:0.82rem; color:var(--text-primary); margin:0; line-height:1.4;">${t.reply}</p>
+            </div>` : `
+            <div style="font-size:0.72rem; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
+              <i class="fa-solid fa-clock" style="color:var(--warning);"></i> Awaiting review from operations team (SLA: &lt; 2 hours)
+            </div>`}
+          ${!isResolved ? `
+            <div style="display:flex; justify-content:flex-end; margin-top:10px; padding-top:8px; border-top:1px dashed var(--border);">
+              <button type="button" class="btn btn-ghost btn-xs" onclick="resolvePartnerTicket(${t.id})" style="font-size:0.72rem; color:var(--text-muted);">
+                <i class="fa-solid fa-check"></i> Mark as Resolved
+              </button>
+            </div>` : ''}
+        </div>`;
+    }).join('');
+  } else {
+    log.innerHTML = `
+      <div style="text-align:center; padding:36px 16px; color:var(--text-muted);">
+        <div style="width:54px; height:54px; border-radius:50%; background:rgba(255,255,255,0.03); display:flex; align-items:center; justify-content:center; margin:0 auto 12px auto;">
+          <i class="fa-solid fa-inbox" style="font-size:24px; color:var(--text-muted);"></i>
+        </div>
+        <strong style="display:block; font-size:0.95rem; color:var(--text-primary); margin-bottom:4px;">No Support Cases Found</strong>
+        <p style="font-size:0.78rem; max-width:280px; margin:0 auto; line-height:1.4;">
+          ${currentTicketFilter === 'all' 
+            ? 'You currently have no open or past tickets. If you encounter any issue, raise a ticket using the form on the left.' 
+            : `No ${currentTicketFilter} support tickets found.`}
+        </p>
+      </div>`;
+  }
+}
+
 async function loadSupportTickets() {
   try {
     const res = await fetch(`${API_BASE}/partner/tickets`, { headers: getHeaders() });
     if (!res.ok) return;
     currentTickets = await res.json();
-
-    const log = document.getElementById('ticketLog');
-    if (currentTickets.length > 0) {
-      log.innerHTML = currentTickets.map(t => `
-        <div class="ticket-card">
-          <div class="ticket-header">
-            <strong>${t.subject}</strong>
-            <span class="badge badge-${t.status === 'open' ? 'warning' : 'success'}">${t.status.toUpperCase()}</span>
-          </div>
-          <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:8px;">
-            <span>Category: ${t.category}</span> &bull; <span>Date: ${new Date(t.dateCreated).toLocaleDateString()}</span>
-          </div>
-          <p style="font-size:0.82rem; color:var(--text-secondary); line-height:1.4;">${t.message}</p>
-          ${t.reply ? `
-            <div class="ticket-reply">
-              <strong style="font-size:0.75rem; color:var(--primary); display:block; margin-bottom:4px;">Homzo Response:</strong>
-              <p style="font-size:0.8rem; color:var(--text-primary); margin:0;">${t.reply}</p>
-            </div>` : ''}
-        </div>`).join('');
-    } else {
-      log.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:20px;">No support cases filed.</div>`;
-    }
+    renderTicketLog();
   } catch (err) {
     console.error(err);
   }
