@@ -862,8 +862,8 @@
                       <!-- Aadhaar Upload -->
                       <div class="form-group" style="grid-column:1/-1; display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.01); border:1px solid var(--border); padding:10px; border-radius:var(--radius-sm);">
                         <div>
-                          <strong>Aadhaar Card Copy (PDF/Image)</strong>
-                          <span style="display:block; font-size:0.75rem; color:var(--text-muted);" id="lblAadhaarDoc">Not Uploaded</span>
+                          <strong>Aadhaar Card Copy (PDF/Image) <span style="color:var(--danger)">*</span></strong>
+                          <span style="display:block; font-size:0.75rem; color:var(--text-muted);" id="lblAadhaarDoc">Not Uploaded (Required)</span>
                         </div>
                         <input type="file" id="fileAadhaar" style="display:none;" onchange="uploadDocFile('aadhaar', 'fileAadhaar', 'lblAadhaarDoc')">
                         <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('fileAadhaar').click()"><i class="fa-solid fa-upload"></i> Upload</button>
@@ -872,8 +872,8 @@
                       <!-- PAN Upload -->
                       <div class="form-group" style="grid-column:1/-1; display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.01); border:1px solid var(--border); padding:10px; border-radius:var(--radius-sm);">
                         <div>
-                          <strong>PAN Card Scan (PDF/Image)</strong>
-                          <span style="display:block; font-size:0.75rem; color:var(--text-muted);" id="lblPanDoc">Not Uploaded</span>
+                          <strong>PAN Card Scan (PDF/Image) <span style="color:var(--danger)">*</span></strong>
+                          <span style="display:block; font-size:0.75rem; color:var(--text-muted);" id="lblPanDoc">Not Uploaded (Required)</span>
                         </div>
                         <input type="file" id="filePan" style="display:none;" onchange="uploadDocFile('pan', 'filePan', 'lblPanDoc')">
                         <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('filePan').click()"><i class="fa-solid fa-upload"></i> Upload</button>
@@ -1052,12 +1052,12 @@
                         <input type="text" class="form-control" id="wzBankName" placeholder="e.g. HDFC Bank, SBI" required>
                       </div>
                       <div class="form-group">
-                        <label>Account Number</label>
-                        <input type="text" class="form-control" id="wzBankAccountNumber" placeholder="Account Number" required>
+                        <label>Account Number <span style="color:var(--danger)">*</span></label>
+                        <input type="text" class="form-control" id="wzBankAccountNumber" placeholder="9 to 18 digit account number" required maxlength="18" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
                       </div>
                       <div class="form-group">
-                        <label>IFSC Code</label>
-                        <input type="text" class="form-control" id="wzBankIfsc" placeholder="e.g. HDFC0000123" required maxlength="11">
+                        <label>IFSC Code <span style="color:var(--danger)">*</span></label>
+                        <input type="text" class="form-control" id="wzBankIfsc" placeholder="e.g. HDFC0000123" required maxlength="11" style="text-transform:uppercase;">
                       </div>
                     </div>
 
@@ -1069,8 +1069,8 @@
                     <!-- Cancelled Cheque upload -->
                     <div style="display:flex; justify-content:between; align-items:center; background:rgba(255,255,255,0.01); border:1px solid var(--border); padding:12px; border-radius:var(--radius-sm);">
                       <div>
-                        <strong>Cancelled Cheque OR Bank account passbook copy (PDF/Image)</strong>
-                        <span style="display:block; font-size:0.75rem; color:var(--text-muted);" id="lblChequeDoc">Not Uploaded</span>
+                        <strong>Cancelled Cheque OR Bank passbook copy (PDF/Image) <span style="color:var(--danger)">*</span></strong>
+                        <span style="display:block; font-size:0.75rem; color:var(--text-muted);" id="lblChequeDoc">Not Uploaded (Required)</span>
                       </div>
                       <input type="file" id="fileCheque" style="display:none;" onchange="uploadDocFile('cheque', 'fileCheque', 'lblChequeDoc')">
                       <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('fileCheque').click()"><i class="fa-solid fa-upload"></i> Upload</button>
@@ -1512,7 +1512,7 @@
                     </div>
                     <div class="form-group">
                       <label>Bank Account Number *</label>
-                      <input type="text" class="form-control" id="kycAccount" placeholder="Bank account number" required>
+                      <input type="text" class="form-control" id="kycAccount" placeholder="9 to 18 digit account number" required maxlength="18" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
                     </div>
                     <div class="form-group">
                       <label>Bank IFSC Code *</label>

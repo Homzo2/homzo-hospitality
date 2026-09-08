@@ -1184,14 +1184,38 @@ window.openKycReview = function(id) {
   if (!p) return;
 
   document.getElementById('kycPartnerId').value = p.id;
-  document.getElementById('kycPartnerEmail').textContent = p.email;
+  if (document.getElementById('kycPartnerName')) document.getElementById('kycPartnerName').textContent = p.name || '-';
+  document.getElementById('kycPartnerEmail').textContent = p.email || '-';
+  if (document.getElementById('kycPartnerPhone')) document.getElementById('kycPartnerPhone').textContent = p.phone || '-';
+  if (document.getElementById('kycPartnerBusiness')) document.getElementById('kycPartnerBusiness').textContent = p.businessName || '-';
+  
+  const fullAddress = [p.address, p.city, p.state, p.pincode].filter(Boolean).join(', ') || 'Not Provided';
+  if (document.getElementById('kycPartnerAddress')) document.getElementById('kycPartnerAddress').textContent = fullAddress;
+
   document.getElementById('kycPartnerGst').textContent = p.gst || 'Not Provided';
   document.getElementById('kycPartnerPan').textContent = p.pan || 'Not Provided';
   document.getElementById('kycPartnerBank').innerHTML = p.bankAccount 
-    ? `A/C No: ${p.bankAccount}<br>IFSC: ${p.bankIfsc}`
+    ? `A/C No: ${p.bankAccount}<br>IFSC: ${p.bankIfsc || 'N/A'}${p.bankAccountHolder ? `<br>Holder: ${p.bankAccountHolder}` : ''}`
     : 'Not Provided';
+
+  // Render Documents
+  const renderDocLink = (docPath) => docPath 
+    ? `<a href="${docPath}" target="_blank" class="btn btn-ghost btn-xs" style="color:var(--primary); text-decoration:none;"><i class="fa-solid fa-eye"></i> View</a>` 
+    : `<span style="color:var(--text-muted); font-size:0.75rem;">Not Uploaded</span>`;
+
+  if (document.getElementById('kycDocAadhaar')) document.getElementById('kycDocAadhaar').innerHTML = renderDocLink(p.aadhaarDoc);
+  if (document.getElementById('kycDocPan')) document.getElementById('kycDocPan').innerHTML = renderDocLink(p.panDoc);
+  if (document.getElementById('kycDocCheque')) document.getElementById('kycDocCheque').innerHTML = renderDocLink(p.chequeDoc);
+  if (document.getElementById('kycDocGst')) document.getElementById('kycDocGst').innerHTML = renderDocLink(p.gstDoc);
+
   document.getElementById('kycPartnerProps').value = p.assignedProperties.join(',');
-  document.getElementById('kycPartnerPassword').value = '';
+  
+  // Clear password input so browser autofill doesn't submit accidental password
+  const pwdInput = document.getElementById('kycPartnerPassword');
+  if (pwdInput) {
+    pwdInput.value = '';
+    setTimeout(() => { pwdInput.value = ''; }, 100);
+  }
 
   openModal('kycVerifyModal');
 }

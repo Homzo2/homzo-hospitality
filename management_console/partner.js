@@ -2294,14 +2294,72 @@ async function saveWzDraft() {
 }
 
 async function submitWzOnboarding() {
+  const p = currentProperties.find(x => x.id === selectedPropertyId);
   const rooms = parseInt(document.getElementById('wzTotalRooms').value);
   if (isNaN(rooms) || rooms < 5) {
     showToast("This property currently does not meet Homzo's minimum room requirement (minimum 5 rentable rooms).", 'error');
+    switchWzStep(1);
+    return;
+  }
+
+  // Validate Step 2: KYC Identity Documents
+  const entityType = document.getElementById('wzEntityType').value;
+  if (entityType === 'Individual') {
+    if (!p || !p.Aadhaar_Doc) {
+      showToast('Aadhaar Card Copy is required. Please upload it in Step 2.', 'error');
+      switchWzStep(2);
+      return;
+    }
+    if (!p || !p.PAN_Doc) {
+      showToast('PAN Card Scan is required. Please upload it in Step 2.', 'error');
+      switchWzStep(2);
+      return;
+    }
+  } else {
+    if (!p || (!p.Incorporation_Doc && !p.Business_Registration_Doc)) {
+      showToast('Certificate of Incorporation / Registration is required in Step 2.', 'error');
+      switchWzStep(2);
+      return;
+    }
+    if (!p || !p.PAN_Doc) {
+      showToast('Company/Firm PAN document is required in Step 2.', 'error');
+      switchWzStep(2);
+      return;
+    }
+  }
+
+  // Validate Step 4: Bank Details & Cancelled Cheque
+  const accHolder = document.getElementById('wzBankAccountHolder').value.trim();
+  const accNum = document.getElementById('wzBankAccountNumber').value.trim();
+  const ifsc = document.getElementById('wzBankIfsc').value.trim().toUpperCase();
+
+  if (!accHolder) {
+    showToast('Please enter the Bank Account Holder Name in Step 4.', 'error');
+    switchWzStep(4);
+    return;
+  }
+
+  if (!accNum || !/^[0-9]{9,18}$/.test(accNum)) {
+    showToast('Please enter a valid Bank Account Number (9 to 18 numeric digits only).', 'error');
+    switchWzStep(4);
+    return;
+  }
+
+  if (!ifsc || !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifsc)) {
+    showToast('Please enter a valid 11-character Bank IFSC Code (e.g. HDFC0000123).', 'error');
+    switchWzStep(4);
+    return;
+  }
+
+  if (!p || !p.Cancelled_Cheque_Doc) {
+    showToast('Cancelled Cheque or Bank Passbook copy is required. Please upload it in Step 4.', 'error');
+    switchWzStep(4);
     return;
   }
 
   if (!document.getElementById('chkAcceptAgreement').checked) {
     showToast('You must accept the Partner Agreement before submitting.', 'error');
+    switchWzStep(6);
     return;
   }
 

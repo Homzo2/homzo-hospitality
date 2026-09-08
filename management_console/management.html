@@ -1744,32 +1744,86 @@
 
 <!-- ── KYC VERIFICATION MODAL ── -->
 <div class="modal-overlay" id="kycVerifyModal" style="display:none">
-  <div class="modal-box" style="position:relative; max-width:550px; text-align:left; padding:30px; max-height:85vh; overflow-y:auto;">
+  <div class="modal-box" style="position:relative; max-width:620px; text-align:left; padding:30px; max-height:88vh; overflow-y:auto;">
     <button class="modal-close" onclick="closeModal('kycVerifyModal')"><i class="fa-solid fa-xmark"></i></button>
     <h2><i class="fa-solid fa-id-card-clip" style="color:var(--primary); margin-right:10px;"></i>Partner KYC Review</h2>
     
     <div style="display:flex; flex-direction:column; gap:16px; margin-top:20px;">
       <input type="hidden" id="kycPartnerId">
       
-      <div style="border-bottom:1px solid var(--border); padding-bottom:10px;">
-        <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">PARTNER EMAIL</span>
-        <div id="kycPartnerEmail" style="font-weight:600; color:var(--text-primary); margin-top:2px;">partner@example.com</div>
-      </div>
-      
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; border-bottom:1px solid var(--border); padding-bottom:10px;">
-        <div>
-          <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">GSTIN NUMBER</span>
-          <div id="kycPartnerGst" style="font-weight:600; color:var(--text-primary); margin-top:2px;">Not Provided</div>
+      <!-- Partner Personal & Business Info -->
+      <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px;">
+        <h4 style="margin:0 0 10px 0; font-size:0.85rem; color:var(--primary); text-transform:uppercase; letter-spacing:0.5px;">
+          <i class="fa-solid fa-user-tie" style="margin-right:6px;"></i>Partner &amp; Business Profile
+        </h4>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:0.82rem;">
+          <div>
+            <span style="font-size:0.72rem; color:var(--text-muted); font-weight:700; display:block;">NAME</span>
+            <div id="kycPartnerName" style="font-weight:600; color:var(--text-primary); margin-top:2px;">-</div>
+          </div>
+          <div>
+            <span style="font-size:0.72rem; color:var(--text-muted); font-weight:700; display:block;">EMAIL</span>
+            <div id="kycPartnerEmail" style="font-weight:600; color:var(--text-primary); margin-top:2px; word-break:break-all;">-</div>
+          </div>
+          <div>
+            <span style="font-size:0.72rem; color:var(--text-muted); font-weight:700; display:block;">PHONE</span>
+            <div id="kycPartnerPhone" style="font-weight:600; color:var(--text-primary); margin-top:2px;">-</div>
+          </div>
+          <div>
+            <span style="font-size:0.72rem; color:var(--text-muted); font-weight:700; display:block;">BUSINESS / FIRM NAME</span>
+            <div id="kycPartnerBusiness" style="font-weight:600; color:var(--text-primary); margin-top:2px;">-</div>
+          </div>
+          <div style="grid-column:1/-1;">
+            <span style="font-size:0.72rem; color:var(--text-muted); font-weight:700; display:block;">ADDRESS / LOCATION</span>
+            <div id="kycPartnerAddress" style="font-weight:600; color:var(--text-primary); margin-top:2px;">-</div>
+          </div>
         </div>
-        <div>
-          <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">PAN CARD</span>
-          <div id="kycPartnerPan" style="font-weight:600; color:var(--text-primary); margin-top:2px;">Not Provided</div>
+      </div>
+
+      <!-- Financial & Tax Details -->
+      <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px;">
+        <h4 style="margin:0 0 10px 0; font-size:0.85rem; color:var(--primary); text-transform:uppercase; letter-spacing:0.5px;">
+          <i class="fa-solid fa-building-columns" style="margin-right:6px;"></i>Tax &amp; Bank Account Details
+        </h4>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:0.82rem;">
+          <div>
+            <span style="font-size:0.72rem; color:var(--text-muted); font-weight:700; display:block;">GSTIN NUMBER</span>
+            <div id="kycPartnerGst" style="font-weight:600; color:var(--text-primary); margin-top:2px;">Not Provided</div>
+          </div>
+          <div>
+            <span style="font-size:0.72rem; color:var(--text-muted); font-weight:700; display:block;">PAN CARD</span>
+            <div id="kycPartnerPan" style="font-weight:600; color:var(--text-primary); margin-top:2px;">Not Provided</div>
+          </div>
+          <div style="grid-column:1/-1;">
+            <span style="font-size:0.72rem; color:var(--text-muted); font-weight:700; display:block;">BANK ACCOUNT DETAILS</span>
+            <div id="kycPartnerBank" style="font-weight:600; color:var(--text-primary); margin-top:2px; line-height:1.4;">Not Provided</div>
+          </div>
         </div>
       </div>
-      
-      <div style="border-bottom:1px solid var(--border); padding-bottom:10px;">
-        <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">BANK ACCOUNT DETAILS</span>
-        <div id="kycPartnerBank" style="font-weight:600; color:var(--text-primary); margin-top:2px; line-height:1.4;">Not Provided</div>
+
+      <!-- Uploaded Verification Documents -->
+      <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px;">
+        <h4 style="margin:0 0 10px 0; font-size:0.85rem; color:var(--primary); text-transform:uppercase; letter-spacing:0.5px;">
+          <i class="fa-solid fa-file-shield" style="margin-right:6px;"></i>Uploaded Documents
+        </h4>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:0.8rem;" id="kycDocsGrid">
+          <div style="display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border); padding:8px 10px; border-radius:var(--radius-xs);">
+            <span>Aadhaar Card</span>
+            <span id="kycDocAadhaar">-</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border); padding:8px 10px; border-radius:var(--radius-xs);">
+            <span>PAN Card</span>
+            <span id="kycDocPan">-</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border); padding:8px 10px; border-radius:var(--radius-xs);">
+            <span>Cheque / Passbook</span>
+            <span id="kycDocCheque">-</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border); padding:8px 10px; border-radius:var(--radius-xs);">
+            <span>GST Certificate</span>
+            <span id="kycDocGst">-</span>
+          </div>
+        </div>
       </div>
       
       <div class="form-group">
@@ -1779,10 +1833,11 @@
       
       <div class="form-group">
         <label>Reset Password (Leave blank to keep current)</label>
-        <input type="password" class="form-control" id="kycPartnerPassword" placeholder="Enter new password">
+        <input type="password" class="form-control" id="kycPartnerPassword" placeholder="Enter new password" autocomplete="new-password">
+        <span style="font-size:0.72rem; color:var(--text-muted); margin-top:3px; display:block;">Enter a new password only if you wish to change this partner's password.</span>
       </div>
       
-      <div style="display:flex; gap:12px; margin-top:10px;">
+      <div style="display:flex; gap:12px; margin-top:6px;">
         <button class="btn btn-primary" style="flex:1; justify-content:center;" onclick="updateKycStatus('verified')">
           <i class="fa-solid fa-circle-check"></i> Approve KYC
         </button>
@@ -1792,6 +1847,7 @@
       </div>
     </div>
   </div>
+</div>
 <!-- ── PASSWORD RESET MODAL ── -->
 <div class="modal-overlay" id="passwordResetModal" style="display:none">
   <div class="modal-box" style="position:relative; max-width:400px; text-align:left; padding:30px;">
