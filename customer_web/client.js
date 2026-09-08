@@ -1258,6 +1258,35 @@ async function fetchProperties() {
     if (testimonials) testimonials.style.display = 'block';
     if (launchingSoonSec) launchingSoonSec.style.display = 'none';
     if (heroExploreBtn) heroExploreBtn.href = '#properties';
+
+    // Dynamically update category starting prices from real property inventory
+    const typePrices = {};
+    properties.forEach(p => {
+      const t = (p.type || '').toLowerCase();
+      const num = parseInt(String(p.price).replace(/[^0-9]/g, '')) || 0;
+      if (num > 0) {
+        if (!typePrices[t] || num < typePrices[t]) {
+          typePrices[t] = num;
+        }
+      }
+    });
+
+    const updateCatPrice = (catId, type, defaultUnit) => {
+      const card = document.getElementById(catId);
+      if (!card) return;
+      const priceDiv = card.querySelector('.cat-price');
+      if (!priceDiv) return;
+      if (typePrices[type]) {
+        priceDiv.innerHTML = `From <strong>₹${typePrices[type].toLocaleString()}</strong><span>${defaultUnit}</span>`;
+      } else {
+        priceDiv.innerHTML = `<span>Explore Verified Stays</span>`;
+      }
+    };
+
+    updateCatPrice('cat-students', 'students', '/month');
+    updateCatPrice('cat-employees', 'employees', '/month');
+    updateCatPrice('cat-tourists', 'tourists', '/night');
+
     renderProperties('all', 6);
   }
 
