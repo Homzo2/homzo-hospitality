@@ -1569,23 +1569,44 @@ app.get('/api/auth/session', authenticateToken, (req, res) => {
 
 // ─── SUPER ADMIN EXCLUSIVE ENDPOINTS ───
 
-// Get all partner accounts
+// Get all partner accounts with full KYC & personal details
 app.get('/api/super/partners', authenticateToken, requireRole('super_admin'), (req, res) => {
   const partners = readExcelDb(partnersDbPath);
-  res.json(partners.map(p => ({
-    id: p.ID,
-    name: p.Name,
-    email: p.Email,
-    phone: p.Phone,
-    assignedProperties: String(p.Assigned_Properties || '').split(',').filter(Boolean),
-    status: p.Status,
-    gst: p.GST || '',
-    pan: p.PAN || '',
-    bankAccount: p.Bank_Account || '',
-    bankIfsc: p.Bank_IFSC || '',
-    verificationStatus: p.Verification_Status || 'pending',
-    dateCreated: p.Date_Created
-  })));
+  const properties = readExcelDb(propertiesDbPath);
+
+  res.json(partners.map(p => {
+    const assignedProps = String(p.Assigned_Properties || '').split(',').map(x => x.trim()).filter(Boolean);
+    const relatedProp = properties.find(prop => assignedProps.includes(String(prop.ID)));
+
+    return {
+      id: p.ID,
+      name: p.Name || '',
+      email: p.Email || '',
+      phone: p.Phone || (relatedProp ? relatedProp.Phone : '') || '',
+      alternatePhone: p.Alternate_Phone || '',
+      businessName: p.Business_Name || (relatedProp ? relatedProp.Name : '') || '',
+      address: p.Address || (relatedProp ? relatedProp.Address : '') || '',
+      city: p.City || (relatedProp ? relatedProp.City : '') || '',
+      state: p.State || (relatedProp ? relatedProp.State : '') || '',
+      pincode: p.Pincode || (relatedProp ? relatedProp.Pincode : '') || '',
+      entityType: p.Entity_Type || 'Individual',
+      aadhaar: p.Aadhaar || '',
+      assignedProperties: assignedProps,
+      status: p.Status || 'active',
+      gst: p.GST || (relatedProp ? relatedProp.GST : '') || '',
+      pan: p.PAN || (relatedProp ? relatedProp.PAN : '') || '',
+      bankAccount: p.Bank_Account || (relatedProp ? relatedProp.Bank_Account_Number : '') || '',
+      bankIfsc: p.Bank_IFSC || (relatedProp ? relatedProp.Bank_IFSC : '') || '',
+      bankAccountHolder: p.Bank_Account_Holder || (relatedProp ? relatedProp.Bank_Account_Holder : '') || '',
+      aadhaarDoc: p.Aadhaar_Doc || (relatedProp ? relatedProp.Aadhaar_Doc : '') || '',
+      panDoc: p.PAN_Doc || (relatedProp ? relatedProp.PAN_Doc : '') || '',
+      gstDoc: p.GST_Doc || (relatedProp ? relatedProp.GST_Doc : '') || '',
+      chequeDoc: p.Cheque_Doc || (relatedProp ? relatedProp.Cancelled_Cheque_Doc : '') || '',
+      addressProofDoc: p.Address_Proof_Doc || (relatedProp ? relatedProp.Ownership_Doc : '') || '',
+      verificationStatus: p.Verification_Status || 'pending',
+      dateCreated: p.Date_Created
+    };
+  }));
 });
 
 // Create a new partner account
@@ -2148,6 +2169,20 @@ app.post('/api/partner/properties/:id/submit', authenticateToken, requireRole('p
     return res.status(400).json({ error: "This property currently does not meet Homzo's minimum room requirement (minimum 5 rentable rooms)." });
   }
 
+  // Enforce: Mandatory Identity Verification Documents
+  if (!prop.PAN_Doc && !prop.Aadhaar_Doc && !prop.Incorporation_Doc) {
+    return res.status(400).json({ error: 'Mandatory identity verification documents (PAN / Aadhaar) must be uploaded before submitting.' });
+  }
+
+  // Enforce: Bank Account Details & Cancelled Cheque
+  if (!prop.Cancelled_Cheque_Doc && !prop.Bank_Account_Number) {
+    return res.status(400).json({ error: 'Bank account number and Cancelled Cheque / Passbook copy must be uploaded before submitting.' });
+  }
+
+  if (prop.Bank_Account_Number && !/^[0-9]{9,18}$/.test(String(prop.Bank_Account_Number).trim())) {
+    return res.status(400).json({ error: 'Bank account number must be between 9 and 18 numeric digits.' });
+  }
+
   // Ensure agreement accepted
   if (!prop.Partner_Agreement_Accepted) {
     return res.status(400).json({ error: 'You must accept the Partner Agreement before submitting.' });
@@ -2157,6 +2192,32 @@ app.post('/api/partner/properties/:id/submit', authenticateToken, requireRole('p
   properties[idx].Min_Rooms_Checked = true;
 
   writeExcelDb(propertiesDbPath, 'Properties', properties);
+
+  // Sync property onboarding details to Partner profile if partner fields are empty
+  try {
+    const partners = readExcelDb(partnersDbPath);
+    const pIdx = partners.findIndex(p => p.Email && p.Email.toLowerCase() === req.user.email.toLowerCase());
+    if (pIdx !== -1) {
+      let updated = false;
+      if (!partners[pIdx].Bank_Account && prop.Bank_Account_Number) { partners[pIdx].Bank_Account = prop.Bank_Account_Number; updated = true; }
+      if (!partners[pIdx].Bank_IFSC && prop.Bank_IFSC) { partners[pIdx].Bank_IFSC = prop.Bank_IFSC; updated = true; }
+      if (!partners[pIdx].Bank_Account_Holder && prop.Bank_Account_Holder) { partners[pIdx].Bank_Account_Holder = prop.Bank_Account_Holder; updated = true; }
+      if (!partners[pIdx].PAN_Doc && prop.PAN_Doc) { partners[pIdx].PAN_Doc = prop.PAN_Doc; updated = true; }
+      if (!partners[pIdx].Aadhaar_Doc && prop.Aadhaar_Doc) { partners[pIdx].Aadhaar_Doc = prop.Aadhaar_Doc; updated = true; }
+      if (!partners[pIdx].Cheque_Doc && prop.Cancelled_Cheque_Doc) { partners[pIdx].Cheque_Doc = prop.Cancelled_Cheque_Doc; updated = true; }
+      if (!partners[pIdx].GST_Doc && prop.GST_Doc) { partners[pIdx].GST_Doc = prop.GST_Doc; updated = true; }
+      if (!partners[pIdx].Address && prop.Address) { partners[pIdx].Address = prop.Address; updated = true; }
+      if (!partners[pIdx].City && prop.City) { partners[pIdx].City = prop.City; updated = true; }
+      if (!partners[pIdx].State && prop.State) { partners[pIdx].State = prop.State; updated = true; }
+      if (!partners[pIdx].Pincode && prop.Pincode) { partners[pIdx].Pincode = prop.Pincode; updated = true; }
+      if (updated) {
+        writeExcelDb(partnersDbPath, 'Partners', partners);
+      }
+    }
+  } catch (syncErr) {
+    console.error('Error syncing property onboarding details to partner:', syncErr);
+  }
+
   logAction(req.user.email, 'partner', 'submit_onboarding', `Submitted property ID ${propId} for verification`, req);
 
   res.json({ success: true, message: 'Property onboarding submitted successfully for review.' });
