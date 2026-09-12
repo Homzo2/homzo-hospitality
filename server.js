@@ -1792,8 +1792,43 @@ app.get('/api/partner/dashboard', authenticateToken, requireRole('partner'), (re
     }
   });
 
-  const commissionRate = 0.15; // 15% platform commission
-  const netEarnings = grossRevenue * (1 - commissionRate);
+  // Dynamic Commission Rate from assigned property (range 12% - 20%, default 15%)
+  let commissionRatePct = 15;
+  if (properties.length > 0) {
+    const parsedRate = parseFloat(properties[0].Commission_Rate);
+    if (!isNaN(parsedRate) && parsedRate >= 12 && parsedRate <= 20) {
+      commissionRatePct = parsedRate;
+    } else if (properties[0].Registration_Status === 'Unregistered') {
+      commissionRatePct = 17;
+    }
+  }
+  const commissionRate = commissionRatePct / 100;
+  const commissionDeducted = Math.round(grossRevenue * commissionRate);
+  const netEarnings = grossRevenue - commissionDeducted;
+
+  // Real occupancy calculation:
+  // Total rentable rooms across partner properties
+  let totalRooms = 0;
+  properties.forEach(p => {
+    totalRooms += (parseInt(p.Total_Rooms) || parseInt(p.Inventory) || 0);
+  });
+  
+  // Occupied rooms from active bookings
+  const nowStr = new Date().toISOString().split('T')[0];
+  const occupiedBookings = bookings.filter(b => {
+    if (b.Status === 'cancelled') return false;
+    const cin = (b.Check_In || '').split('T')[0];
+    const cout = (b.Check_Out || '').split('T')[0];
+    if (cin && cout) {
+      return cin <= nowStr && cout >= nowStr;
+    }
+    return b.Status === 'confirmed' || b.Status === 'Active' || b.Status === 'active';
+  });
+  const occupiedRooms = occupiedBookings.length;
+  let occupancyRate = 0;
+  if (totalRooms > 0) {
+    occupancyRate = Math.min(100, Math.round((occupiedRooms / totalRooms) * 100));
+  }
 
   // Filter check-ins and check-outs (mock dates check)
   const upcomingCheckins = bookings.filter(b => {
@@ -1812,9 +1847,12 @@ app.get('/api/partner/dashboard', authenticateToken, requireRole('partner'), (re
 
   res.json({
     totalBookings,
-    occupancyRate: properties.length > 0 ? 75 : 0, // Mock occupancy percentage
+    occupancyRate,
+    totalRooms,
+    occupiedRooms,
     grossRevenue,
-    commissionDeducted: grossRevenue * commissionRate,
+    commissionRate: commissionRatePct,
+    commissionDeducted,
     netEarnings,
     activeGuests,
     upcomingCheckins,
@@ -1856,9 +1894,19 @@ app.get('/api/partner/properties', authenticateToken, requireRole('partner'), (r
 
 // Create / Register a new property by Partner
 app.post('/api/partner/properties', authenticateToken, requireRole('partner'), (req, res) => {
-  const { name, type, city, address, totalRooms } = req.body;
+  const { name, type, city, address, totalRooms, commissionRate, Commission_Rate } = req.body;
   if (!name || !name.trim()) {
     return res.status(400).json({ error: 'Property Name is required.' });
+  }
+
+  const rooms = parseInt(totalRooms) || 10;
+  if (rooms < 5) {
+    return res.status(400).json({ error: 'Homzo requires a minimum of 5 rentable rooms.' });
+  }
+
+  let commRate = parseFloat(commissionRate || Commission_Rate || 15);
+  if (isNaN(commRate) || commRate < 12 || commRate > 20) {
+    commRate = 15;
   }
 
   const propertiesData = readExcelDb(propertiesDbPath);
@@ -1867,7 +1915,6 @@ app.post('/api/partner/properties', authenticateToken, requireRole('partner'), (
     newId = Math.max(...propertiesData.map(p => parseInt(p.ID) || 0)) + 1;
   }
 
-  const rooms = parseInt(totalRooms) || 10;
   const newProperty = {
     ID: newId,
     Name: name.trim(),
@@ -1891,6 +1938,7 @@ app.post('/api/partner/properties', authenticateToken, requireRole('partner'), (
     Total_Rooms: rooms,
     Available_Rooms: rooms,
     Max_Guests: rooms * 2,
+    Commission_Rate: commRate,
     Date_Added: new Date().toISOString()
   };
 
@@ -2039,7 +2087,19 @@ const partnerDocStorage = multer.diskStorage({
   }
 });
 
-const uploadPartnerDoc = multer({ storage: partnerDocStorage });
+const uploadPartnerDoc = multer({
+  storage: partnerDocStorage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  fileFilter: function (req, file, cb) {
+    const allowedExts = /jpeg|jpg|png|webp|pdf/i;
+    const ext = path.extname(file.originalname).toLowerCase().replace('.', '');
+    const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+    if (allowedExts.test(ext) && allowedMimes.includes(file.mimetype)) {
+      return cb(null, true);
+    }
+    cb(new Error('Invalid file type. Only PDF, JPG, JPEG, PNG, and WEBP files are allowed.'));
+  }
+});
 
 // POST upload onboarding document
 app.post('/api/partner/properties/:id/upload-doc', authenticateToken, requireRole('partner'), (req, res) => {
@@ -2052,7 +2112,7 @@ app.post('/api/partner/properties/:id/upload-doc', authenticateToken, requireRol
     if (err instanceof multer.MulterError) {
       return res.status(400).json({ error: `File upload error: ${err.message}` });
     } else if (err) {
-      return res.status(500).json({ error: `Server error: ${err.message}` });
+      return res.status(400).json({ error: err.message || 'File upload failed.' });
     }
 
     if (!req.file) {
@@ -2123,11 +2183,38 @@ app.put('/api/partner/properties/:id/onboarding', authenticateToken, requireRole
     return res.status(404).json({ error: 'Property not found.' });
   }
 
+  // Validate Commission_Rate if provided
+  if (req.body.Commission_Rate !== undefined && req.body.Commission_Rate !== '') {
+    const comm = parseFloat(req.body.Commission_Rate);
+    if (isNaN(comm) || comm < 12 || comm > 20) {
+      return res.status(400).json({ error: 'Commission rate must be between 12% and 20%.' });
+    }
+    properties[idx].Commission_Rate = comm;
+  }
+
+  // Validate Total_Rooms if provided
+  if (req.body.Total_Rooms !== undefined && req.body.Total_Rooms !== '') {
+    const rooms = parseInt(req.body.Total_Rooms);
+    if (isNaN(rooms) || rooms < 5) {
+      return res.status(400).json({ error: 'Homzo requires a minimum of 5 rentable rooms.' });
+    }
+  }
+
+  // Validate Bank Account if provided
+  if (req.body.Bank_Account_Number && !/^[0-9]{9,18}$/.test(String(req.body.Bank_Account_Number).trim())) {
+    return res.status(400).json({ error: 'Bank account number must be between 9 and 18 numeric digits.' });
+  }
+
+  // Validate IFSC if provided
+  if (req.body.Bank_IFSC && !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(String(req.body.Bank_IFSC).trim().toUpperCase())) {
+    return res.status(400).json({ error: 'Invalid Bank IFSC Code format (e.g. HDFC0000123).' });
+  }
+
   const fields = [
     'Address', 'City', 'State', 'Pincode', 'Google_Maps_Link', 'Latitude', 'Longitude',
     'Contact_Person', 'Phone', 'Email', 'Total_Rooms', 'Available_Rooms', 'Max_Guests',
     'Bank_Account_Holder', 'Bank_Account_Number', 'Bank_IFSC', 'Bank_Verification_Note',
-    'Registration_Status', 'Policies', 'Partner_Agreement_Accepted'
+    'Registration_Status', 'Policies', 'Partner_Agreement_Accepted', 'Commission_Rate'
   ];
 
   fields.forEach(f => {
@@ -2167,6 +2254,12 @@ app.post('/api/partner/properties/:id/submit', authenticateToken, requireRole('p
   const totalRooms = parseInt(prop.Total_Rooms);
   if (isNaN(totalRooms) || totalRooms < 5) {
     return res.status(400).json({ error: "This property currently does not meet Homzo's minimum room requirement (minimum 5 rentable rooms)." });
+  }
+
+  // Enforce: Commission rate between 12% and 20%
+  const comm = parseFloat(prop.Commission_Rate);
+  if (isNaN(comm) || comm < 12 || comm > 20) {
+    return res.status(400).json({ error: 'A valid platform commission rate between 12% and 20% is required.' });
   }
 
   // Enforce: Mandatory Identity Verification Documents
@@ -2398,6 +2491,17 @@ app.get('/api/partner/revenue', authenticateToken, requireRole('partner'), (req,
     return properties.some(p => p.Name.toLowerCase() === (c.Property || '').toLowerCase()) && c.Status !== 'cancelled';
   });
 
+  // Effective default commission rate from properties (range 12% - 20%, default 15%)
+  let defaultCommRate = 15;
+  if (properties.length > 0) {
+    const parsed = parseFloat(properties[0].Commission_Rate);
+    if (!isNaN(parsed) && parsed >= 12 && parsed <= 20) {
+      defaultCommRate = parsed;
+    } else if (properties[0].Registration_Status === 'Unregistered') {
+      defaultCommRate = 17;
+    }
+  }
+
   const ledger = bookings.map(b => {
     let gt = (b.Guest_Type || 'Unknown').toLowerCase();
     let p = 2000;
@@ -2407,12 +2511,23 @@ app.get('/api/partner/revenue', authenticateToken, requireRole('partner'), (req,
     else if (gt.includes('foreigner')) p = 4000;
     else if (gt.includes('couple')) p = 4500;
 
-    const commission = p * 0.15;
+    // Find specific property for this booking
+    const matchedProp = properties.find(prop => prop.Name.toLowerCase() === (b.Property || '').toLowerCase());
+    let ratePct = defaultCommRate;
+    if (matchedProp) {
+      const pRate = parseFloat(matchedProp.Commission_Rate);
+      if (!isNaN(pRate) && pRate >= 12 && pRate <= 20) {
+        ratePct = pRate;
+      }
+    }
+
+    const commission = Math.round(p * (ratePct / 100));
     return {
       bookingId: `BKG${1000 + b.ID}`,
       guestName: b.Name,
       property: b.Property,
       amount: p,
+      commissionRate: ratePct,
       commission: commission,
       netPayout: p - commission,
       status: 'Paid',
@@ -2585,8 +2700,44 @@ app.put('/api/partner/verification', authenticateToken, requireRole('partner'), 
     return res.status(404).json({ error: 'Partner not found.' });
   }
 
+  // Format validations
+  if (aadhaar !== undefined && aadhaar !== '') {
+    const cleanAadhaar = String(aadhaar).replace(/\s/g, '');
+    if (!/^\d{12}$/.test(cleanAadhaar)) {
+      return res.status(400).json({ error: 'Aadhaar number must be exactly 12 numeric digits.' });
+    }
+  }
+
+  if (pan !== undefined && pan !== '') {
+    const cleanPan = String(pan).trim().toUpperCase();
+    if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(cleanPan)) {
+      return res.status(400).json({ error: 'Invalid PAN card format (expected e.g. ABCDE1234F).' });
+    }
+  }
+
+  if (gst !== undefined && gst !== '') {
+    const cleanGst = String(gst).trim().toUpperCase();
+    if (!/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(cleanGst)) {
+      return res.status(400).json({ error: 'Invalid GSTIN format (expected 15 alphanumeric characters).' });
+    }
+  }
+
+  if (bankAccount !== undefined && bankAccount !== '') {
+    const cleanAcc = String(bankAccount).trim();
+    if (!/^\d{9,18}$/.test(cleanAcc)) {
+      return res.status(400).json({ error: 'Bank account number must be between 9 and 18 numeric digits.' });
+    }
+  }
+
+  if (bankIfsc !== undefined && bankIfsc !== '') {
+    const cleanIfsc = String(bankIfsc).trim().toUpperCase();
+    if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(cleanIfsc)) {
+      return res.status(400).json({ error: 'Invalid Bank IFSC Code format (expected e.g. HDFC0000123).' });
+    }
+  }
+
   if (entityType !== undefined) partners[idx].Entity_Type = entityType;
-  if (aadhaar !== undefined) partners[idx].Aadhaar = aadhaar.trim();
+  if (aadhaar !== undefined) partners[idx].Aadhaar = String(aadhaar).replace(/\s/g, '');
   if (pan !== undefined) partners[idx].PAN = pan.trim().toUpperCase();
   if (gst !== undefined) partners[idx].GST = gst.trim().toUpperCase();
   if (bankName !== undefined) partners[idx].Bank_Name = bankName.trim();
@@ -2609,7 +2760,7 @@ app.post('/api/partner/upload-kyc-doc', authenticateToken, requireRole('partner'
     if (err instanceof multer.MulterError) {
       return res.status(400).json({ error: `File upload error: ${err.message}` });
     } else if (err) {
-      return res.status(500).json({ error: `Server error: ${err.message}` });
+      return res.status(400).json({ error: err.message || 'File upload failed.' });
     }
 
     if (!req.file) {
