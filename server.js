@@ -1869,6 +1869,7 @@ app.get('/api/partner/properties', authenticateToken, requireRole('partner'), (r
 
   const merged = properties.map(p => {
     const propertyMeta = meta.find(m => parseInt(m.Property_ID) === p.ID) || {};
+    const effectiveRooms = parseInt(p.Total_Rooms) || parseInt(p.Inventory) || parseInt(propertyMeta.Inventory) || 10;
     return {
       ...p,
       id: p.ID,
@@ -1882,7 +1883,9 @@ app.get('/api/partner/properties', authenticateToken, requireRole('partner'), (r
       img: p.Image,
       status: p.Status,
       roomCategories: propertyMeta.Room_Categories ? JSON.parse(propertyMeta.Room_Categories) : [],
-      inventory: propertyMeta.Inventory || 10,
+      inventory: effectiveRooms,
+      Total_Rooms: effectiveRooms,
+      Available_Rooms: parseInt(p.Available_Rooms) || effectiveRooms,
       amenities: propertyMeta.Amenities ? String(propertyMeta.Amenities).split(',') : [],
       policies: propertyMeta.Policies || 'Standard Homzo house rules apply.',
       checkInOut: propertyMeta.Check_In_Out || 'Check-in: 12:00 PM, Check-out: 11:00 AM'
@@ -2001,36 +2004,40 @@ app.put('/api/partner/properties/:id', authenticateToken, requireRole('partner')
 
   const { name, type, roomCategories, inventory, amenities, policies, checkInOut } = req.body;
 
-  // Update properties main table if name or type changed
-  if (name || type) {
-    const properties = readExcelDb(propertiesDbPath);
-    const idx = properties.findIndex(p => p.ID === propId);
-    if (idx !== -1) {
-      if (name) properties[idx].Name = name;
-      if (type) properties[idx].Type = type;
-      writeExcelDb(propertiesDbPath, 'Properties', properties);
+  // Update properties main table if name, type, or inventory changed
+  const properties = readExcelDb(propertiesDbPath);
+  const idx = properties.findIndex(p => p.ID === propId);
+  if (idx !== -1) {
+    if (name) properties[idx].Name = name;
+    if (type) properties[idx].Type = type;
+    if (inventory !== undefined) {
+      const invVal = parseInt(inventory) || 10;
+      properties[idx].Inventory = invVal;
+      properties[idx].Total_Rooms = invVal;
+      properties[idx].Available_Rooms = invVal;
     }
+    writeExcelDb(propertiesDbPath, 'Properties', properties);
   }
 
   // Update meta table
   const meta = readExcelDb(partnerMetaDbPath);
-  let idx = meta.findIndex(m => parseInt(m.Property_ID) === propId);
+  let mIdx = meta.findIndex(m => parseInt(m.Property_ID) === propId);
   
   const updatedMeta = {
     Property_ID: propId,
-    Room_Categories: roomCategories ? JSON.stringify(roomCategories) : (idx !== -1 ? meta[idx].Room_Categories : '[]'),
-    Inventory: inventory !== undefined ? inventory : (idx !== -1 ? meta[idx].Inventory : 10),
-    Amenities: Array.isArray(amenities) ? amenities.join(',') : (idx !== -1 ? meta[idx].Amenities : ''),
-    Policies: policies || (idx !== -1 ? meta[idx].Policies : 'Standard Homzo house rules apply.'),
-    Check_In_Out: checkInOut || (idx !== -1 ? meta[idx].Check_In_Out : 'Check-in: 12:00 PM, Check-out: 11:00 AM'),
-    Seasonal_Price: idx !== -1 ? meta[idx].Seasonal_Price : 0,
-    Weekend_Price: idx !== -1 ? meta[idx].Weekend_Price : 0,
-    Discounts: idx !== -1 ? meta[idx].Discounts : '[]',
-    Blocked_Dates: idx !== -1 ? meta[idx].Blocked_Dates : ''
+    Room_Categories: roomCategories ? JSON.stringify(roomCategories) : (mIdx !== -1 ? meta[mIdx].Room_Categories : '[]'),
+    Inventory: inventory !== undefined ? parseInt(inventory) : (mIdx !== -1 ? meta[mIdx].Inventory : 10),
+    Amenities: Array.isArray(amenities) ? amenities.join(',') : (mIdx !== -1 ? meta[mIdx].Amenities : ''),
+    Policies: policies || (mIdx !== -1 ? meta[mIdx].Policies : 'Standard Homzo house rules apply.'),
+    Check_In_Out: checkInOut || (mIdx !== -1 ? meta[mIdx].Check_In_Out : 'Check-in: 12:00 PM, Check-out: 11:00 AM'),
+    Seasonal_Price: mIdx !== -1 ? meta[mIdx].Seasonal_Price : 0,
+    Weekend_Price: mIdx !== -1 ? meta[mIdx].Weekend_Price : 0,
+    Discounts: mIdx !== -1 ? meta[mIdx].Discounts : '[]',
+    Blocked_Dates: mIdx !== -1 ? meta[mIdx].Blocked_Dates : ''
   };
 
-  if (idx !== -1) {
-    meta[idx] = updatedMeta;
+  if (mIdx !== -1) {
+    meta[mIdx] = updatedMeta;
   } else {
     meta.push(updatedMeta);
   }
@@ -2145,12 +2152,17 @@ app.post('/api/partner/properties/:id/upload-doc', authenticateToken, requireRol
       case 'tradeLicense': properties[idx].Trade_License_Doc = filepath; break;
       case 'fssai': properties[idx].FSSAI_Doc = filepath; break;
       case 'cheque': properties[idx].Cancelled_Cheque_Doc = filepath; break;
+      case 'coverPhoto': properties[idx].Image = filepath; break;
+      case 'propertyPhoto':
+      case 'roomPhoto':
+        // General property or room photo upload: returns filepath for frontend state
+        break;
       default:
         return res.status(400).json({ error: 'Invalid document type.' });
     }
 
     writeExcelDb(propertiesDbPath, 'Properties', properties);
-    res.json({ success: true, filepath, docType });
+    res.json({ success: true, filepath, docType, filename: req.file.filename });
   });
 });
 
@@ -2167,7 +2179,41 @@ app.get('/api/partner/properties/:id/onboarding', authenticateToken, requireRole
     return res.status(404).json({ error: 'Property not found.' });
   }
 
-  res.json(property);
+  const meta = readExcelDb(partnerMetaDbPath);
+  const propertyMeta = meta.find(m => parseInt(m.Property_ID) === propId) || {};
+
+  let parsedRoomCategories = [];
+  try {
+    if (propertyMeta.Room_Categories) {
+      parsedRoomCategories = typeof propertyMeta.Room_Categories === 'string' ? JSON.parse(propertyMeta.Room_Categories) : propertyMeta.Room_Categories;
+    }
+  } catch (e) {
+    parsedRoomCategories = [];
+  }
+
+  let parsedPropertyPhotos = [];
+  try {
+    if (property.Property_Photos) {
+      parsedPropertyPhotos = typeof property.Property_Photos === 'string' ? JSON.parse(property.Property_Photos) : property.Property_Photos;
+    }
+  } catch (e) {
+    parsedPropertyPhotos = [];
+  }
+
+  const effectiveRooms = parseInt(property.Total_Rooms) || parseInt(property.Inventory) || parseInt(propertyMeta.Inventory) || 10;
+
+  res.json({
+    ...property,
+    roomCategories: parsedRoomCategories,
+    amenities: propertyMeta.Amenities ? String(propertyMeta.Amenities).split(',').filter(Boolean) : [],
+    policies: propertyMeta.Policies || property.Policies || '',
+    checkInOut: propertyMeta.Check_In_Out || 'Check-in: 12:00 PM, Check-out: 11:00 AM',
+    inventory: effectiveRooms,
+    Total_Rooms: effectiveRooms,
+    Available_Rooms: parseInt(property.Available_Rooms) || effectiveRooms,
+    services: property.Services ? (Array.isArray(property.Services) ? property.Services : String(property.Services).split(',').filter(Boolean)) : [],
+    propertyPhotos: parsedPropertyPhotos
+  });
 });
 
 // PUT save onboarding draft
@@ -2192,11 +2238,18 @@ app.put('/api/partner/properties/:id/onboarding', authenticateToken, requireRole
     properties[idx].Commission_Rate = comm;
   }
 
-  // Validate Total_Rooms if provided
+  // Validate and sync Total_Rooms / Inventory if provided
+  let roomsToSet = null;
   if (req.body.Total_Rooms !== undefined && req.body.Total_Rooms !== '') {
     const rooms = parseInt(req.body.Total_Rooms);
     if (isNaN(rooms) || rooms < 5) {
       return res.status(400).json({ error: 'Homzo requires a minimum of 5 rentable rooms.' });
+    }
+    roomsToSet = rooms;
+  } else if (req.body.Inventory !== undefined && req.body.Inventory !== '') {
+    const rooms = parseInt(req.body.Inventory);
+    if (!isNaN(rooms) && rooms >= 5) {
+      roomsToSet = rooms;
     }
   }
 
@@ -2214,7 +2267,8 @@ app.put('/api/partner/properties/:id/onboarding', authenticateToken, requireRole
     'Address', 'City', 'State', 'Pincode', 'Google_Maps_Link', 'Latitude', 'Longitude',
     'Contact_Person', 'Phone', 'Email', 'Total_Rooms', 'Available_Rooms', 'Max_Guests',
     'Bank_Account_Holder', 'Bank_Account_Number', 'Bank_IFSC', 'Bank_Verification_Note',
-    'Registration_Status', 'Policies', 'Partner_Agreement_Accepted', 'Commission_Rate'
+    'Registration_Status', 'Policies', 'Partner_Agreement_Accepted', 'Commission_Rate',
+    'Brand_Name', 'Existing_Brand', 'Owner_Type', 'Services', 'Property_Photos', 'Image', 'Inventory'
   ];
 
   fields.forEach(f => {
@@ -2222,6 +2276,12 @@ app.put('/api/partner/properties/:id/onboarding', authenticateToken, requireRole
       properties[idx][f] = req.body[f];
     }
   });
+
+  if (roomsToSet !== null) {
+    properties[idx].Total_Rooms = roomsToSet;
+    properties[idx].Inventory = roomsToSet;
+    properties[idx].Available_Rooms = parseInt(req.body.Available_Rooms) || roomsToSet;
+  }
 
   if (req.body.Name) properties[idx].Name = req.body.Name;
   if (req.body.Type) properties[idx].Type = req.body.Type;
@@ -2232,6 +2292,35 @@ app.put('/api/partner/properties/:id/onboarding', authenticateToken, requireRole
   }
 
   writeExcelDb(propertiesDbPath, 'Properties', properties);
+
+  // Always sync PartnerMeta (Inventory, Room_Categories, Amenities, Policies, Check_In_Out)
+  try {
+    const meta = readExcelDb(partnerMetaDbPath);
+    let mIdx = meta.findIndex(m => parseInt(m.Property_ID) === propId);
+    const effectiveRooms = parseInt(properties[idx].Total_Rooms) || parseInt(properties[idx].Inventory) || (mIdx !== -1 ? parseInt(meta[mIdx].Inventory) : 10);
+    const updatedMeta = {
+      Property_ID: propId,
+      Room_Categories: req.body.roomCategories ? (typeof req.body.roomCategories === 'string' ? req.body.roomCategories : JSON.stringify(req.body.roomCategories)) : (mIdx !== -1 ? meta[mIdx].Room_Categories : '[]'),
+      Inventory: effectiveRooms,
+      Amenities: req.body.amenities ? (Array.isArray(req.body.amenities) ? req.body.amenities.join(',') : req.body.amenities) : (mIdx !== -1 ? meta[mIdx].Amenities : ''),
+      Policies: req.body.Policies || req.body.policies || (mIdx !== -1 ? meta[mIdx].Policies : 'Standard Homzo house rules apply.'),
+      Check_In_Out: req.body.checkInOut ? (typeof req.body.checkInOut === 'object' ? `Check-in: ${req.body.checkInOut.checkIn || '12:00 PM'}, Check-out: ${req.body.checkInOut.checkOut || '11:00 AM'}` : req.body.checkInOut) : (mIdx !== -1 ? meta[mIdx].Check_In_Out : 'Check-in: 12:00 PM, Check-out: 11:00 AM'),
+      Seasonal_Price: mIdx !== -1 ? meta[mIdx].Seasonal_Price : 0,
+      Weekend_Price: mIdx !== -1 ? meta[mIdx].Weekend_Price : 0,
+      Discounts: mIdx !== -1 ? meta[mIdx].Discounts : '[]',
+      Blocked_Dates: mIdx !== -1 ? meta[mIdx].Blocked_Dates : ''
+    };
+
+    if (mIdx !== -1) {
+      meta[mIdx] = updatedMeta;
+    } else {
+      meta.push(updatedMeta);
+    }
+    writeExcelDb(partnerMetaDbPath, 'PartnerMeta', meta);
+  } catch (metaErr) {
+    console.error('Error syncing PartnerMeta during onboarding save:', metaErr);
+  }
+
   res.json({ success: true, message: 'Onboarding draft saved successfully.' });
 });
 
@@ -2325,9 +2414,14 @@ app.get('/api/partner/pricing/:propId', authenticateToken, requireRole('partner'
 
   const meta = readExcelDb(partnerMetaDbPath);
   const propertyMeta = meta.find(m => parseInt(m.Property_ID) === propId) || {};
+  const properties = readExcelDb(propertiesDbPath);
+  const prop = properties.find(p => p.ID === propId) || {};
+  const effectiveInventory = parseInt(prop.Total_Rooms) || parseInt(prop.Inventory) || (propertyMeta.Inventory ? parseInt(propertyMeta.Inventory) : 10);
 
   res.json({
     propertyId: propId,
+    inventory: effectiveInventory,
+    totalRooms: effectiveInventory,
     seasonalPrice: propertyMeta.Seasonal_Price || 0,
     weekendPrice: propertyMeta.Weekend_Price || 0,
     discounts: propertyMeta.Discounts ? JSON.parse(propertyMeta.Discounts) : [],
@@ -2347,10 +2441,14 @@ app.post('/api/partner/pricing/:propId', authenticateToken, requireRole('partner
   const meta = readExcelDb(partnerMetaDbPath);
   let idx = meta.findIndex(m => parseInt(m.Property_ID) === propId);
 
+  const properties = readExcelDb(propertiesDbPath);
+  const prop = properties.find(p => p.ID === propId) || {};
+  const effectiveInventory = parseInt(prop.Total_Rooms) || parseInt(prop.Inventory) || (idx !== -1 ? parseInt(meta[idx].Inventory) : 10);
+
   const updatedMeta = {
     Property_ID: propId,
     Room_Categories: idx !== -1 ? meta[idx].Room_Categories : '[]',
-    Inventory: idx !== -1 ? meta[idx].Inventory : 10,
+    Inventory: effectiveInventory,
     Amenities: idx !== -1 ? meta[idx].Amenities : '',
     Policies: idx !== -1 ? meta[idx].Policies : '',
     Check_In_Out: idx !== -1 ? meta[idx].Check_In_Out : '',
