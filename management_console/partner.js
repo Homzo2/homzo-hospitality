@@ -840,6 +840,9 @@ async function loadDashboardData() {
 
     // Load upcoming list
     await loadUpcomingBookings();
+
+    // Render Dashboard Property Readiness Milestones & Cards
+    await renderDashboardPropertiesAndMilestones();
     
     // Render security logs widget
     const logContainer = document.getElementById('activityLogContainer');
@@ -857,6 +860,134 @@ async function loadDashboardData() {
     }
   } catch (err) {
     console.error('Error loading dashboard stats:', err);
+  }
+}
+
+// ─── Dashboard Properties & Milestones Loader ────────
+async function renderDashboardPropertiesAndMilestones() {
+  try {
+    const res = await fetch(`${API_BASE}/partner/properties`, { headers: getHeaders() });
+    if (!res.ok) return;
+    currentProperties = await res.json();
+
+    const pctEl = document.getElementById('dashProfilePct');
+    const barEl = document.getElementById('dashProfileProgressBar');
+    const gridEl = document.getElementById('dashPropsGrid');
+    if (!gridEl) return;
+
+    if (currentProperties.length === 0) {
+      if (pctEl) pctEl.textContent = '0%';
+      if (barEl) barEl.style.width = '0%';
+      gridEl.innerHTML = `
+        <div style="grid-column:1/-1; text-align:center; padding:36px 16px; background:rgba(255,255,255,0.02); border:1px dashed var(--hz-border); border-radius:var(--hz-radius-md);">
+          <div style="width:48px; height:48px; border-radius:50%; background:rgba(212,175,55,0.1); color:var(--hz-gold); display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin:0 auto 12px auto;">
+            <i class="fa-solid fa-hotel"></i>
+          </div>
+          <h4 style="color:#FFFFFF; font-size:1rem; margin-bottom:6px;">No Stays Added Yet</h4>
+          <p style="color:var(--hz-text-muted); font-size:0.85rem; margin-bottom:16px;">Begin your journey by adding your hotel, homestay, or resort to HOMZO.</p>
+          <button type="button" class="hz-btn-gold" onclick="openAddPropertyModal()" style="font-size:0.85rem; padding:10px 20px;">
+            <i class="fa-solid fa-plus"></i> Add Your First Property
+          </button>
+        </div>`;
+      return;
+    }
+
+    // Active property or first
+    const p = (selectedPropertyId && currentProperties.find(x => x.id === selectedPropertyId)) || currentProperties[0];
+    const score = computePropertyReadinessScore(p);
+
+    if (pctEl) pctEl.textContent = `${score}%`;
+    if (barEl) barEl.style.width = `${score}%`;
+
+    // Update milestones
+    updateMilestoneBadge('ms25', score >= 25, score >= 10);
+    updateMilestoneBadge('ms50', score >= 50 || (p.Aadhaar_Doc && p.PAN_Doc), score >= 25);
+    updateMilestoneBadge('ms75', score >= 75 || (p.Image && p.Total_Rooms >= 5), score >= 50);
+    const isUnderReviewOrLive = ['Submitted', 'KYC Verification', 'Document Verification', 'Property Verification', 'Commercial Approval', 'Approved', 'Live'].includes(p.Onboarding_Stage);
+    updateMilestoneBadge('ms100', isUnderReviewOrLive || score >= 95, score >= 75);
+
+    // Render Luxury Property Cards in Grid
+    gridEl.innerHTML = currentProperties.map(prop => {
+      const comm = (parseFloat(prop.Commission_Rate) >= 12 && parseFloat(prop.Commission_Rate) <= 20) ? parseFloat(prop.Commission_Rate) : 15;
+      const stage = prop.Onboarding_Stage || 'Draft';
+      const stageBadgeStyle = getStageBadgeStyle(stage);
+      const isLive = stage === 'Live';
+      const isApproved = stage === 'Approved';
+
+      return `
+        <div class="hz-prop-card">
+          <div class="hz-prop-card-media">
+            <img src="${prop.Image || '/customer_web/hero_room.png'}" alt="${prop.name}">
+            <span class="hz-prop-card-badge" style="${stageBadgeStyle}">${stage.toUpperCase()}</span>
+          </div>
+          <div class="hz-prop-card-body">
+            <span class="hz-card-tag">${prop.type || 'Hotel'}</span>
+            <h4 class="hz-prop-card-title">HOMZO ${prop.Brand_Name ? `× ${prop.Brand_Name}` : prop.name}</h4>
+            <div class="hz-prop-card-meta">
+              <span><i class="fa-solid fa-location-dot" style="color:var(--hz-gold);"></i> ${prop.City || 'India'}</span>
+              <span><i class="fa-solid fa-bed" style="color:var(--hz-gold);"></i> ${prop.Total_Rooms || 10} Rooms</span>
+              <span><i class="fa-solid fa-percent" style="color:var(--hz-gold);"></i> ${comm}% Commission</span>
+            </div>
+            <div class="hz-prop-card-actions">
+              <button type="button" class="hz-btn-gold" onclick="selectProperty(${prop.id}); switchPage('properties');" style="flex:1; justify-content:center;">
+                <i class="fa-solid ${isLive ? 'fa-sliders' : 'fa-pen-to-square'}"></i> ${isLive ? 'Manage Stay' : (isApproved ? 'View Approval' : 'Continue Setup')}
+              </button>
+              <button type="button" class="hz-btn-outline" onclick="selectProperty(${prop.id}); openLiveGuestPreviewModal();" style="padding:8px 12px;" title="Preview Guest View">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+  } catch (err) {
+    console.error('Error rendering dashboard properties:', err);
+  }
+}
+
+function computePropertyReadinessScore(p) {
+  if (!p) return 0;
+  if (['Submitted', 'Approved', 'Live'].includes(p.Onboarding_Stage)) return 100;
+  let score = 0;
+  if (p.name && p.type) score += 15;
+  if (p.Address && p.City) score += 15;
+  if (p.Total_Rooms && parseInt(p.Total_Rooms) >= 5) score += 15;
+  if (p.Image || p.Owner_Photo_Doc) score += 15;
+  if (p.amenities && (Array.isArray(p.amenities) ? p.amenities.length > 0 : p.amenities.length > 2)) score += 10;
+  if (p.policies || p.checkInOut) score += 10;
+  if (p.Aadhaar_Doc || p.PAN_Doc) score += 10;
+  if (p.Bank_Account_Number && p.Bank_IFSC) score += 10;
+  return Math.min(100, Math.max(10, score));
+}
+
+function updateMilestoneBadge(id, isCompleted, isActive) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove('completed', 'active');
+  if (isCompleted) {
+    el.classList.add('completed');
+  } else if (isActive) {
+    el.classList.add('active');
+  }
+}
+
+function getStageBadgeStyle(stage) {
+  switch(stage) {
+    case 'Live':
+      return 'background:rgba(34,197,94,0.25); color:#4ADE80; border:1px solid rgba(74,222,128,0.4);';
+    case 'Approved':
+      return 'background:rgba(34,197,94,0.2); color:#4ADE80; border:1px solid rgba(74,222,128,0.3);';
+    case 'Submitted':
+    case 'KYC Verification':
+    case 'Document Verification':
+    case 'Property Verification':
+    case 'Commercial Approval':
+      return 'background:rgba(59,130,246,0.2); color:#60A5FA; border:1px solid rgba(96,165,250,0.3);';
+    case 'Correction Required':
+      return 'background:rgba(239,68,68,0.2); color:#F87171; border:1px solid rgba(248,113,113,0.3);';
+    default:
+      return 'background:rgba(255,255,255,0.1); color:#E2E8F0; border:1px solid rgba(255,255,255,0.15);';
   }
 }
 
@@ -1030,25 +1161,79 @@ window.deletePartnerProperty = async function(event, id, name) {
   }
 };
 
-function selectProperty(id) {
+async function selectProperty(id) {
   selectedPropertyId = id;
-  const p = currentProperties.find(x => x.id === id);
+  let p = currentProperties.find(x => x.id === id);
   if (!p) return;
 
   // Highlight list item
   document.querySelectorAll('#partnerPropList button').forEach((btn, idx) => {
     const matched = currentProperties[idx] && currentProperties[idx].id === id;
-    btn.style.background = matched ? 'var(--primary-glow)' : 'none';
-    btn.style.color = matched ? 'var(--primary)' : 'var(--text-primary)';
+    btn.style.background = matched ? 'rgba(212,175,55,0.15)' : 'none';
+    btn.style.color = matched ? 'var(--hz-gold)' : 'var(--text-primary)';
   });
 
   document.getElementById('propDetailsEditor').style.display = 'block';
   document.getElementById('noPropSelected').style.display = 'none';
 
-  // Set form fields
+  // Fetch full onboarding metadata from server
+  try {
+    const res = await fetch(`${API_BASE}/partner/properties/${id}/onboarding`, { headers: getHeaders() });
+    if (res.ok) {
+      const fullProp = await res.json();
+      p = { ...p, ...fullProp };
+      const pIdx = currentProperties.findIndex(x => x.id === id);
+      if (pIdx !== -1) currentProperties[pIdx] = p;
+    }
+  } catch (e) {
+    console.warn('Could not fetch rich onboarding metadata:', e);
+  }
+
+  // Stepper Header Property Name
+  const stepperPropDisp = document.getElementById('stepperPropNameDisplay');
+  if (stepperPropDisp) {
+    stepperPropDisp.textContent = p.name || 'Property Builder';
+  }
+
+  // Hidden IDs
   document.getElementById('editPropId').value = p.id;
-  document.getElementById('editPropName').value = p.name;
-  document.getElementById('editPropType').value = p.type || 'Hotel';
+  
+  // Step 1: Property Type
+  const propType = p.type || 'Hotel';
+  document.getElementById('editPropType').value = propType;
+  selectPropertyTypeCard(propType);
+
+  // Step 2: Basics
+  document.getElementById('editPropName').value = p.name || '';
+  const brandInput = document.getElementById('editBrandName');
+  if (brandInput) brandInput.value = p.Brand_Name || '';
+
+  document.getElementById('wzContactPerson').value = p.Contact_Person || '';
+  document.getElementById('wzPropPhone').value = p.Phone || '';
+  document.getElementById('wzPropEmail').value = p.Email || '';
+
+  const totalRooms = parseInt(p.Total_Rooms) || parseInt(p.Inventory) || 10;
+  document.getElementById('wzTotalRooms').value = totalRooms;
+  const roomsDisp = document.getElementById('bldRoomsDisplay');
+  if (roomsDisp) {
+    if (roomsDisp.tagName === 'INPUT') roomsDisp.value = totalRooms;
+    else roomsDisp.textContent = totalRooms;
+  }
+  document.getElementById('wzAvailableRooms').value = p.Available_Rooms || totalRooms;
+  document.getElementById('wzMaxGuests').value = p.Max_Guests || (totalRooms * 2);
+  const guestsDisp = document.getElementById('bldGuestsDisplay');
+  if (guestsDisp) guestsDisp.textContent = p.Max_Guests || (totalRooms * 2);
+
+  const roomValBadge = document.getElementById('roomCountValidationBadge');
+  if (roomValBadge) {
+    if (totalRooms >= 5) {
+      roomValBadge.innerHTML = '<span style="color:var(--hz-success);"><i class="fa-solid fa-circle-check"></i> Meets Homzo minimum requirement (5+ rooms)</span>';
+    } else {
+      roomValBadge.innerHTML = '<span style="color:var(--hz-warning);"><i class="fa-solid fa-triangle-exclamation"></i> Homzo requires minimum 5 rooms for onboarding</span>';
+    }
+  }
+
+  // Step 3: Location
   document.getElementById('wzAddress').value = p.Address || '';
   document.getElementById('wzCity').value = p.City || '';
   document.getElementById('wzState').value = p.State || '';
@@ -1056,169 +1241,222 @@ function selectProperty(id) {
   document.getElementById('wzGmapsLink').value = p.Google_Maps_Link || '';
   document.getElementById('wzLatitude').value = p.Latitude || '';
   document.getElementById('wzLongitude').value = p.Longitude || '';
-  
-  document.getElementById('wzContactPerson').value = p.Contact_Person || '';
-  document.getElementById('wzPropPhone').value = p.Phone || '';
-  document.getElementById('wzPropEmail').value = p.Email || '';
-  
-  document.getElementById('wzTotalRooms').value = p.Total_Rooms || '';
-  document.getElementById('wzAvailableRooms').value = p.Available_Rooms || '';
-  document.getElementById('wzMaxGuests').value = p.Max_Guests || '';
+  const locSummary = document.getElementById('bldLocationSummary');
+  if (locSummary) {
+    locSummary.textContent = (p.Address ? p.Address + ', ' : '') + (p.City || 'Location preview') + (p.Pincode ? ' - ' + p.Pincode : '');
+  }
+
+  // Step 4 & 5: Room Categories & Room Photos
+  if (Array.isArray(p.roomCategories) && p.roomCategories.length > 0) {
+    builderRoomCategories = JSON.parse(JSON.stringify(p.roomCategories));
+  } else {
+    builderRoomCategories = [
+      {
+        name: 'Standard Deluxe',
+        type: 'deluxe',
+        roomsCount: Math.min(totalRooms, 5),
+        maxGuests: 2,
+        bedType: 'Queen Bed',
+        ac: true,
+        price: 1800,
+        photos: []
+      }
+    ];
+  }
+  renderBuilderRoomCategories();
+  renderRoomPhotosPerCategory();
+
+  // Step 6: Cover & Property Photos
+  const coverImg = document.getElementById('bldCoverPreviewImg');
+  if (coverImg) {
+    coverImg.src = p.Image || '/customer_web/hero_room.png';
+  }
+  builderPropertyGallery = Array.isArray(p.propertyPhotos) ? [...p.propertyPhotos] : [];
+  renderPropertyGallery();
+
+  // Step 7: Amenities & Services
+  builderAmenities = new Set();
+  if (Array.isArray(p.amenities)) {
+    p.amenities.forEach(a => builderAmenities.add(a));
+  } else if (typeof p.amenities === 'string' && p.amenities) {
+    p.amenities.split(',').map(s => s.trim()).filter(Boolean).forEach(a => builderAmenities.add(a));
+  }
+  if (builderAmenities.size === 0) {
+    builderAmenities.add('WiFi');
+    builderAmenities.add('AC');
+    builderAmenities.add('Housekeeping');
+  }
+
+  document.querySelectorAll('#bldAmenitiesGrid .hz-amenity-pill').forEach(pill => {
+    const text = pill.querySelector('span')?.textContent.trim() || '';
+    const key = pill.getAttribute('onclick')?.match(/'([^']+)'/)?.[1] || text;
+    if (builderAmenities.has(key) || builderAmenities.has(text)) {
+      pill.classList.add('selected');
+    } else {
+      pill.classList.remove('selected');
+    }
+  });
+  const amenBadge = document.getElementById('bldAmenityCountBadge');
+  if (amenBadge) amenBadge.textContent = `${builderAmenities.size} selected`;
+
+  builderServices = new Set();
+  if (Array.isArray(p.services)) {
+    p.services.forEach(s => builderServices.add(s));
+  } else if (typeof p.services === 'string' && p.services) {
+    p.services.split(',').map(s => s.trim()).filter(Boolean).forEach(s => builderServices.add(s));
+  }
+  if (builderServices.size === 0) {
+    builderServices.add('24-hour Reception');
+    builderServices.add('Daily Housekeeping');
+  }
+
+  document.querySelectorAll('#bldServicesGrid .hz-amenity-pill').forEach(pill => {
+    const text = pill.querySelector('span')?.textContent.trim() || '';
+    const key = pill.getAttribute('onclick')?.match(/'([^']+)'/)?.[1] || text;
+    if (builderServices.has(key) || builderServices.has(text)) {
+      pill.classList.add('selected');
+    } else {
+      pill.classList.remove('selected');
+    }
+  });
+
+  // Step 8: Brand & Display Live Preview
+  updateCoBrandLivePreview();
+
+  // Step 9: Policies
+  if (p.checkInOut) {
+    if (document.getElementById('bldCheckInTime') && p.checkInOut.checkIn) document.getElementById('bldCheckInTime').value = p.checkInOut.checkIn;
+    if (document.getElementById('bldCheckOutTime') && p.checkInOut.checkOut) document.getElementById('bldCheckOutTime').value = p.checkInOut.checkOut;
+    if (document.getElementById('bldCancellationPolicy') && p.checkInOut.cancellation) document.getElementById('bldCancellationPolicy').value = p.checkInOut.cancellation;
+    if (document.getElementById('bldCouplePolicy') && p.checkInOut.couples) document.getElementById('bldCouplePolicy').value = p.checkInOut.couples;
+    if (document.getElementById('bldPetPolicy') && p.checkInOut.pets) document.getElementById('bldPetPolicy').value = p.checkInOut.pets;
+    if (document.getElementById('bldSmokingPolicy') && p.checkInOut.smoking) document.getElementById('bldSmokingPolicy').value = p.checkInOut.smoking;
+  }
+  document.getElementById('editPropPolicies').value = p.policies || '';
+
+  // Step 10: Owner Role & KYC
+  const ownerRole = p.Owner_Type || 'Owner';
+  document.getElementById('wzOwnerRole').value = ownerRole;
+  selectOwnerRoleCard(ownerRole);
+
+  const ownerNameInput = document.getElementById('wzLegalOwnerName');
+  if (ownerNameInput) ownerNameInput.value = p.Contact_Person || (currentUser ? currentUser.name : '');
+  const ownerPhoneInput = document.getElementById('wzOwnerPhone');
+  if (ownerPhoneInput) ownerPhoneInput.value = p.Phone || '';
+
+  document.getElementById('wzAadhaarNum').value = p.Aadhaar_Doc ? 'Aadhaar Verified' : '';
+  document.getElementById('wzPanNum').value = p.PAN_Doc ? 'PAN Verified' : '';
+
+  updateUploadLabel('lblPanDoc', p.PAN_Doc);
+  updateUploadLabel('lblAadhaarDoc', p.Aadhaar_Doc);
+  updateUploadLabel('lblPhotoDoc', p.Owner_Photo_Doc);
+
+  // Step 11: Property Documents
+  updateUploadLabel('lblOwnershipDoc', p.Ownership_Doc);
+  updateUploadLabel('lblLeaseDoc', p.Rent_Agreement_Doc);
+  updateUploadLabel('lblGstDoc', p.GST_Doc);
+  updateUploadLabel('lblFireSafetyDoc', p.Fire_Safety_Doc);
+  updateUploadLabel('lblTradeDoc', p.Trade_License_Doc);
+
+  // Step 12: Bank Details & Commercials
+  document.getElementById('wzBankAccountHolder').value = p.Bank_Account_Holder || '';
+  document.getElementById('wzBankName').value = p.Bank_Account_Holder ? (p.Bank_Name || 'Verified Bank') : '';
+  document.getElementById('wzBankAccountNumber').value = p.Bank_Account_Number || '';
+  document.getElementById('wzBankIfsc').value = p.Bank_IFSC || '';
+  updateUploadLabel('lblChequeDoc', p.Cancelled_Cheque_Doc);
 
   // Commission Rate (12% to 20%, default 15%)
   const propComm = (parseFloat(p.Commission_Rate) >= 12 && parseFloat(p.Commission_Rate) <= 20) ? parseFloat(p.Commission_Rate) : (p.Registration_Status === 'Unregistered' ? 17 : 15);
   const commInput = document.getElementById('wzCommissionRate');
-  if (commInput) {
-    commInput.value = propComm;
-  }
-  if (typeof updateAgreementCommDisplay === 'function') {
-    updateAgreementCommDisplay();
-  }
+  if (commInput) commInput.value = propComm;
+  const commDisp = document.getElementById('bldCommRateDisplay');
+  if (commDisp) commDisp.textContent = propComm;
+  const shareDisp = document.getElementById('bldShareRateDisplay');
+  if (shareDisp) shareDisp.textContent = (100 - propComm);
 
-  // Setup entity type & fields
-  const entityType = p.Registration_Status === 'Unregistered' ? 'Individual' : 'Company';
-  document.getElementById('wzEntityType').value = entityType === 'Individual' ? 'Individual' : 'Company';
-  toggleEntityKyc();
-
-  document.getElementById('wzAadhaarNum').value = p.Aadhaar_Doc ? 'Aadhaar Verified' : ''; 
-  document.getElementById('wzPanNum').value = p.PAN_Doc ? 'PAN Verified' : '';
-  document.getElementById('wzCompanyPan').value = p.PAN_Doc ? 'PAN Verified' : '';
-  document.getElementById('wzAuthPersonId').value = p.Aadhaar_Doc ? 'ID Verified' : '';
-
-  // GST
-  const gstRegistered = p.GST_Doc ? 'YES' : 'NO';
-  document.getElementById('wzGstStatus').value = gstRegistered;
-  toggleGstInput();
-  if (gstRegistered === 'YES') {
-    document.getElementById('wzGstNumber').value = p.GST_Doc ? 'GST Verified' : '';
-  }
-
-  // Bank
-  document.getElementById('wzBankAccountHolder').value = p.Bank_Account_Holder || '';
-  document.getElementById('wzBankName').value = p.Bank_Account_Holder ? 'Verified Bank' : '';
-  document.getElementById('wzBankAccountNumber').value = p.Bank_Account_Number || '';
-  document.getElementById('wzBankIfsc').value = p.Bank_IFSC || '';
-  verifyBankNameMatching();
-
-  // Document labels
-  updateUploadLabel('lblAadhaarDoc', p.Aadhaar_Doc);
-  updateUploadLabel('lblPanDoc', p.PAN_Doc);
-  updateUploadLabel('lblPhotoDoc', p.Owner_Photo_Doc);
-  updateUploadLabel('lblIncorpDoc', p.Incorporation_Doc);
-  updateUploadLabel('lblAuthDoc', p.Authorization_Doc);
-  updateUploadLabel('lblOwnershipDoc', p.Ownership_Doc);
-  updateUploadLabel('lblLeaseDoc', p.Rent_Agreement_Doc);
-  updateUploadLabel('lblNocDoc', p.NOC_Doc);
-  updateUploadLabel('lblGstDoc', p.GST_Doc);
-  updateUploadLabel('lblBusinessRegDoc', p.Business_Registration_Doc);
-  updateUploadLabel('lblFireSafetyDoc', p.Fire_Safety_Doc);
-  updateUploadLabel('lblPoliceDoc', p.Police_Verification_Doc);
-  updateUploadLabel('lblTradeDoc', p.Trade_License_Doc);
-  updateUploadLabel('lblFssaiDoc', p.FSSAI_Doc);
-  updateUploadLabel('lblChequeDoc', p.Cancelled_Cheque_Doc);
-
-  // Check amenities
-  const ams = p.amenities || [];
-  document.querySelectorAll('input[name="wzAmenity"]').forEach(box => {
-    box.checked = ams.includes(box.value);
-  });
-
-  // Policies & Legal
-  document.getElementById('editPropPolicies').value = p.policies || '';
-  
-  // Set legal declarations
-  document.getElementById('chkDeclTrue1').checked = p.Partner_Agreement_Accepted || false;
-  document.getElementById('chkDeclTrue2').checked = p.Partner_Agreement_Accepted || false;
-  document.getElementById('chkDeclTrue3').checked = p.Partner_Agreement_Accepted || false;
-  document.getElementById('chkAcceptAgreement').checked = p.Partner_Agreement_Accepted || false;
+  // Step 13: Declarations
+  const isAccepted = p.Partner_Agreement_Accepted || false;
+  if (document.getElementById('chkDeclTrue1')) document.getElementById('chkDeclTrue1').checked = isAccepted;
+  if (document.getElementById('chkDeclTrue2')) document.getElementById('chkDeclTrue2').checked = isAccepted;
+  if (document.getElementById('chkAcceptAgreement')) document.getElementById('chkAcceptAgreement').checked = isAccepted;
 
   // Onboarding Stage Banner setup
+  updateStageBanner(p);
+
+  // Update builder progress count
+  updateBuilderCompletionProgress();
+
+  // Reset to Step 1
+  switchBuilderStep(1);
+}
+
+function updateStageBanner(p) {
   const stage = p.Onboarding_Stage || 'Draft';
-  document.getElementById('onboardingStageBanner').style.display = 'flex';
-  
+  const banner = document.getElementById('onboardingStageBanner');
+  if (banner) banner.style.display = 'flex';
+
+  const brandTag = document.getElementById('propStageBrand');
   const stageTitle = document.getElementById('propStageTitle');
   const stageDesc = document.getElementById('propStageDesc');
   const badgeRight = document.getElementById('badgeStatusRight');
   const correctionBox = document.getElementById('correctionNotesBox');
   const correctionNotes = document.getElementById('propCorrectionNotes');
 
-  stageTitle.textContent = 'Status: ' + stage.toUpperCase();
-  badgeRight.textContent = stage;
-  correctionBox.style.display = 'none';
+  if (brandTag) brandTag.textContent = `HOMZO × ${p.Brand_Name || p.name || 'HOTEL'}`;
+  if (badgeRight) badgeRight.textContent = stage;
+  if (correctionBox) correctionBox.style.display = 'none';
 
   switch(stage) {
     case 'Draft':
-      stageTitle.textContent = 'Status: DRAFT MODE';
-      stageDesc.textContent = 'Your onboarding application is in Draft. Fill out all steps and click Submit.';
-      badgeRight.style.background = 'rgba(255,255,255,0.05)';
-      badgeRight.style.color = 'var(--text-primary)';
+      if (stageTitle) stageTitle.textContent = 'Status: DRAFT MODE';
+      if (stageDesc) stageDesc.textContent = 'Your onboarding application is in Draft. Fill out the 12 guided steps and click Submit.';
+      if (badgeRight) { badgeRight.style.background = 'rgba(255,255,255,0.05)'; badgeRight.style.color = 'var(--text-primary)'; }
       break;
     case 'Submitted':
-      stageTitle.textContent = 'Status: SUBMITTED';
-      stageDesc.textContent = 'Your details and KYC documents have been successfully submitted. Our team is reviewing them.';
-      badgeRight.style.background = 'rgba(59,130,246,0.15)';
-      badgeRight.style.color = 'var(--info)';
+      if (stageTitle) stageTitle.textContent = 'Status: SUBMITTED FOR HOMZO REVIEW';
+      if (stageDesc) stageDesc.textContent = 'Your property details and documents have been submitted. Our compliance team is reviewing them.';
+      if (badgeRight) { badgeRight.style.background = 'rgba(59,130,246,0.15)'; badgeRight.style.color = 'var(--info)'; }
       break;
     case 'KYC Verification':
-      stageTitle.textContent = 'Status: KYC VERIFICATION IN PROGRESS';
-      stageDesc.textContent = 'Super admin is currently validating your Aadhaar, PAN, and identity documents.';
-      badgeRight.style.background = 'rgba(245,158,11,0.15)';
-      badgeRight.style.color = 'var(--warning)';
+      if (stageTitle) stageTitle.textContent = 'Status: KYC VERIFICATION IN PROGRESS';
+      if (stageDesc) stageDesc.textContent = 'Super admin is validating your identity documents (PAN & Aadhaar).';
+      if (badgeRight) { badgeRight.style.background = 'rgba(245,158,11,0.15)'; badgeRight.style.color = 'var(--warning)'; }
       break;
     case 'Document Verification':
-      stageTitle.textContent = 'Status: DOCUMENTS VERIFICATION IN PROGRESS';
-      stageDesc.textContent = 'Super admin is verifying your property ownership deeds and business registrations.';
-      badgeRight.style.background = 'rgba(245,158,11,0.15)';
-      badgeRight.style.color = 'var(--warning)';
+      if (stageTitle) stageTitle.textContent = 'Status: DOCUMENT VERIFICATION';
+      if (stageDesc) stageDesc.textContent = 'Super admin is validating property deeds and operating agreements.';
+      if (badgeRight) { badgeRight.style.background = 'rgba(245,158,11,0.15)'; badgeRight.style.color = 'var(--warning)'; }
       break;
     case 'Property Verification':
-      stageTitle.textContent = 'Status: PROPERTY AUDIT & VERIFICATION';
-      stageDesc.textContent = 'Quality managers are scheduling a physical property audit and inspecting inventory/amenities.';
-      badgeRight.style.background = 'rgba(139,92,246,0.15)';
-      badgeRight.style.color = '#a78bfa';
+      if (stageTitle) stageTitle.textContent = 'Status: PROPERTY AUDIT';
+      if (stageDesc) stageDesc.textContent = 'HOMZO quality managers are checking rooms, amenities, and photography quality.';
+      if (badgeRight) { badgeRight.style.background = 'rgba(139,92,246,0.15)'; badgeRight.style.color = '#a78bfa'; }
       break;
     case 'Commercial Approval':
-      stageTitle.textContent = 'Status: COMMERCIAL TERMS SETTLEMENT';
-      stageDesc.textContent = `Admin is reviewing and finalizing your agreed platform commission structure (${propComm}%) and bank payouts routing.`;
-      badgeRight.style.background = 'rgba(34,197,94,0.15)';
-      badgeRight.style.color = 'var(--success)';
+      if (stageTitle) stageTitle.textContent = 'Status: COMMERCIAL TERMS SETTLED';
+      if (stageDesc) stageDesc.textContent = `Commercial structure (${p.Commission_Rate || 15}%) and bank payout route confirmed.`;
+      if (badgeRight) { badgeRight.style.background = 'rgba(34,197,94,0.15)'; badgeRight.style.color = 'var(--success)'; }
       break;
     case 'Approved':
-      stageTitle.textContent = 'Status: APPROVED!';
-      stageDesc.textContent = 'Congratulations! Your stay is approved. Accept final terms below to publish it LIVE.';
-      badgeRight.style.background = 'rgba(34,197,94,0.15)';
-      badgeRight.style.color = 'var(--success)';
+      if (stageTitle) stageTitle.textContent = 'Status: APPROVED BY HOMZO';
+      if (stageDesc) stageDesc.textContent = 'Congratulations! Your property is officially approved. HOMZO admin will transition your stay to LIVE.';
+      if (badgeRight) { badgeRight.style.background = 'rgba(34,197,94,0.15)'; badgeRight.style.color = 'var(--success)'; }
       break;
     case 'Live':
-      stageTitle.textContent = 'Status: ACTIVE / LIVE ON HOMZO';
-      stageDesc.textContent = 'Your property is currently live and visible on the guest search pages. Payouts are active.';
-      badgeRight.style.background = 'rgba(34,197,94,0.3)';
-      badgeRight.style.color = 'var(--success)';
+      if (stageTitle) stageTitle.textContent = 'Status: ACTIVE / LIVE ON HOMZO';
+      if (stageDesc) stageDesc.textContent = 'Your property is currently live and bookable by travelers. Payouts and bookings active.';
+      if (badgeRight) { badgeRight.style.background = 'rgba(34,197,94,0.3)'; badgeRight.style.color = 'var(--success)'; }
       break;
     case 'Correction Required':
-      stageTitle.textContent = 'Status: CORRECTION REQUIRED';
-      stageDesc.textContent = 'Action needed: Admin has requested updates on some documents or details. Review comments below.';
-      badgeRight.style.background = 'rgba(239,68,68,0.15)';
-      badgeRight.style.color = 'var(--danger)';
-      if (p.Correction_Notes) {
+      if (stageTitle) stageTitle.textContent = 'Status: CORRECTION REQUIRED';
+      if (stageDesc) stageDesc.textContent = 'Action needed: Super admin requested revisions on specific details. See comments below.';
+      if (badgeRight) { badgeRight.style.background = 'rgba(239,68,68,0.15)'; badgeRight.style.color = 'var(--danger)'; }
+      if (p.Correction_Notes && correctionBox && correctionNotes) {
         correctionBox.style.display = 'block';
         correctionNotes.textContent = p.Correction_Notes;
       }
       break;
   }
-
-  // Founding partner badge
-  const foundingContainer = document.getElementById('foundingPartnerBadgeContainer');
-  if (foundingContainer) {
-    foundingContainer.style.display = p.Is_Founding_Partner ? 'block' : 'none';
-  }
-
-  // Load and render room categories from metadata
-  wzRoomCategories = p.roomCategories || [];
-  renderWzRoomCategories();
-
-  // Reset to Step 1
-  switchWzStep(1);
 }
 
 function updateUploadLabel(id, filepath) {
@@ -1286,6 +1524,14 @@ async function selectPricingProperty(id) {
       document.getElementById('rangeWeekend').value = data.weekendPrice;
       document.getElementById('labelWeekend').textContent = '+' + data.weekendPrice + '%';
 
+      // Update active inventory badge
+      const propObj = currentProperties.find(x => x.id === id) || {};
+      const propInventory = data.inventory || propObj.Total_Rooms || propObj.Inventory || propObj.inventory || 10;
+      const pricingBadge = document.getElementById('pricingPropInventoryBadge');
+      if (pricingBadge) {
+        pricingBadge.textContent = `${propInventory} Rooms`;
+      }
+
       renderCalendar();
     }
   } catch (err) {
@@ -1301,6 +1547,10 @@ function renderCalendar() {
   const labels = grid.querySelectorAll('.calendar-day-label');
   grid.innerHTML = '';
   labels.forEach(l => grid.appendChild(l));
+
+  // Get active property inventory
+  const propObj = currentProperties.find(x => x.id === selectedPropertyId) || {};
+  const propInventory = propObj.Total_Rooms || propObj.Inventory || propObj.inventory || 10;
 
   // Render June 2026 calendar cells
   // June 1, 2026 is a Monday (weekday offset = 1 day empty)
@@ -1319,7 +1569,7 @@ function renderCalendar() {
     dayCell.className = `calendar-day ${isBlocked ? 'blocked' : ''}`;
     dayCell.innerHTML = `
       <span class="day-num">${day}</span>
-      <span class="day-status">${isBlocked ? 'Blocked' : 'Available'}</span>
+      <span class="day-status">${isBlocked ? 'Blocked (0)' : `${propInventory} Rooms`}</span>
     `;
     
     dayCell.addEventListener('click', () => toggleDateAvailability(dateString));
@@ -2180,128 +2430,638 @@ async function markNotificationsRead() {
   }
 }
 
-// ─── WIZARD HELPER FUNCTIONS ───
-let currentWzStep = 1;
-let wzRoomCategories = [];
+// ─── GUIDED 12-STEP PROPERTY BUILDER ENGINE ───────────
+let currentBuilderStep = 1;
+let builderRoomCategories = [];
+let builderPropertyGallery = [];
+let builderAmenities = new Set(['WiFi', 'AC', 'Housekeeping']);
+let builderServices = new Set(['24-hour Reception', 'Daily Housekeeping']);
 
-function switchWzStep(step) {
-  currentWzStep = step;
-  
-  // Toggle step containers
-  document.querySelectorAll('.wz-step-content').forEach(div => {
+// 1. Navigation
+function switchBuilderStep(step) {
+  currentBuilderStep = Math.max(1, Math.min(13, step));
+
+  // Toggle step content panes
+  document.querySelectorAll('.hz-bld-step-pane').forEach(div => {
     div.style.display = 'none';
   });
-  const activeDiv = document.getElementById(`wz-step-${step}`);
-  if (activeDiv) activeDiv.style.display = 'block';
+  const activePane = document.getElementById(`bldStep${currentBuilderStep}`);
+  if (activePane) activePane.style.display = 'block';
 
-  // Toggle step buttons
-  document.querySelectorAll('.wizard-tabs button').forEach(btn => {
-    const stepNum = parseInt(btn.getAttribute('data-wz-step'));
-    if (stepNum === step) {
+  // Toggle sidebar stepper items
+  document.querySelectorAll('#builderStepperList .hz-stepper-item').forEach(btn => {
+    const sNum = parseInt(btn.getAttribute('data-bld-step'));
+    if (sNum === currentBuilderStep) {
       btn.classList.add('active');
     } else {
       btn.classList.remove('active');
     }
   });
 
-  // Adjust button disabled states and visibility
-  document.getElementById('wzPrevBtn').disabled = (step === 1);
-  
-  if (step === 6) {
-    document.getElementById('wzNextBtn').style.display = 'none';
-    document.getElementById('wzSubmitBtn').style.display = 'inline-flex';
+  // Toggle Prev / Next button states
+  const prevBtn = document.getElementById('bldPrevBtn');
+  if (prevBtn) prevBtn.disabled = (currentBuilderStep === 1);
+
+  const nextBtn = document.getElementById('bldNextBtn');
+  if (nextBtn) {
+    if (currentBuilderStep === 13) {
+      nextBtn.style.display = 'none';
+    } else {
+      nextBtn.style.display = 'inline-flex';
+      nextBtn.innerHTML = (currentBuilderStep === 12) 
+        ? 'Review Profile <i class="fa-solid fa-flag-checkered"></i>' 
+        : 'Continue <i class="fa-solid fa-arrow-right"></i>';
+    }
+  }
+
+  // Update live preview when switching
+  updateCoBrandLivePreview();
+  updateBuilderCompletionProgress();
+
+  // Scroll to pane top smoothly
+  const builderContent = document.querySelector('.hz-builder-content');
+  if (builderContent) {
+    builderContent.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function navigateBuilderStep(direction) {
+  const targetStep = currentBuilderStep + direction;
+  if (targetStep >= 1 && targetStep <= 13) {
+    // If navigating forward, auto-save in background
+    if (direction > 0 && selectedPropertyId) {
+      saveBuilderDraft(false);
+    }
+    switchBuilderStep(targetStep);
+  }
+}
+
+// 2. Visual Card Selectors
+function selectPropertyTypeCard(type, el) {
+  const hiddenInput = document.getElementById('editPropType');
+  if (hiddenInput) hiddenInput.value = type;
+
+  const displayEl = document.getElementById('selectedPropTypeDisplay');
+  if (displayEl) displayEl.textContent = type;
+
+  // Highlight selected card
+  document.querySelectorAll('#bldStep1 .hz-visual-card').forEach(card => {
+    card.classList.remove('selected');
+  });
+
+  if (el) {
+    el.classList.add('selected');
   } else {
-    document.getElementById('wzNextBtn').style.display = 'inline-flex';
-    document.getElementById('wzSubmitBtn').style.display = 'none';
+    // Find by type text
+    document.querySelectorAll('#bldStep1 .hz-visual-card').forEach(card => {
+      if (card.querySelector('.hz-visual-card-title')?.textContent.trim().toLowerCase() === type.toLowerCase()) {
+        card.classList.add('selected');
+      }
+    });
   }
+
+  updateCoBrandLivePreview();
+  updateBuilderCompletionProgress();
 }
 
-function navigateWzStep(direction) {
-  const nextStep = currentWzStep + direction;
-  if (nextStep >= 1 && nextStep <= 6) {
-    switchWzStep(nextStep);
-  }
-}
+function selectOwnerRoleCard(role, el) {
+  const hiddenInput = document.getElementById('wzOwnerRole');
+  if (hiddenInput) hiddenInput.value = role;
 
-function toggleEntityKyc() {
-  const type = document.getElementById('wzEntityType').value;
-  const indBox = document.getElementById('wzKycIndividualBox');
-  const compBox = document.getElementById('wzKycCompanyBox');
-  
-  if (type === 'Individual') {
-    indBox.style.display = 'grid';
-    compBox.style.display = 'none';
+  document.querySelectorAll('#bldStep10 .hz-visual-card').forEach(card => {
+    card.classList.remove('selected');
+  });
+
+  if (el) {
+    el.classList.add('selected');
   } else {
-    indBox.style.display = 'none';
-    compBox.style.display = 'grid';
+    document.querySelectorAll('#bldStep10 .hz-visual-card').forEach(card => {
+      if (card.querySelector('.hz-visual-card-title')?.textContent.toLowerCase().includes(role.toLowerCase())) {
+        card.classList.add('selected');
+      }
+    });
   }
+  updateBuilderCompletionProgress();
 }
 
-function toggleGstInput() {
-  const status = document.getElementById('wzGstStatus').value;
-  const numBox = document.getElementById('wzGstNumberBox');
-  const uploadBox = document.getElementById('wzGstUploadBox');
+function setTotalRooms(val) {
+  let rooms = parseInt(val);
+  if (isNaN(rooms) || rooms < 1) rooms = 1;
+
+  const hiddenInput = document.getElementById('wzTotalRooms');
+  if (hiddenInput) hiddenInput.value = rooms;
+
+  const disp = document.getElementById('bldRoomsDisplay');
+  if (disp) {
+    if (disp.tagName === 'INPUT') {
+      if (disp.value !== String(rooms)) disp.value = rooms;
+    } else {
+      disp.textContent = rooms;
+    }
+  }
+
+  const availInput = document.getElementById('wzAvailableRooms');
+  if (availInput) availInput.value = rooms;
+
+  const guestsVal = rooms * 2;
+  const maxGuestsInput = document.getElementById('wzMaxGuests');
+  if (maxGuestsInput) maxGuestsInput.value = guestsVal;
+  const guestsDisp = document.getElementById('bldGuestsDisplay');
+  if (guestsDisp) guestsDisp.textContent = guestsVal;
+
+  const validationBadge = document.getElementById('roomCountValidationBadge');
+  if (validationBadge) {
+    if (rooms >= 5) {
+      validationBadge.innerHTML = '<span style="color:var(--hz-success);"><i class="fa-solid fa-circle-check"></i> Meets Homzo minimum requirement (5+ rooms)</span>';
+    } else {
+      validationBadge.innerHTML = '<span style="color:var(--hz-warning);"><i class="fa-solid fa-triangle-exclamation"></i> Homzo requires minimum 5 rooms for onboarding</span>';
+    }
+  }
+
+  // Live sync active property inventory cache & badge
+  if (selectedPropertyId) {
+    const pIdx = currentProperties.findIndex(x => x.id === selectedPropertyId);
+    if (pIdx !== -1) {
+      currentProperties[pIdx].Total_Rooms = rooms;
+      currentProperties[pIdx].Available_Rooms = rooms;
+      currentProperties[pIdx].Inventory = rooms;
+      currentProperties[pIdx].inventory = rooms;
+    }
+    const pricingBadge = document.getElementById('pricingPropInventoryBadge');
+    if (pricingBadge) {
+      pricingBadge.textContent = `${rooms} Rooms`;
+    }
+  }
+
+  updateCoBrandLivePreview();
+  updateBuilderCompletionProgress();
+}
+
+function adjustTotalRooms(delta) {
+  const hiddenInput = document.getElementById('wzTotalRooms');
+  let currentVal = parseInt(hiddenInput?.value || 10);
+  currentVal = Math.max(1, currentVal + delta);
   
-  if (status === 'YES') {
-    numBox.style.display = 'block';
-    uploadBox.style.display = 'flex';
-  } else {
-    numBox.style.display = 'none';
-    uploadBox.style.display = 'none';
+  const disp = document.getElementById('bldRoomsDisplay');
+  if (disp) {
+    if (disp.tagName === 'INPUT') disp.value = currentVal;
+    else disp.textContent = currentVal;
   }
+  setTotalRooms(currentVal);
 }
 
-function verifyBankNameMatching() {
-  const holder = document.getElementById('wzBankAccountHolder').value.trim().toLowerCase();
-  const alertBox = document.getElementById('bankNameMatchAlert');
-  if (!alertBox) return;
+// 3. Amenities & Services Pills
+function toggleAmenityPill(el, name) {
+  if (builderAmenities.has(name)) {
+    builderAmenities.delete(name);
+    el.classList.remove('selected');
+  } else {
+    builderAmenities.add(name);
+    el.classList.add('selected');
+  }
 
-  const ownerName = (currentUser && currentUser.name) ? currentUser.name.trim().toLowerCase() : '';
+  const badge = document.getElementById('bldAmenityCountBadge');
+  if (badge) badge.textContent = `${builderAmenities.size} selected`;
+  updateBuilderCompletionProgress();
+}
 
-  if (!holder || !ownerName) {
-    alertBox.style.display = 'none';
+function toggleServicePill(el, name) {
+  if (builderServices.has(name)) {
+    builderServices.delete(name);
+    el.classList.remove('selected');
+  } else {
+    builderServices.add(name);
+    el.classList.add('selected');
+  }
+  updateBuilderCompletionProgress();
+}
+
+// 4. Room Categories Builder
+function renderBuilderRoomCategories() {
+  const container = document.getElementById('bldRoomCategoriesContainer');
+  if (!container) return;
+
+  if (builderRoomCategories.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center; color:var(--hz-text-muted); font-size:0.85rem; padding:24px 16px; border:1px dashed var(--hz-border); border-radius:var(--hz-radius-md); margin-bottom:16px;">
+        No room categories added yet. Click "+ Add Room Category" below to configure your rooms.
+      </div>`;
     return;
   }
 
-  // Clean strings
-  const clean = (s) => s.replace(/(mr|mrs|ms|dr|llp|co|inc|pvt|ltd|firm)\.?\s+/g, '').replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ');
-  const cHolder = clean(holder);
-  const cOwner = clean(ownerName);
+  container.innerHTML = builderRoomCategories.map((c, i) => `
+    <div class="hz-room-cat-card">
+      <div class="hz-room-cat-header">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:28px; height:28px; border-radius:50%; background:rgba(212,175,55,0.12); color:var(--hz-gold); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.75rem;">
+            0${i+1}
+          </div>
+          <h4 style="color:#FFFFFF; font-size:0.95rem; margin:0;">${c.name || 'Room Category'}</h4>
+        </div>
+        <button type="button" class="hz-room-delete-btn" title="Delete Category" onclick="deleteRoomCategory(${i})">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </div>
 
-  alertBox.style.display = 'block';
-  if (cHolder === cOwner || cHolder.includes(cOwner) || cOwner.includes(cHolder)) {
-    alertBox.style.background = 'rgba(34,197,94,0.05)';
-    alertBox.style.borderColor = 'rgba(34,197,94,0.15)';
-    alertBox.style.color = 'var(--success)';
-    alertBox.innerHTML = `<i class="fa-solid fa-circle-check"></i> Account Holder Name matches Property Owner Name ("${currentUser.name}").`;
-  } else {
-    alertBox.style.background = 'rgba(245,158,11,0.05)';
-    alertBox.style.borderColor = 'rgba(245,158,11,0.15)';
-    alertBox.style.color = '#fbbf24';
-    alertBox.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> Bank account ownership requires manual verification (Name mismatch: "${currentUser.name}" vs "${document.getElementById('wzBankAccountHolder').value}").`;
+      <div class="hz-room-form-grid">
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="font-size:0.72rem; color:var(--hz-text-muted);">Category Name *</label>
+          <input type="text" class="form-control" style="padding:6px 10px; font-size:0.82rem;" value="${c.name || ''}" placeholder="e.g. Deluxe Room / Executive Suite" onchange="updateRoomCatField(${i}, 'name', this.value)">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="font-size:0.72rem; color:var(--hz-text-muted);">Bed Type</label>
+          <select class="form-control" style="padding:6px 10px; font-size:0.82rem;" onchange="updateRoomCatField(${i}, 'bedType', this.value)">
+            <option value="Queen Bed" ${c.bedType === 'Queen Bed' ? 'selected' : ''}>Queen Bed</option>
+            <option value="King Bed" ${c.bedType === 'King Bed' ? 'selected' : ''}>King Bed</option>
+            <option value="Twin Beds" ${c.bedType === 'Twin Beds' ? 'selected' : ''}>Twin Beds</option>
+            <option value="Single Bed" ${c.bedType === 'Single Bed' ? 'selected' : ''}>Single Bed</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="font-size:0.72rem; color:var(--hz-text-muted);">Number of Rooms</label>
+          <input type="number" min="1" class="form-control" style="padding:6px 10px; font-size:0.82rem;" value="${c.roomsCount || 1}" onchange="updateRoomCatField(${i}, 'roomsCount', parseInt(this.value) || 1)">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="font-size:0.72rem; color:var(--hz-text-muted);">Max Guests</label>
+          <input type="number" min="1" class="form-control" style="padding:6px 10px; font-size:0.82rem;" value="${c.maxGuests || 2}" onchange="updateRoomCatField(${i}, 'maxGuests', parseInt(this.value) || 2)">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="font-size:0.72rem; color:var(--hz-text-muted);">Base Nightly Rate (₹) *</label>
+          <input type="number" min="500" step="50" class="form-control" style="padding:6px 10px; font-size:0.82rem;" value="${c.price || 1800}" onchange="updateRoomCatField(${i}, 'price', parseInt(this.value) || 1800)">
+        </div>
+        <div class="form-group" style="margin-bottom:0; display:flex; align-items:center; gap:8px; margin-top:22px;">
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.8rem; color:#E2E8F0;">
+            <input type="checkbox" ${c.ac ? 'checked' : ''} onchange="updateRoomCatField(${i}, 'ac', this.checked)">
+            <span>Air Conditioned</span>
+          </label>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addNewRoomCategory() {
+  const catCount = builderRoomCategories.length + 1;
+  builderRoomCategories.push({
+    name: catCount === 1 ? 'Standard Deluxe' : (catCount === 2 ? 'Executive Suite' : 'Premium Room'),
+    type: 'deluxe',
+    roomsCount: 2,
+    maxGuests: 2,
+    bedType: 'Queen Bed',
+    ac: true,
+    price: 1800 + ((catCount - 1) * 800),
+    photos: []
+  });
+  renderBuilderRoomCategories();
+  renderRoomPhotosPerCategory();
+  updateBuilderCompletionProgress();
+}
+
+function deleteRoomCategory(idx) {
+  if (builderRoomCategories.length <= 1) {
+    showToast('At least one room category is required.', 'info');
+    return;
+  }
+  builderRoomCategories.splice(idx, 1);
+  renderBuilderRoomCategories();
+  renderRoomPhotosPerCategory();
+  updateBuilderCompletionProgress();
+}
+
+function updateRoomCatField(idx, field, value) {
+  if (!builderRoomCategories[idx]) return;
+  builderRoomCategories[idx][field] = value;
+  if (field === 'name') {
+    renderRoomPhotosPerCategory();
+  }
+  updateCoBrandLivePreview();
+}
+
+// 5. Room Photos Manager
+function renderRoomPhotosPerCategory() {
+  const container = document.getElementById('bldRoomPhotosPerCategory');
+  if (!container) return;
+
+  if (builderRoomCategories.length === 0) {
+    container.innerHTML = `<p style="color:var(--hz-text-muted); font-size:0.85rem;">Please configure room categories in Step 4 first.</p>`;
+    return;
+  }
+
+  container.innerHTML = builderRoomCategories.map((cat, catIdx) => {
+    const photos = Array.isArray(cat.photos) ? cat.photos : [];
+    return `
+      <div style="background:rgba(255,255,255,0.02); border:1px solid var(--hz-border-subtle); border-radius:var(--hz-radius-md); padding:18px; margin-bottom:18px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+          <div>
+            <h5 style="color:#FFFFFF; font-size:0.95rem; margin:0 0 2px 0;">${cat.name || 'Room Category'}</h5>
+            <span style="font-size:0.75rem; color:var(--hz-text-muted);">${photos.length} photos uploaded</span>
+          </div>
+          <div>
+            <input type="file" id="fileRoomPhoto_${catIdx}" accept="image/*" style="display:none;" onchange="uploadRoomPhoto(${catIdx}, this)">
+            <button type="button" class="hz-btn-outline" style="padding:6px 14px; font-size:0.78rem;" onclick="document.getElementById('fileRoomPhoto_${catIdx}').click()">
+              <i class="fa-solid fa-plus"></i> Add Photo
+            </button>
+          </div>
+        </div>
+
+        <div class="hz-gallery-grid" style="grid-template-columns:repeat(auto-fill, minmax(130px, 1fr));">
+          ${photos.map((url, pIdx) => `
+            <div class="hz-gallery-item" style="aspect-ratio:4/3;">
+              <img src="${url}" alt="Room Photo">
+              <button type="button" class="hz-gallery-delete-btn" onclick="deleteRoomPhoto(${catIdx}, ${pIdx})">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          `).join('')}
+          ${photos.length === 0 ? `
+            <div style="grid-column:1/-1; padding:20px; text-align:center; color:var(--hz-text-muted); font-size:0.8rem; border:1px dashed var(--hz-border); border-radius:var(--hz-radius-sm);">
+              <i class="fa-solid fa-camera" style="font-size:20px; color:var(--hz-gold); margin-bottom:6px; display:block;"></i>
+              No photos uploaded for ${cat.name}. Upload bedroom, bathroom, and amenities photos.
+            </div>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function uploadRoomPhoto(catIdx, fileInput) {
+  if (!fileInput || !fileInput.files.length) return;
+  if (!selectedPropertyId) {
+    showToast('Please select or create a property first.', 'error');
+    return;
+  }
+  const file = fileInput.files[0];
+  if (file.size > 10 * 1024 * 1024) {
+    showToast('Photo size must be less than 10MB.', 'error');
+    fileInput.value = '';
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    showToast('Uploading room photo...', 'info');
+    const res = await fetch(`${API_BASE}/partner/properties/${selectedPropertyId}/upload-doc?docType=roomPhoto`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${sessionToken}` },
+      body: formData
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      if (!builderRoomCategories[catIdx].photos) {
+        builderRoomCategories[catIdx].photos = [];
+      }
+      builderRoomCategories[catIdx].photos.push(data.filepath);
+      renderRoomPhotosPerCategory();
+      showToast('Room photo uploaded successfully!', 'success');
+      updateBuilderCompletionProgress();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      showToast(err.error || 'Failed to upload photo.', 'error');
+    }
+  } catch (err) {
+    showToast('Network error during upload.', 'error');
+  } finally {
+    fileInput.value = '';
   }
 }
 
-function validateRoomRequirement() {
-  const rooms = parseInt(document.getElementById('wzTotalRooms').value);
-  const warning = document.getElementById('roomRequirementWarning');
-  if (!warning) return;
-  if (!isNaN(rooms) && rooms < 5) {
-    warning.style.display = 'block';
-  } else {
-    warning.style.display = 'none';
+function deleteRoomPhoto(catIdx, photoIdx) {
+  if (builderRoomCategories[catIdx] && builderRoomCategories[catIdx].photos) {
+    builderRoomCategories[catIdx].photos.splice(photoIdx, 1);
+    renderRoomPhotosPerCategory();
+    updateBuilderCompletionProgress();
   }
 }
 
-window.updateAgreementCommDisplay = function() {
-  const commInput = document.getElementById('wzCommissionRate');
-  const disp = document.getElementById('wzAgreeCommDisplay');
-  if (!commInput || !disp) return;
-  let val = parseFloat(commInput.value);
-  if (isNaN(val)) val = 15;
-  disp.textContent = val + '%';
-};
+// 6. Property Gallery & Cover Photo
+async function uploadPropertyCoverPhoto(fileInput) {
+  if (!fileInput || !fileInput.files.length) return;
+  if (!selectedPropertyId) {
+    showToast('Please select a property first.', 'error');
+    return;
+  }
+  const file = fileInput.files[0];
+  if (file.size > 10 * 1024 * 1024) {
+    showToast('Cover photo size must be less than 10MB.', 'error');
+    fileInput.value = '';
+    return;
+  }
 
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    showToast('Uploading cover photo...', 'info');
+    const res = await fetch(`${API_BASE}/partner/properties/${selectedPropertyId}/upload-doc?docType=coverPhoto`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${sessionToken}` },
+      body: formData
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      const previewImg = document.getElementById('bldCoverPreviewImg');
+      if (previewImg) previewImg.src = data.filepath;
+
+      const cardCover = document.getElementById('cardDemoCoverImg');
+      if (cardCover) cardCover.src = data.filepath;
+
+      const modalCover = document.getElementById('gpCoverImg');
+      if (modalCover) modalCover.src = data.filepath;
+
+      const pIdx = currentProperties.findIndex(x => x.id === selectedPropertyId);
+      if (pIdx !== -1) currentProperties[pIdx].Image = data.filepath;
+
+      showToast('Property cover photo updated!', 'success');
+      updateBuilderCompletionProgress();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      showToast(err.error || 'Failed to upload cover photo.', 'error');
+    }
+  } catch (err) {
+    showToast('Network error during upload.', 'error');
+  } finally {
+    fileInput.value = '';
+  }
+}
+
+async function handlePropGalleryUpload(fileInput) {
+  if (!fileInput || !fileInput.files.length) return;
+  if (!selectedPropertyId) {
+    showToast('Please select a property first.', 'error');
+    return;
+  }
+
+  const files = Array.from(fileInput.files);
+  showToast(`Uploading ${files.length} property photos...`, 'info');
+
+  for (const file of files) {
+    if (file.size > 10 * 1024 * 1024) continue;
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const res = await fetch(`${API_BASE}/partner/properties/${selectedPropertyId}/upload-doc?docType=propertyPhoto`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${sessionToken}` },
+        body: formData
+      });
+      if (res.ok) {
+        const data = await res.json();
+        builderPropertyGallery.push(data.filepath);
+      }
+    } catch (e) {
+      console.warn('Gallery photo upload error:', e);
+    }
+  }
+
+  renderPropertyGallery();
+  showToast('Property photos updated!', 'success');
+  updateBuilderCompletionProgress();
+  fileInput.value = '';
+}
+
+function deletePropGalleryPhoto(idx) {
+  builderPropertyGallery.splice(idx, 1);
+  renderPropertyGallery();
+  updateBuilderCompletionProgress();
+}
+
+function renderPropertyGallery() {
+  const grid = document.getElementById('bldPropertyGalleryGrid');
+  if (!grid) return;
+
+  if (builderPropertyGallery.length === 0) {
+    grid.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:var(--hz-text-muted); font-size:0.8rem; padding:12px;">No additional gallery photos uploaded.</p>`;
+    return;
+  }
+
+  grid.innerHTML = builderPropertyGallery.map((url, i) => `
+    <div class="hz-gallery-item">
+      <img src="${url}" alt="Property Gallery">
+      <button type="button" class="hz-gallery-delete-btn" onclick="deletePropGalleryPhoto(${i})">
+        <i class="fa-solid fa-trash"></i>
+      </button>
+    </div>
+  `).join('');
+}
+
+// 7. Live Co-Brand Preview & Guest View Modal
+function updateCoBrandLivePreview() {
+  const name = document.getElementById('editPropName')?.value.trim() || 'Your Property';
+  const brand = document.getElementById('editBrandName')?.value.trim() || '';
+  const type = document.getElementById('editPropType')?.value || 'Hotel';
+  const city = document.getElementById('wzCity')?.value.trim() || 'Gurugram';
+  const totalRooms = document.getElementById('wzTotalRooms')?.value || 10;
+  const coverSrc = document.getElementById('bldCoverPreviewImg')?.src || '/customer_web/hero_room.png';
+
+  // Demo Brand Name
+  const demoBrand = document.getElementById('demoBrandName');
+  if (demoBrand) demoBrand.textContent = brand || name;
+
+  // Card Simulation
+  const cardCover = document.getElementById('cardDemoCoverImg');
+  if (cardCover && coverSrc) cardCover.src = coverSrc;
+
+  const cardTitle = document.getElementById('cardDemoPropName');
+  if (cardTitle) cardTitle.textContent = `HOMZO ${brand ? `× ${brand}` : name}`;
+
+  const cardSub = document.getElementById('cardDemoSubTitle');
+  if (cardSub) cardSub.textContent = brand ? `${type} · ${name}` : `${type} · Curated Homzo Partner`;
+
+  const cardCity = document.getElementById('cardDemoCity');
+  if (cardCity) cardCity.textContent = city;
+
+  const cardRooms = document.getElementById('cardDemoRooms');
+  if (cardRooms) cardRooms.textContent = totalRooms;
+
+  // Header Stage Tag
+  const stageBrand = document.getElementById('propStageBrand');
+  if (stageBrand) stageBrand.textContent = `HOMZO × ${brand || name}`;
+}
+
+function openLiveGuestPreviewModal() {
+  const modal = document.getElementById('guestPreviewModal');
+  if (!modal) return;
+
+  const name = document.getElementById('editPropName')?.value.trim() || 'Curated Stay';
+  const brand = document.getElementById('editBrandName')?.value.trim() || '';
+  const type = document.getElementById('editPropType')?.value || 'Hotel';
+  const city = document.getElementById('wzCity')?.value.trim() || 'India';
+  const address = document.getElementById('wzAddress')?.value.trim() || '';
+  const totalRooms = document.getElementById('wzTotalRooms')?.value || 10;
+  const coverSrc = document.getElementById('bldCoverPreviewImg')?.src || '/customer_web/hero_room.png';
+
+  document.getElementById('gpCoverImg').src = coverSrc;
+  document.getElementById('gpTitle').textContent = `HOMZO ${brand ? `× ${brand}` : name}`;
+  document.getElementById('gpSubTitle').textContent = brand ? `${type} · ${name} · An HOMZO Partner Stay` : `${type} · An HOMZO Curated Stay`;
+  document.getElementById('gpLocation').textContent = (address ? address + ', ' : '') + city;
+  document.getElementById('gpRoomCount').textContent = totalRooms;
+
+  // Room Categories Preview
+  const roomsContainer = document.getElementById('gpRoomsList');
+  if (roomsContainer) {
+    if (builderRoomCategories.length > 0) {
+      roomsContainer.innerHTML = builderRoomCategories.map(c => `
+        <div style="background:rgba(255,255,255,0.02); border:1px solid var(--hz-border-subtle); border-radius:var(--hz-radius-sm); padding:12px 16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div>
+            <strong style="color:#FFFFFF; font-size:0.95rem; display:block;">${c.name}</strong>
+            <span style="font-size:0.75rem; color:var(--hz-text-muted);">${c.bedType || 'Queen Bed'} • Max ${c.maxGuests || 2} Guests • ${c.ac ? 'AC Included' : 'Non-AC'}</span>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:1.15rem; font-weight:800; color:var(--hz-gold);">₹${Math.round(c.price || 1800).toLocaleString()}<span style="font-size:0.75rem; font-weight:400; color:var(--hz-text-muted);"> / night</span></div>
+          </div>
+        </div>
+      `).join('');
+    } else {
+      roomsContainer.innerHTML = `<span style="font-size:0.8rem; color:var(--hz-text-muted);">Standard deluxe rooms available.</span>`;
+    }
+  }
+
+  // Amenities Preview
+  const amenContainer = document.getElementById('gpAmenitiesList');
+  if (amenContainer) {
+    if (builderAmenities.size > 0) {
+      amenContainer.innerHTML = Array.from(builderAmenities).map(a => `
+        <span style="display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,0.04); border:1px solid var(--hz-border-subtle); border-radius:999px; padding:6px 14px; font-size:0.8rem; color:#E2E8F0;">
+          <i class="fa-solid fa-circle-check" style="color:var(--hz-gold); font-size:0.75rem;"></i> ${a}
+        </span>
+      `).join('');
+    } else {
+      amenContainer.innerHTML = `<span style="font-size:0.8rem; color:var(--hz-text-muted);">Wi-Fi, AC, Housekeeping.</span>`;
+    }
+  }
+
+  // Policies Preview
+  const polContainer = document.getElementById('gpPolicies');
+  if (polContainer) {
+    const inTime = document.getElementById('bldCheckInTime')?.value || '12:00 PM';
+    const outTime = document.getElementById('bldCheckOutTime')?.value || '11:00 AM';
+    const cancelPol = document.getElementById('bldCancellationPolicy')?.value || 'Flexible';
+    const houseRules = document.getElementById('editPropPolicies')?.value.trim() || 'Standard Homzo house rules apply. Govt ID required at check-in.';
+
+    polContainer.innerHTML = `
+      <div><strong>Check-in:</strong> ${inTime} | <strong>Check-out:</strong> ${outTime}</div>
+      <div style="margin:4px 0;"><strong>Cancellation:</strong> ${cancelPol}</div>
+      <div style="margin-top:6px; color:#94A3B8;">${houseRules}</div>
+    `;
+  }
+
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLiveGuestPreviewModal() {
+  const modal = document.getElementById('guestPreviewModal');
+  if (modal) {
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+}
+
+// 8. Documents & KYC Uploads
 async function uploadDocFile(docType, fileInputId, labelId) {
   const fileInput = document.getElementById(fileInputId);
   if (!fileInput || !fileInput.files.length) return;
@@ -2324,13 +3084,13 @@ async function uploadDocFile(docType, fileInputId, labelId) {
   formData.append('file', file);
 
   const lbl = document.getElementById(labelId);
-  lbl.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Uploading...`;
+  if (lbl) lbl.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Uploading...`;
 
   try {
     const res = await fetch(`${API_BASE}/partner/properties/${selectedPropertyId}/upload-doc?docType=${docType}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('homzo_partner_token')}`
+        'Authorization': `Bearer ${sessionToken}`
       },
       body: formData
     });
@@ -2339,10 +3099,10 @@ async function uploadDocFile(docType, fileInputId, labelId) {
       const data = await res.json();
       showToast('Document uploaded successfully!', 'success');
       
-      // Update label
-      lbl.innerHTML = `<span style="color:var(--success)"><i class="fa-solid fa-circle-check"></i> Uploaded</span> (<a href="${data.filepath}" target="_blank" style="color:var(--primary)">View</a>)`;
+      if (lbl) {
+        lbl.innerHTML = `<span style="color:var(--hz-success)"><i class="fa-solid fa-circle-check"></i> Uploaded</span> (<a href="${data.filepath}" target="_blank" style="color:var(--hz-gold)">View</a>)`;
+      }
       
-      // Update local cache
       const pIdx = currentProperties.findIndex(x => x.id === selectedPropertyId);
       if (pIdx !== -1) {
         switch(docType) {
@@ -2363,18 +3123,119 @@ async function uploadDocFile(docType, fileInputId, labelId) {
           case 'cheque': currentProperties[pIdx].Cancelled_Cheque_Doc = data.filepath; break;
         }
       }
+      updateBuilderCompletionProgress();
     } else {
       const err = await res.json().catch(() => ({}));
-      lbl.innerHTML = `<span style="color:var(--danger)">Upload Failed</span>`;
+      if (lbl) lbl.innerHTML = `<span style="color:var(--hz-danger)">Upload Failed</span>`;
       showToast(err.error || 'Document upload failed.', 'error');
     }
   } catch (err) {
-    lbl.innerHTML = `<span style="color:var(--danger)">Error</span>`;
+    if (lbl) lbl.innerHTML = `<span style="color:var(--hz-danger)">Error</span>`;
     showToast('Network error during upload.', 'error');
   }
 }
 
-async function saveWzDraft() {
+function toggleEntityKyc() {
+  const type = document.getElementById('wzEntityType')?.value;
+  const indBox = document.getElementById('wzKycIndividualBox');
+  const compBox = document.getElementById('wzKycCompanyBox');
+  if (indBox && compBox) {
+    if (type === 'Individual') {
+      indBox.style.display = 'grid';
+      compBox.style.display = 'none';
+    } else {
+      indBox.style.display = 'none';
+      compBox.style.display = 'grid';
+    }
+  }
+}
+
+function toggleGstInput() {
+  const status = document.getElementById('wzGstStatus')?.value;
+  const numBox = document.getElementById('wzGstNumberBox');
+  const uploadBox = document.getElementById('wzGstUploadBox');
+  if (numBox && uploadBox) {
+    if (status === 'YES') {
+      numBox.style.display = 'block';
+      uploadBox.style.display = 'flex';
+    } else {
+      numBox.style.display = 'none';
+      uploadBox.style.display = 'none';
+    }
+  }
+}
+
+function verifyBankNameMatching() {
+  const holder = document.getElementById('wzBankAccountHolder')?.value.trim().toLowerCase();
+  const alertBox = document.getElementById('bankNameMatchAlert');
+  if (!alertBox) return;
+
+  const ownerName = (currentUser && currentUser.name) ? currentUser.name.trim().toLowerCase() : '';
+  if (!holder || !ownerName) {
+    alertBox.style.display = 'none';
+    return;
+  }
+
+  const clean = (s) => s.replace(/(mr|mrs|ms|dr|llp|co|inc|pvt|ltd|firm)\.?\s+/g, '').replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ');
+  const cHolder = clean(holder);
+  const cOwner = clean(ownerName);
+
+  alertBox.style.display = 'block';
+  if (cHolder === cOwner || cHolder.includes(cOwner) || cOwner.includes(cHolder)) {
+    alertBox.style.background = 'rgba(34,197,94,0.05)';
+    alertBox.style.borderColor = 'rgba(34,197,94,0.15)';
+    alertBox.style.color = 'var(--hz-success)';
+    alertBox.innerHTML = `<i class="fa-solid fa-circle-check"></i> Account Holder Name matches Property Owner Name ("${currentUser.name}").`;
+  } else {
+    alertBox.style.background = 'rgba(245,158,11,0.05)';
+    alertBox.style.borderColor = 'rgba(245,158,11,0.15)';
+    alertBox.style.color = '#fbbf24';
+    alertBox.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> Bank account ownership will be verified during admin audit ("${currentUser.name}" vs "${document.getElementById('wzBankAccountHolder').value}").`;
+  }
+}
+
+// 9. Completion Progress Engine
+function updateBuilderCompletionProgress() {
+  if (!selectedPropertyId) return;
+  const p = currentProperties.find(x => x.id === selectedPropertyId);
+
+  let stepsDone = 0;
+  // Step 1: Property Type
+  if (document.getElementById('editPropType')?.value) stepsDone++;
+  // Step 2: Basics
+  if (document.getElementById('editPropName')?.value.trim() && document.getElementById('wzPropPhone')?.value.trim()) stepsDone++;
+  // Step 3: Location
+  if (document.getElementById('wzAddress')?.value.trim() && document.getElementById('wzCity')?.value.trim()) stepsDone++;
+  // Step 4: Rooms
+  const r = parseInt(document.getElementById('wzTotalRooms')?.value || 0);
+  if (r >= 5 && builderRoomCategories.length > 0) stepsDone++;
+  // Step 5: Room Photos
+  const hasRoomPhoto = builderRoomCategories.some(c => c.photos && c.photos.length > 0);
+  if (hasRoomPhoto) stepsDone++;
+  // Step 6: Gallery & Cover
+  if (document.getElementById('bldCoverPreviewImg')?.src || builderPropertyGallery.length > 0) stepsDone++;
+  // Step 7: Amenities
+  if (builderAmenities.size >= 3) stepsDone++;
+  // Step 8: Brand & Display
+  if (document.getElementById('editPropName')?.value.trim()) stepsDone++;
+  // Step 9: Policies
+  if (document.getElementById('bldCheckInTime')?.value && document.getElementById('bldCheckOutTime')?.value) stepsDone++;
+  // Step 10: Owner KYC
+  if ((p && (p.Aadhaar_Doc || p.PAN_Doc)) || document.getElementById('wzPanNum')?.value) stepsDone++;
+  // Step 11: Documents
+  if (p && (p.Ownership_Doc || p.Rent_Agreement_Doc || p.GST_Doc)) stepsDone++;
+  // Step 12: Bank Details
+  if (document.getElementById('wzBankAccountHolder')?.value.trim() && document.getElementById('wzBankAccountNumber')?.value.trim() && document.getElementById('wzBankIfsc')?.value.trim()) stepsDone++;
+
+  const countEl = document.getElementById('bldStepsCompletedCount');
+  if (countEl) countEl.textContent = stepsDone;
+
+  const barEl = document.getElementById('bldSideProgressBar');
+  if (barEl) barEl.style.width = `${Math.round((stepsDone / 12) * 100)}%`;
+}
+
+// 10. Save Draft & Submit Handlers
+async function saveBuilderDraft(isExplicitSave = false) {
   if (!selectedPropertyId) return false;
 
   const commVal = parseFloat(document.getElementById('wzCommissionRate')?.value || 15);
@@ -2382,10 +3243,12 @@ async function saveWzDraft() {
     showToast('Platform Commission Rate must be between 12% and 20%.', 'error');
     return false;
   }
-  
+
   const payload = {
     Name: document.getElementById('editPropName').value.trim(),
-    Type: document.getElementById('editPropType').value,
+    Brand_Name: document.getElementById('editBrandName')?.value.trim() || '',
+    Type: document.getElementById('editPropType').value || 'Hotel',
+    Owner_Type: document.getElementById('wzOwnerRole')?.value || 'Owner',
     Address: document.getElementById('wzAddress').value.trim(),
     City: document.getElementById('wzCity').value.trim(),
     State: document.getElementById('wzState').value.trim(),
@@ -2396,16 +3259,30 @@ async function saveWzDraft() {
     Contact_Person: document.getElementById('wzContactPerson').value.trim(),
     Phone: document.getElementById('wzPropPhone').value.trim(),
     Email: document.getElementById('wzPropEmail').value.trim(),
-    Total_Rooms: parseInt(document.getElementById('wzTotalRooms').value) || null,
-    Available_Rooms: parseInt(document.getElementById('wzAvailableRooms').value) || null,
-    Max_Guests: parseInt(document.getElementById('wzMaxGuests').value) || null,
+    Total_Rooms: parseInt(document.getElementById('wzTotalRooms').value) || 10,
+    Available_Rooms: parseInt(document.getElementById('wzAvailableRooms').value) || 10,
+    Inventory: parseInt(document.getElementById('wzTotalRooms').value) || 10,
+    Max_Guests: parseInt(document.getElementById('wzMaxGuests').value) || 20,
     Bank_Account_Holder: document.getElementById('wzBankAccountHolder').value.trim(),
+    Bank_Name: document.getElementById('wzBankName')?.value.trim() || '',
     Bank_Account_Number: document.getElementById('wzBankAccountNumber').value.trim(),
-    Bank_IFSC: document.getElementById('wzBankIfsc').value.trim(),
+    Bank_IFSC: document.getElementById('wzBankIfsc').value.trim().toUpperCase(),
     Commission_Rate: commVal,
-    Registration_Status: document.getElementById('wzEntityType').value === 'Individual' ? 'Unregistered' : 'Registered',
-    Partner_Agreement_Accepted: document.getElementById('chkAcceptAgreement').checked,
-    Policies: document.getElementById('editPropPolicies').value.trim()
+    Registration_Status: document.getElementById('wzEntityType')?.value === 'Individual' ? 'Unregistered' : 'Registered',
+    Partner_Agreement_Accepted: document.getElementById('chkAcceptAgreement')?.checked || false,
+    Policies: document.getElementById('editPropPolicies').value.trim(),
+    roomCategories: builderRoomCategories,
+    amenities: Array.from(builderAmenities),
+    services: Array.from(builderServices),
+    propertyPhotos: builderPropertyGallery,
+    checkInOut: {
+      checkIn: document.getElementById('bldCheckInTime')?.value || '12:00 PM',
+      checkOut: document.getElementById('bldCheckOutTime')?.value || '11:00 AM',
+      cancellation: document.getElementById('bldCancellationPolicy')?.value || '',
+      couples: document.getElementById('bldCouplePolicy')?.value || '',
+      pets: document.getElementById('bldPetPolicy')?.value || '',
+      smoking: document.getElementById('bldSmokingPolicy')?.value || ''
+    }
   };
 
   try {
@@ -2416,105 +3293,111 @@ async function saveWzDraft() {
     });
 
     if (res.ok) {
-      showToast('Onboarding draft saved successfully.', 'success');
-      
-      // Update local properties cache
+      const statusText = document.getElementById('bldSaveStatus');
+      if (statusText) {
+        statusText.innerHTML = `<i class="fa-regular fa-clock"></i> Saved just now`;
+      }
+      if (isExplicitSave) {
+        showToast('Property onboarding draft saved successfully.', 'success');
+      }
+      // Update local cache and active inventory
       const pIdx = currentProperties.findIndex(x => x.id === selectedPropertyId);
       if (pIdx !== -1) {
-        currentProperties[pIdx] = { ...currentProperties[pIdx], ...payload };
+        currentProperties[pIdx] = {
+          ...currentProperties[pIdx],
+          ...payload,
+          Inventory: payload.Total_Rooms,
+          inventory: payload.Total_Rooms
+        };
       }
+      const pricingBadge = document.getElementById('pricingPropInventoryBadge');
+      if (pricingBadge) {
+        pricingBadge.textContent = `${payload.Total_Rooms} Rooms`;
+      }
+      updateBuilderCompletionProgress();
       return true;
     } else {
       const err = await res.json().catch(() => ({}));
-      showToast(err.error || 'Failed to save onboarding draft.', 'error');
+      if (isExplicitSave) showToast(err.error || 'Failed to save draft.', 'error');
       return false;
     }
   } catch (err) {
-    showToast('Connection error while saving.', 'error');
+    if (isExplicitSave) showToast('Network error while saving draft.', 'error');
     return false;
   }
 }
 
-async function submitWzOnboarding() {
+async function submitBuilderOnboarding() {
   const p = currentProperties.find(x => x.id === selectedPropertyId);
   const rooms = parseInt(document.getElementById('wzTotalRooms').value);
   if (isNaN(rooms) || rooms < 5) {
-    showToast("This property currently does not meet Homzo's minimum room requirement (minimum 5 rentable rooms).", 'error');
-    switchWzStep(1);
+    showToast("This property does not meet Homzo's minimum requirement (minimum 5 rentable rooms).", 'error');
+    switchBuilderStep(2);
     return;
   }
 
-  const commVal = parseFloat(document.getElementById('wzCommissionRate')?.value || 15);
-  if (isNaN(commVal) || commVal < 12 || commVal > 20) {
-    showToast('Platform Commission Rate must be between 12% and 20%.', 'error');
-    switchWzStep(6);
+  const propName = document.getElementById('editPropName')?.value.trim();
+  const city = document.getElementById('wzCity')?.value.trim();
+  if (!propName || !city) {
+    showToast('Please provide your property name and city.', 'error');
+    switchBuilderStep(2);
     return;
   }
 
-  // Validate Step 2: KYC Identity Documents
-  const entityType = document.getElementById('wzEntityType').value;
-  if (entityType === 'Individual') {
-    if (!p || !p.Aadhaar_Doc) {
-      showToast('Aadhaar Card Copy is required. Please upload it in Step 2.', 'error');
-      switchWzStep(2);
-      return;
-    }
-    if (!p || !p.PAN_Doc) {
-      showToast('PAN Card Scan is required. Please upload it in Step 2.', 'error');
-      switchWzStep(2);
-      return;
-    }
-  } else {
-    if (!p || (!p.Incorporation_Doc && !p.Business_Registration_Doc)) {
-      showToast('Certificate of Incorporation / Registration is required in Step 2.', 'error');
-      switchWzStep(2);
-      return;
-    }
-    if (!p || !p.PAN_Doc) {
-      showToast('Company/Firm PAN document is required in Step 2.', 'error');
-      switchWzStep(2);
+  // Validate Owner Identity
+  if (!p || (!p.Aadhaar_Doc && !p.PAN_Doc)) {
+    const panVal = document.getElementById('wzPanNum')?.value.trim();
+    const aadhVal = document.getElementById('wzAadhaarNum')?.value.trim();
+    if (!panVal && !aadhVal) {
+      showToast('Identity verification document (PAN or Aadhaar) is required in Step 10.', 'error');
+      switchBuilderStep(10);
       return;
     }
   }
 
-  // Validate Step 4: Bank Details & Cancelled Cheque
+  // Validate Bank Details
   const accHolder = document.getElementById('wzBankAccountHolder').value.trim();
   const accNum = document.getElementById('wzBankAccountNumber').value.trim();
   const ifsc = document.getElementById('wzBankIfsc').value.trim().toUpperCase();
 
   if (!accHolder) {
-    showToast('Please enter the Bank Account Holder Name in Step 4.', 'error');
-    switchWzStep(4);
+    showToast('Please enter the Bank Account Holder Name in Step 12.', 'error');
+    switchBuilderStep(12);
     return;
   }
-
   if (!accNum || !/^[0-9]{9,18}$/.test(accNum)) {
-    showToast('Please enter a valid Bank Account Number (9 to 18 numeric digits only).', 'error');
-    switchWzStep(4);
+    showToast('Please enter a valid Bank Account Number (9 to 18 numeric digits) in Step 12.', 'error');
+    switchBuilderStep(12);
     return;
   }
-
   if (!ifsc || !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifsc)) {
-    showToast('Please enter a valid 11-character Bank IFSC Code (e.g. HDFC0000123).', 'error');
-    switchWzStep(4);
+    showToast('Please enter a valid 11-character Bank IFSC Code in Step 12.', 'error');
+    switchBuilderStep(12);
     return;
   }
-
   if (!p || !p.Cancelled_Cheque_Doc) {
-    showToast('Cancelled Cheque or Bank Passbook copy is required. Please upload it in Step 4.', 'error');
-    switchWzStep(4);
+    showToast('Cancelled Cheque or Bank Passbook copy is required in Step 12.', 'error');
+    switchBuilderStep(12);
     return;
   }
 
-  if (!document.getElementById('chkAcceptAgreement').checked) {
-    showToast('You must accept the Partner Agreement before submitting.', 'error');
-    switchWzStep(6);
+  // Validate Legal Terms
+  if (!document.getElementById('chkAcceptAgreement')?.checked) {
+    showToast('You must review and accept the HOMZO Partner Terms before submitting.', 'error');
+    switchBuilderStep(13);
     return;
   }
 
-  // Save draft first
-  const draftSaved = await saveWzDraft();
+  // Auto-save draft before submission
+  const draftSaved = await saveBuilderDraft(false);
   if (!draftSaved) return;
+
+  const submitBtn = document.getElementById('bldFinalSubmitBtn');
+  const origText = submitBtn ? submitBtn.innerHTML : '';
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+  }
 
   try {
     const res = await fetch(`${API_BASE}/partner/properties/${selectedPropertyId}/submit`, {
@@ -2523,79 +3406,66 @@ async function submitWzOnboarding() {
     });
 
     if (res.ok) {
-      showToast('Property submitted for verification!', 'success');
+      showToast('Property successfully submitted for HOMZO Verification! Our team will review your application.', 'success');
       
-      // Refresh page properties data
-      loadPropertiesData();
+      const pIdx = currentProperties.findIndex(x => x.id === selectedPropertyId);
+      if (pIdx !== -1) {
+        currentProperties[pIdx].Onboarding_Stage = 'Submitted';
+        updateStageBanner(currentProperties[pIdx]);
+      }
+      
+      await loadPropertiesData();
     } else {
-      const errData = await res.json();
+      const errData = await res.json().catch(() => ({}));
       showToast(errData.error || 'Failed to submit property.', 'error');
     }
   } catch (e) {
     showToast('Connection error during submission.', 'error');
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = origText;
+    }
   }
 }
 
-function addWzRoomCategory() {
-  wzRoomCategories.push({
-    name: 'Standard Room',
-    type: 'deluxe',
-    roomsCount: 1,
-    maxGuests: 2,
-    bedType: 'queen',
-    ac: true,
-    price: 2000
-  });
-  renderWzRoomCategories();
-}
+// 11. Aliases & Global Bindings for Backward Compatibility
+window.switchBuilderStep = switchBuilderStep;
+window.navigateBuilderStep = navigateBuilderStep;
+window.selectPropertyTypeCard = selectPropertyTypeCard;
+window.selectOwnerRoleCard = selectOwnerRoleCard;
+window.adjustTotalRooms = adjustTotalRooms;
+window.setTotalRooms = setTotalRooms;
+window.toggleAmenityPill = toggleAmenityPill;
+window.toggleServicePill = toggleServicePill;
+window.addNewRoomCategory = addNewRoomCategory;
+window.deleteRoomCategory = deleteRoomCategory;
+window.updateRoomCatField = updateRoomCatField;
+window.uploadRoomPhoto = uploadRoomPhoto;
+window.deleteRoomPhoto = deleteRoomPhoto;
+window.uploadPropertyCoverPhoto = uploadPropertyCoverPhoto;
+window.handlePropGalleryUpload = handlePropGalleryUpload;
+window.deletePropGalleryPhoto = deletePropGalleryPhoto;
+window.updateCoBrandLivePreview = updateCoBrandLivePreview;
+window.openLiveGuestPreviewModal = openLiveGuestPreviewModal;
+window.closeLiveGuestPreviewModal = closeLiveGuestPreviewModal;
+window.uploadDocFile = uploadDocFile;
+window.saveBuilderDraft = saveBuilderDraft;
+window.submitBuilderOnboarding = submitBuilderOnboarding;
 
-function removeWzRoomCategory(idx) {
-  wzRoomCategories.splice(idx, 1);
-  renderWzRoomCategories();
-}
-
-function renderWzRoomCategories() {
-  const container = document.getElementById('wzRoomCategoriesList');
-  if (!container) return;
-
-  if (wzRoomCategories.length === 0) {
-    container.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:0.8rem; padding:12px;">No room categories configured yet.</div>`;
-    return;
-  }
-
-  container.innerHTML = wzRoomCategories.map((c, i) => `
-    <div style="border:1px solid var(--border); padding:14px; border-radius:var(--radius-sm); background:rgba(255,255,255,0.01); display:grid; grid-template-columns:1fr 1fr; gap:12px; position:relative;">
-      <button type="button" class="act-btn" style="position:absolute; top:8px; right:8px; color:var(--danger); border:none; background:none; cursor:pointer;" onclick="removeWzRoomCategory(${i})"><i class="fa-solid fa-trash"></i></button>
-      <div class="form-group" style="margin-bottom:0;">
-        <label style="font-size:0.72rem;">Room Name</label>
-        <input type="text" class="form-control" style="padding:4px 8px; font-size:0.8rem;" value="${c.name}" onchange="updateWzRoomField(${i}, 'name', this.value)">
-      </div>
-      <div class="form-group" style="margin-bottom:0;">
-        <label style="font-size:0.72rem;">Bed Type</label>
-        <input type="text" class="form-control" style="padding:4px 8px; font-size:0.8rem;" value="${c.bedType}" onchange="updateWzRoomField(${i}, 'bedType', this.value)">
-      </div>
-      <div class="form-group" style="margin-bottom:0;">
-        <label style="font-size:0.72rem;">Number of Rooms</label>
-        <input type="number" class="form-control" style="padding:4px 8px; font-size:0.8rem;" value="${c.roomsCount}" onchange="updateWzRoomField(${i}, 'roomsCount', parseInt(this.value))">
-      </div>
-      <div class="form-group" style="margin-bottom:0;">
-        <label style="font-size:0.72rem;">Base Price (₹)</label>
-        <input type="number" class="form-control" style="padding:4px 8px; font-size:0.8rem;" value="${c.price}" onchange="updateWzRoomField(${i}, 'price', parseInt(this.value))">
-      </div>
-    </div>
-  `).join('');
-}
-
-function updateWzRoomField(idx, field, value) {
-  wzRoomCategories[idx][field] = value;
-  
-  // Automatically sync to propOnboardingForm metadata payload
-  // We can write it back to PartnerMeta when saving draft
-}
-
-function toggleAgreementChecked() {
-  const checked = document.getElementById('chkAcceptAgreement').checked;
-  document.getElementById('chkDeclTrue1').checked = checked;
-  document.getElementById('chkDeclTrue2').checked = checked;
-  document.getElementById('chkDeclTrue3').checked = checked;
-}
+window.switchWzStep = function(step) {
+  const stepMap = { 1: 2, 2: 10, 3: 4, 4: 12, 5: 11, 6: 13 };
+  switchBuilderStep(stepMap[step] || step);
+};
+window.navigateWzStep = navigateBuilderStep;
+window.saveWzDraft = saveBuilderDraft;
+window.submitWzOnboarding = submitBuilderOnboarding;
+window.addWzRoomCategory = addNewRoomCategory;
+window.removeWzRoomCategory = deleteRoomCategory;
+window.renderWzRoomCategories = renderBuilderRoomCategories;
+window.updateWzRoomField = updateRoomCatField;
+window.toggleAgreementChecked = function() {
+  const checked = document.getElementById('chkAcceptAgreement')?.checked || false;
+  if (document.getElementById('chkDeclTrue1')) document.getElementById('chkDeclTrue1').checked = checked;
+  if (document.getElementById('chkDeclTrue2')) document.getElementById('chkDeclTrue2').checked = checked;
+};
