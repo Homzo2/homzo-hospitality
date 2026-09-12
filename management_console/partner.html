@@ -322,12 +322,12 @@
         <form id="partnerLoginForm" onsubmit="return false;">
           <div class="theme-input-group">
             <i class="fa-regular fa-user"></i>
-            <input type="email" id="loginEmail" placeholder="Username or Email" value="partner@homzo.in" />
+            <input type="email" id="loginEmail" placeholder="Enter your registered email" required autocomplete="email" />
           </div>
           
           <div class="theme-input-group">
             <i class="fa-solid fa-lock"></i>
-            <input type="password" id="loginPassword" placeholder="Password" value="partner123" />
+            <input type="password" id="loginPassword" placeholder="Enter your password" required autocomplete="current-password" />
             <i class="fa-regular fa-eye-slash pw-toggle-icon" id="pwToggleTheme"></i>
           </div>
           
@@ -505,7 +505,7 @@
             <div class="kpi-info">
               <span>Occupancy Rate</span>
               <strong id="dashOccupancy">0%</strong>
-              <div class="kpi-change positive"><i class="fa-solid fa-arrow-up"></i> 8.4% vs last week</div>
+              <div class="kpi-change" id="dashOccupancySub"><i class="fa-solid fa-hotel"></i> Current occupancy</div>
             </div>
           </div>
           <div class="kpi-card">
@@ -513,7 +513,7 @@
             <div class="kpi-info">
               <span>Net Earnings</span>
               <strong id="dashEarnings">₹0</strong>
-              <div class="kpi-change positive"><i class="fa-solid fa-percent"></i> Deducted 15% fee</div>
+              <div class="kpi-change positive" id="dashEarningsSub"><i class="fa-solid fa-percent"></i> Deducted <span id="dashCommRate">15</span>% platform fee</div>
             </div>
           </div>
           <div class="kpi-card">
@@ -573,7 +573,7 @@
         <div class="card" style="padding:24px; margin-bottom:24px; display:flex; align-items:center; gap:24px; flex-wrap:wrap; background:linear-gradient(135deg, rgba(212,175,55,0.06) 0%, rgba(255,255,255,0.01) 100%); border:1px solid rgba(212,175,55,0.25);">
           <div style="position:relative; width:90px; height:90px; flex-shrink:0;">
             <div id="profilePhotoDisplay" style="width:90px; height:90px; border-radius:50%; background:linear-gradient(135deg, #f59e0b, #d97706); color:#fff; display:flex; align-items:center; justify-content:center; font-size:2.4rem; font-weight:700; overflow:hidden; border:3px solid rgba(245,158,11,0.5); box-shadow:0 4px 14px rgba(0,0,0,0.3);">
-              <span id="profilePhotoInitial">R</span>
+              <span id="profilePhotoInitial">P</span>
               <img id="profilePhotoImg" src="" alt="Profile" style="display:none; width:100%; height:100%; object-fit:cover;">
             </div>
             <label for="avatarUploadInput" style="position:absolute; bottom:0; right:0; width:30px; height:30px; border-radius:50%; background:var(--primary); color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:0.75rem; box-shadow:0 2px 6px rgba(0,0,0,0.4); transition:transform 0.2s;" title="Upload new photo">
@@ -583,7 +583,7 @@
           </div>
           <div style="flex:1; min-width:240px;">
             <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-              <h2 id="heroProfileName" style="margin:0; font-size:1.4rem;">Rishiraj</h2>
+              <h2 id="heroProfileName" style="margin:0; font-size:1.4rem;">Partner</h2>
               <span class="badge badge-success" style="background:rgba(34,197,94,0.15); color:var(--success); font-size:0.72rem; padding:4px 10px; border-radius:12px;">
                 <i class="fa-solid fa-circle-check"></i> Active Partner
               </span>
@@ -591,10 +591,10 @@
                 KYC PENDING
               </span>
             </div>
-            <p id="heroProfileEmail" style="font-size:0.85rem; color:var(--text-secondary); margin:4px 0 0 0;">partner@homzo.in</p>
+            <p id="heroProfileEmail" style="font-size:0.85rem; color:var(--text-secondary); margin:4px 0 0 0;">—</p>
             <div style="display:flex; gap:16px; margin-top:10px; font-size:0.78rem; color:var(--text-muted); flex-wrap:wrap;">
-              <span><i class="fa-solid fa-id-badge" style="color:var(--primary); margin-right:4px;"></i> Partner ID: <strong id="heroPartnerId">#1</strong></span>
-              <span><i class="fa-solid fa-phone" style="color:var(--primary); margin-right:4px;"></i> <span id="heroProfilePhone">+91 98765 43210</span></span>
+              <span><i class="fa-solid fa-id-badge" style="color:var(--primary); margin-right:4px;"></i> Partner ID: <strong id="heroPartnerId">—</strong></span>
+              <span><i class="fa-solid fa-phone" style="color:var(--primary); margin-right:4px;"></i> <span id="heroProfilePhone">—</span></span>
               <span><i class="fa-solid fa-calendar" style="color:var(--primary); margin-right:4px;"></i> Member Since: <span id="heroMemberSince">-</span></span>
             </div>
           </div>
@@ -610,11 +610,11 @@
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
                 <div class="form-group">
                   <label>Full Name / Owner Name *</label>
-                  <input type="text" class="form-control" id="profName" placeholder="e.g. Rishiraj" required>
+                  <input type="text" class="form-control" id="profName" placeholder="Enter full name" required>
                 </div>
                 <div class="form-group">
                   <label>Business / Brand Name</label>
-                  <input type="text" class="form-control" id="profBusinessName" placeholder="e.g. Rishiraj Stays / Homzo Partner">
+                  <input type="text" class="form-control" id="profBusinessName" placeholder="Enter business or brand name">
                 </div>
                 <div class="form-group">
                   <label>Registered Login Email (Read Only)</label>
@@ -622,7 +622,7 @@
                 </div>
                 <div class="form-group">
                   <label>Primary Contact Phone *</label>
-                  <input type="text" class="form-control" id="profPhone" placeholder="+91 98765 43210" required>
+                  <input type="text" class="form-control" id="profPhone" placeholder="+91 98765 00000" required>
                 </div>
                 <div class="form-group">
                   <label>Alternate Phone / WhatsApp Number</label>
@@ -766,9 +766,10 @@
                       <label>Property Type</label>
                       <select class="form-control" id="editPropType" required>
                         <option value="Hotel">Hotel</option>
+                        <option value="Resort">Resort / Villa</option>
                         <option value="Guest House">Guest House</option>
-                        <option value="PG">PG</option>
                         <option value="Homestay">Homestay</option>
+                        <option value="PG">PG / Hostel</option>
                         <option value="Serviced Apartment">Serviced Apartment</option>
                         <option value="Boutique Stay">Boutique Stay</option>
                         <option value="Other">Other eligible accommodation</option>
@@ -1182,10 +1183,25 @@
                     </label>
                   </div>
 
+                  <!-- Commission Rate Specification (12% to 20%) -->
+                  <div class="card" style="padding:16px; margin-top:20px; background:rgba(212,175,55,0.04); border:1px solid rgba(212,175,55,0.25);">
+                    <h5 style="color:var(--primary); margin-bottom:8px;"><i class="fa-solid fa-percent"></i> Agreed Platform Commission Rate (12% – 20%)</h5>
+                    <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+                      <div style="flex:1; min-width:200px;">
+                        <label style="font-size:0.85rem; font-weight:600; margin-bottom:4px; display:block;">Commission Rate (%) *</label>
+                        <input type="number" class="form-control" id="wzCommissionRate" min="12" max="20" step="0.5" value="15" required style="font-weight:700; font-size:1rem;" oninput="updateAgreementCommDisplay()">
+                        <span style="font-size:0.75rem; color:var(--text-muted);">Allowable partner commission range: 12% to 20% (Default: 15%).</span>
+                      </div>
+                      <div style="flex:2; min-width:260px; font-size:0.8rem; color:var(--text-secondary); line-height:1.4;">
+                        This exact percentage is saved with your property and directly determines the platform deductions on all confirmed bookings, dashboard earnings, and payout disbursements.
+                      </div>
+                    </div>
+                  </div>
+
                   <!-- Partner Agreement sign block -->
-                  <div class="card" style="padding:20px; margin-top:20px; background:rgba(245,158,11,0.02); border:1px solid rgba(245,158,11,0.15);">
+                  <div class="card" style="padding:20px; margin-top:16px; background:rgba(245,158,11,0.02); border:1px solid rgba(245,158,11,0.15);">
                     <h5 style="color:#fbbf24; margin-bottom:8px;"><i class="fa-solid fa-file-signature"></i> Homzo Partner Agreement</h5>
-                    <p style="font-size:0.75rem; color:var(--text-secondary); line-height:1.4; margin-bottom:12px;">By checking the box below, you formally accept the **Homzo Partner Agreement**, including the Commission Terms (15% per confirmed booking for Category A / compliant stays, 17% for Category B / unregistered stays, subject to manual admin override), Listing Policy, Guest Safety Requirements, and Payout Terms.</p>
+                    <p style="font-size:0.75rem; color:var(--text-secondary); line-height:1.4; margin-bottom:12px;">By checking the box below, you formally accept the **Homzo Partner Agreement**, including the Agreed Commission Terms (<strong id="wzAgreeCommDisplay">15%</strong> per confirmed booking, within the standard 12% – 20% tier), Listing Policy, Guest Safety Requirements, and Payout Terms.</p>
                     
                     <label style="display:flex; gap:10px; cursor:pointer; align-items:center; font-weight:700; color:#fbbf24; font-size:0.85rem;">
                       <input type="checkbox" id="chkAcceptAgreement" onchange="toggleAgreementChecked()" style="width:16px; height:16px;">
@@ -1361,7 +1377,7 @@
               <i class="fa-solid fa-percent"></i>
             </div>
             <div class="payout-kpi-content">
-              <div class="payout-kpi-label">Platform Fee (15%)</div>
+              <div class="payout-kpi-label">Platform Fee (<span id="payoutCommRate">15</span>%)</div>
               <div class="payout-kpi-value" id="payoutCommission">₹0</div>
               <div class="payout-kpi-meta"><i class="fa-solid fa-shield-halved" style="color:var(--text-muted);"></i> Homzo platform share</div>
             </div>
@@ -1428,7 +1444,7 @@
           <table class="data-table">
             <thead>
               <tr>
-                <th>Booking Ref</th><th>Guest</th><th>Amount Received</th><th>Homzo Fee (15%)</th><th>Payout Value</th><th>Date Processed</th><th>Status</th>
+                <th>Booking Ref</th><th>Guest</th><th>Amount Received</th><th>Homzo Fee (<span id="ledgerCommRate">15</span>%)</th><th>Payout Value</th><th>Date Processed</th><th>Status</th>
               </tr>
             </thead>
             <tbody id="revenueTbody">
@@ -1482,17 +1498,17 @@
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
                   <div class="form-group">
                     <label>Aadhaar Card Number (12 Digits) *</label>
-                    <input type="text" class="form-control" id="kycAadhaar" placeholder="12-digit Aadhaar" maxlength="12" required>
+                    <input type="text" class="form-control" id="kycAadhaar" placeholder="12-digit Aadhaar Number" maxlength="12" pattern="[0-9]{12}" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'')" required>
                   </div>
                   <div class="form-group">
                     <label>PAN Card Number *</label>
-                    <input type="text" class="form-control" id="kycPan" placeholder="e.g. ABCDE1234F" maxlength="10" style="text-transform:uppercase;" required>
+                    <input type="text" class="form-control" id="kycPan" placeholder="e.g. ABCDE1234F" maxlength="10" pattern="[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}" style="text-transform:uppercase;" required>
                   </div>
                 </div>
 
                 <div class="form-group">
                   <label>GST Registration Number (GSTIN)</label>
-                  <input type="text" class="form-control" id="kycGst" placeholder="15-digit GSTIN (Leave blank if unregistered)" maxlength="15" style="text-transform:uppercase;">
+                  <input type="text" class="form-control" id="kycGst" placeholder="15-digit GSTIN (Leave blank if unregistered)" maxlength="15" pattern="[0-9]{2}[A-Za-z]{5}[0-9]{4}[A-Za-z]{1}[1-9A-Za-z]{1}Z[0-9A-Za-z]{1}" style="text-transform:uppercase;">
                   <span style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">If you do not have GST, you may leave this blank.</span>
                 </div>
 
@@ -1512,11 +1528,11 @@
                     </div>
                     <div class="form-group">
                       <label>Bank Account Number *</label>
-                      <input type="text" class="form-control" id="kycAccount" placeholder="9 to 18 digit account number" required maxlength="18" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+                      <input type="text" class="form-control" id="kycAccount" placeholder="9 to 18 digit account number" required maxlength="18" pattern="[0-9]{9,18}" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
                     </div>
                     <div class="form-group">
                       <label>Bank IFSC Code *</label>
-                      <input type="text" class="form-control" id="kycIfsc" placeholder="e.g. HDFC0000123" maxlength="11" style="text-transform:uppercase;" required>
+                      <input type="text" class="form-control" id="kycIfsc" placeholder="e.g. HDFC0000123" maxlength="11" pattern="[A-Za-z]{4}0[A-Za-z0-9]{6}" style="text-transform:uppercase;" required>
                     </div>
                   </div>
 
@@ -1841,8 +1857,8 @@
       
       <!-- Step 2: Verify OTP & Reset -->
       <div id="resetStep2" style="display:none;">
-        <p style="font-size:0.85rem; color:var(--text-secondary); background:rgba(255,255,255,0.02); padding:10px; border-left:3px solid var(--primary); border-radius:0 4px 4px 0; margin-bottom:14px; line-height:1.4;">
-          OTP code generated. Check the server console log in simulation mode to read the OTP.
+        <p id="resetOtpNotice" style="font-size:0.85rem; color:var(--text-secondary); background:rgba(255,255,255,0.02); padding:10px; border-left:3px solid var(--primary); border-radius:0 4px 4px 0; margin-bottom:14px; line-height:1.4;">
+          We have sent a 6-digit verification code to your registered contact details. Please enter it below along with your new password.
         </p>
         <div class="form-group" style="margin-bottom:12px;">
           <label>Verification OTP</label>
@@ -2068,12 +2084,13 @@ document.addEventListener('DOMContentLoaded', () => {
         <label style="display:block; margin-bottom:6px; font-size:0.85rem; font-weight:600;">Property Type</label>
         <select id="newPropType" class="form-control">
           <option value="Hotel">Hotel</option>
+          <option value="Resort">Resort / Villa</option>
           <option value="Guest House">Guest House</option>
           <option value="Homestay">Homestay</option>
-          <option value="PG">PG</option>
+          <option value="PG">PG / Hostel</option>
           <option value="Serviced Apartment">Serviced Apartment</option>
           <option value="Boutique Stay">Boutique Stay</option>
-          <option value="Resort">Resort / Villa</option>
+          <option value="Other">Other eligible accommodation</option>
         </select>
       </div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
@@ -2085,6 +2102,11 @@ document.addEventListener('DOMContentLoaded', () => {
           <label style="display:block; margin-bottom:6px; font-size:0.85rem; font-weight:600;">Total Rentable Rooms (Min 5) *</label>
           <input type="number" id="newPropRooms" class="form-control" placeholder="10" min="5" value="10" required>
         </div>
+      </div>
+      <div class="form-group" style="margin-bottom:14px;">
+        <label style="display:block; margin-bottom:6px; font-size:0.85rem; font-weight:600;">Platform Commission Rate (%) (12% – 20%) *</label>
+        <input type="number" id="newPropCommission" class="form-control" min="12" max="20" step="0.5" value="15" placeholder="15" required>
+        <span style="font-size:0.75rem; color:var(--text-muted); display:block; margin-top:2px;">Standard partner commission rate: 12% to 20% (Default: 15%).</span>
       </div>
       <div class="form-group" style="margin-bottom:20px;">
         <label style="display:block; margin-bottom:6px; font-size:0.85rem; font-weight:600;">Property Address (Optional)</label>

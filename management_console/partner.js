@@ -357,7 +357,8 @@ function setupEventListeners() {
           body: JSON.stringify({ email })
         });
         if (res.ok) {
-          showToast('Verification OTP generated successfully! Check console logs.', 'success');
+          const resData = await res.json().catch(() => ({}));
+          showToast(resData.message || 'Verification OTP sent successfully! Please check your email or phone.', 'success');
           resetStep1.style.display = 'none';
           resetStep2.style.display = 'block';
           resetOtp.value = '';
@@ -643,6 +644,39 @@ function setupEventListeners() {
   if (kycDetailsForm) {
     kycDetailsForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      const aadhaarVal = document.getElementById('kycAadhaar').value.replace(/\s/g, '');
+      const panVal = document.getElementById('kycPan').value.trim().toUpperCase();
+      const gstVal = document.getElementById('kycGst').value.trim().toUpperCase();
+      const accHolderVal = document.getElementById('kycBankHolder').value.trim();
+      const accNumVal = document.getElementById('kycAccount').value.trim();
+      const ifscVal = document.getElementById('kycIfsc').value.trim().toUpperCase();
+
+      // Client-side validations
+      if (!/^\d{12}$/.test(aadhaarVal)) {
+        showToast('Please enter a valid 12-digit numeric Aadhaar Card Number.', 'error');
+        return;
+      }
+      if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(panVal)) {
+        showToast('Please enter a valid 10-character PAN Number (e.g. ABCDE1234F).', 'error');
+        return;
+      }
+      if (gstVal && !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(gstVal)) {
+        showToast('Please enter a valid 15-character GSTIN format (e.g. 27AAAAA1111A1Z1).', 'error');
+        return;
+      }
+      if (!accHolderVal) {
+        showToast('Please enter Bank Account Holder Name.', 'error');
+        return;
+      }
+      if (!/^\d{9,18}$/.test(accNumVal)) {
+        showToast('Please enter a valid Bank Account Number (9 to 18 numeric digits).', 'error');
+        return;
+      }
+      if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifscVal)) {
+        showToast('Please enter a valid 11-character Bank IFSC Code (e.g. HDFC0000123).', 'error');
+        return;
+      }
+
       const saveBtn = document.getElementById('saveKycDetailsBtn');
       const origText = saveBtn ? saveBtn.innerHTML : '';
       if (saveBtn) {
@@ -652,13 +686,13 @@ function setupEventListeners() {
 
       const payload = {
         entityType: document.getElementById('kycEntityType').value,
-        aadhaar: document.getElementById('kycAadhaar').value.trim(),
-        pan: document.getElementById('kycPan').value.trim().toUpperCase(),
-        gst: document.getElementById('kycGst').value.trim().toUpperCase(),
-        bankHolder: document.getElementById('kycBankHolder').value.trim(),
+        aadhaar: aadhaarVal,
+        pan: panVal,
+        gst: gstVal,
+        bankHolder: accHolderVal,
         bankName: document.getElementById('kycBankName').value.trim(),
-        bankAccount: document.getElementById('kycAccount').value.trim(),
-        bankIfsc: document.getElementById('kycIfsc').value.trim().toUpperCase()
+        bankAccount: accNumVal,
+        bankIfsc: ifscVal
       };
 
       try {
@@ -781,10 +815,28 @@ async function loadDashboardData() {
     if (!res.ok) return;
     const stats = await res.json();
     
-    document.getElementById('dashBookings').textContent = stats.totalBookings;
-    document.getElementById('dashOccupancy').textContent = stats.occupancyRate + '%';
-    document.getElementById('dashEarnings').textContent = '₹' + Math.round(stats.netEarnings).toLocaleString();
-    document.getElementById('dashGuests').textContent = stats.activeGuests;
+    document.getElementById('dashBookings').textContent = stats.totalBookings || 0;
+    document.getElementById('dashOccupancy').textContent = (stats.occupancyRate || 0) + '%';
+    document.getElementById('dashEarnings').textContent = '₹' + Math.round(stats.netEarnings || 0).toLocaleString();
+    document.getElementById('dashGuests').textContent = stats.activeGuests || 0;
+
+    // Dynamic Occupancy Subtitle
+    const occSub = document.getElementById('dashOccupancySub');
+    if (occSub) {
+      if (!stats.occupancyRate || stats.occupancyRate === 0) {
+        occSub.innerHTML = '<i class="fa-solid fa-bed"></i> No active check-ins';
+      } else {
+        const occCount = stats.occupiedRooms || stats.activeGuests || 0;
+        occSub.innerHTML = `<i class="fa-solid fa-circle-check" style="color:var(--success)"></i> ${occCount} active ${occCount === 1 ? 'room' : 'rooms'} occupied`;
+      }
+    }
+
+    // Dynamic Commission Rate display
+    const commRate = (stats.commissionRate >= 12 && stats.commissionRate <= 20) ? stats.commissionRate : 15;
+    const dashCommEl = document.getElementById('dashCommRate');
+    if (dashCommEl) {
+      dashCommEl.textContent = commRate;
+    }
 
     // Load upcoming list
     await loadUpcomingBookings();
@@ -904,6 +956,7 @@ window.handleAddNewProperty = async function(event) {
   const city = document.getElementById('newPropCity').value.trim();
   const totalRooms = parseInt(document.getElementById('newPropRooms').value) || 10;
   const address = document.getElementById('newPropAddress').value.trim();
+  const commissionRate = parseFloat(document.getElementById('newPropCommission')?.value || 15);
 
   if (!name) {
     showToast('Please enter property name', 'error');
@@ -911,6 +964,10 @@ window.handleAddNewProperty = async function(event) {
   }
   if (totalRooms < 5) {
     showToast("Homzo requires a minimum of 5 rentable rooms", 'error');
+    return;
+  }
+  if (isNaN(commissionRate) || commissionRate < 12 || commissionRate > 20) {
+    showToast('Platform Commission Rate must be between 12% and 20%.', 'error');
     return;
   }
 
@@ -925,7 +982,7 @@ window.handleAddNewProperty = async function(event) {
     const res = await fetch(`${API_BASE}/partner/properties`, {
       method: 'POST',
       headers: getHeaders(),
-      body: JSON.stringify({ name, type, city, address, totalRooms })
+      body: JSON.stringify({ name, type, city, address, totalRooms, commissionRate })
     });
 
     const data = await res.json();
@@ -1007,6 +1064,16 @@ function selectProperty(id) {
   document.getElementById('wzTotalRooms').value = p.Total_Rooms || '';
   document.getElementById('wzAvailableRooms').value = p.Available_Rooms || '';
   document.getElementById('wzMaxGuests').value = p.Max_Guests || '';
+
+  // Commission Rate (12% to 20%, default 15%)
+  const propComm = (parseFloat(p.Commission_Rate) >= 12 && parseFloat(p.Commission_Rate) <= 20) ? parseFloat(p.Commission_Rate) : (p.Registration_Status === 'Unregistered' ? 17 : 15);
+  const commInput = document.getElementById('wzCommissionRate');
+  if (commInput) {
+    commInput.value = propComm;
+  }
+  if (typeof updateAgreementCommDisplay === 'function') {
+    updateAgreementCommDisplay();
+  }
 
   // Setup entity type & fields
   const entityType = p.Registration_Status === 'Unregistered' ? 'Individual' : 'Company';
@@ -1112,7 +1179,7 @@ function selectProperty(id) {
       break;
     case 'Commercial Approval':
       stageTitle.textContent = 'Status: COMMERCIAL TERMS SETTLEMENT';
-      stageDesc.textContent = 'Admin is finalizing commission structures (15% Category A / 17% Category B) and bank payouts routing.';
+      stageDesc.textContent = `Admin is reviewing and finalizing your agreed platform commission structure (${propComm}%) and bank payouts routing.`;
       badgeRight.style.background = 'rgba(34,197,94,0.15)';
       badgeRight.style.color = 'var(--success)';
       break;
@@ -1433,6 +1500,18 @@ async function loadRevenueData() {
     if (commEl) commEl.textContent = '₹' + commission.toLocaleString();
     if (netEl) netEl.textContent = '₹' + net.toLocaleString();
 
+    // Update dynamic commission rate displays in Payout section
+    let effCommRate = 15;
+    if (partnerRevenueLedger.length > 0 && partnerRevenueLedger[0].commissionRate) {
+      effCommRate = partnerRevenueLedger[0].commissionRate;
+    } else if (currentProperties.length > 0 && currentProperties[0].Commission_Rate) {
+      effCommRate = parseFloat(currentProperties[0].Commission_Rate) || 15;
+    }
+    const payoutCommEl = document.getElementById('payoutCommRate');
+    if (payoutCommEl) payoutCommEl.textContent = effCommRate;
+    const ledgerCommEl = document.getElementById('ledgerCommRate');
+    if (ledgerCommEl) ledgerCommEl.textContent = effCommRate;
+
     renderRevenueLedger(partnerRevenueLedger);
   } catch (err) {
     console.error('Error loading partner revenue:', err);
@@ -1484,7 +1563,13 @@ function exportLedgerCsv() {
     showToast('No payout transactions available to export.', 'info');
     return;
   }
-  const headers = ['Booking Ref', 'Guest Name', 'Amount Received', 'Homzo Fee (15%)', 'Net Payout Value', 'Date Processed', 'Status'];
+  let effCommRate = 15;
+  if (partnerRevenueLedger.length > 0 && partnerRevenueLedger[0].commissionRate) {
+    effCommRate = partnerRevenueLedger[0].commissionRate;
+  } else if (currentProperties.length > 0 && currentProperties[0].Commission_Rate) {
+    effCommRate = parseFloat(currentProperties[0].Commission_Rate) || 15;
+  }
+  const headers = ['Booking Ref', 'Guest Name', 'Amount Received', `Homzo Fee (${effCommRate}%)`, 'Net Payout Value', 'Date Processed', 'Status'];
   const rows = partnerRevenueLedger.map(item => [
     `"${item.bookingId || ''}"`,
     `"${(item.guestName || '').replace(/"/g, '""')}"`,
@@ -1595,6 +1680,19 @@ async function loadProfileData() {
 window.handleAvatarUpload = async function(input) {
   if (!input || !input.files || !input.files[0]) return;
   const file = input.files[0];
+
+  const allowedExts = ['jpg', 'jpeg', 'png', 'webp'];
+  const ext = (file.name.split('.').pop() || '').toLowerCase();
+  if (!allowedExts.includes(ext)) {
+    showToast('Invalid image format. Only JPG, PNG, and WEBP are allowed for profile photos.', 'error');
+    input.value = '';
+    return;
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('Profile photo is too large. Maximum size allowed is 5 MB.', 'error');
+    input.value = '';
+    return;
+  }
 
   const formData = new FormData();
   formData.append('avatar', file);
@@ -1761,6 +1859,19 @@ window.uploadPartnerKycDoc = async function(docType, fileInputId, labelId) {
   if (!fileInput || !fileInput.files.length) return;
 
   const file = fileInput.files[0];
+  const allowedExts = ['pdf', 'jpg', 'jpeg', 'png', 'webp'];
+  const ext = (file.name.split('.').pop() || '').toLowerCase();
+  if (!allowedExts.includes(ext)) {
+    showToast('Invalid document format. Only PDF, JPG, PNG, and WEBP files are allowed.', 'error');
+    fileInput.value = '';
+    return;
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    showToast('Document file is too large. Maximum size allowed is 10 MB.', 'error');
+    fileInput.value = '';
+    return;
+  }
+
   const formData = new FormData();
   formData.append('file', file);
 
@@ -2182,11 +2293,33 @@ function validateRoomRequirement() {
   }
 }
 
+window.updateAgreementCommDisplay = function() {
+  const commInput = document.getElementById('wzCommissionRate');
+  const disp = document.getElementById('wzAgreeCommDisplay');
+  if (!commInput || !disp) return;
+  let val = parseFloat(commInput.value);
+  if (isNaN(val)) val = 15;
+  disp.textContent = val + '%';
+};
+
 async function uploadDocFile(docType, fileInputId, labelId) {
   const fileInput = document.getElementById(fileInputId);
   if (!fileInput || !fileInput.files.length) return;
 
   const file = fileInput.files[0];
+  const allowedExts = ['pdf', 'jpg', 'jpeg', 'png', 'webp'];
+  const ext = (file.name.split('.').pop() || '').toLowerCase();
+  if (!allowedExts.includes(ext)) {
+    showToast('Invalid document format. Only PDF, JPG, PNG, and WEBP files are allowed.', 'error');
+    fileInput.value = '';
+    return;
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    showToast('Document file is too large. Maximum size allowed is 10 MB.', 'error');
+    fileInput.value = '';
+    return;
+  }
+
   const formData = new FormData();
   formData.append('file', file);
 
@@ -2231,8 +2364,9 @@ async function uploadDocFile(docType, fileInputId, labelId) {
         }
       }
     } else {
+      const err = await res.json().catch(() => ({}));
       lbl.innerHTML = `<span style="color:var(--danger)">Upload Failed</span>`;
-      showToast('Document upload failed.', 'error');
+      showToast(err.error || 'Document upload failed.', 'error');
     }
   } catch (err) {
     lbl.innerHTML = `<span style="color:var(--danger)">Error</span>`;
@@ -2242,6 +2376,12 @@ async function uploadDocFile(docType, fileInputId, labelId) {
 
 async function saveWzDraft() {
   if (!selectedPropertyId) return false;
+
+  const commVal = parseFloat(document.getElementById('wzCommissionRate')?.value || 15);
+  if (isNaN(commVal) || commVal < 12 || commVal > 20) {
+    showToast('Platform Commission Rate must be between 12% and 20%.', 'error');
+    return false;
+  }
   
   const payload = {
     Name: document.getElementById('editPropName').value.trim(),
@@ -2262,6 +2402,7 @@ async function saveWzDraft() {
     Bank_Account_Holder: document.getElementById('wzBankAccountHolder').value.trim(),
     Bank_Account_Number: document.getElementById('wzBankAccountNumber').value.trim(),
     Bank_IFSC: document.getElementById('wzBankIfsc').value.trim(),
+    Commission_Rate: commVal,
     Registration_Status: document.getElementById('wzEntityType').value === 'Individual' ? 'Unregistered' : 'Registered',
     Partner_Agreement_Accepted: document.getElementById('chkAcceptAgreement').checked,
     Policies: document.getElementById('editPropPolicies').value.trim()
@@ -2284,7 +2425,8 @@ async function saveWzDraft() {
       }
       return true;
     } else {
-      showToast('Failed to save onboarding draft.', 'error');
+      const err = await res.json().catch(() => ({}));
+      showToast(err.error || 'Failed to save onboarding draft.', 'error');
       return false;
     }
   } catch (err) {
@@ -2299,6 +2441,13 @@ async function submitWzOnboarding() {
   if (isNaN(rooms) || rooms < 5) {
     showToast("This property currently does not meet Homzo's minimum room requirement (minimum 5 rentable rooms).", 'error');
     switchWzStep(1);
+    return;
+  }
+
+  const commVal = parseFloat(document.getElementById('wzCommissionRate')?.value || 15);
+  if (isNaN(commVal) || commVal < 12 || commVal > 20) {
+    showToast('Platform Commission Rate must be between 12% and 20%.', 'error');
+    switchWzStep(6);
     return;
   }
 
