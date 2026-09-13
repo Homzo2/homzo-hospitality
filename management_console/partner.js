@@ -95,6 +95,12 @@ async function checkSession() {
 }
 
 function showLoginView() {
+  const form = document.getElementById('partnerLoginForm');
+  if (form) form.reset();
+  const emailInput = document.getElementById('loginEmail');
+  const passInput = document.getElementById('loginPassword');
+  if (emailInput) emailInput.value = '';
+  if (passInput) passInput.value = '';
   document.getElementById('loginScreen').style.display = 'flex';
   document.getElementById('partnerLayout').style.display = 'none';
 }
@@ -304,6 +310,10 @@ function setupEventListeners() {
           localStorage.setItem('homzo_partner_token', data.token);
           sessionToken = data.token;
           currentUser = { email: data.email, role: data.role, name: data.name };
+          if (emailInput) emailInput.value = '';
+          if (passwordInput) passwordInput.value = '';
+          const form = document.getElementById('partnerLoginForm');
+          if (form) form.reset();
           showToast('Welcome back, Partner!', 'success');
           showPortalView();
         } else {
@@ -455,6 +465,12 @@ function setupEventListeners() {
       localStorage.removeItem('homzo_partner_token');
       sessionToken = '';
       currentUser = null;
+      const form = document.getElementById('partnerLoginForm');
+      if (form) form.reset();
+      const emailInput = document.getElementById('loginEmail');
+      const passInput = document.getElementById('loginPassword');
+      if (emailInput) emailInput.value = '';
+      if (passInput) passInput.value = '';
       showToast('Logged out successfully.', 'info');
       showLoginView();
     });

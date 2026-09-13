@@ -354,6 +354,12 @@ document.getElementById('logoutBtn').addEventListener('click', async () => {
   window.currentUser = null;
   localStorage.removeItem('homzo_admin_token');
   localStorage.removeItem('homzo_admin_user');
+  const form = document.getElementById('adminLoginForm');
+  if (form) form.reset();
+  const emailInput = document.getElementById('loginEmail');
+  const passInput = document.getElementById('loginPassword');
+  if (emailInput) emailInput.value = '';
+  if (passInput) passInput.value = '';
   document.getElementById('adminLayout').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
   showToast('Logged out successfully.', 'info');
@@ -647,16 +653,33 @@ async function renderAdminProperties(filter='all', search='') {
           <div class="apc-price">${p.price}</div>
           <div class="action-btns">
             <button class="act-btn" title="Edit" onclick="showToast('Edit mode for: ${p.name}','info')"><i class="fa-solid fa-pen"></i></button>
-            <button class="act-btn danger" title="Remove" onclick="removeProperty(${p.id})"><i class="fa-solid fa-trash"></i></button>
+            <button class="act-btn danger" title="Remove" onclick="removeProperty('${p.id}')"><i class="fa-solid fa-trash"></i></button>
           </div>
         </div>
       </div>
     </div>`).join('');
 }
 
-function removeProperty(id) {
-  const i = adminProps.findIndex(p=>p.id===id);
-  if(i>-1){ adminProps.splice(i,1); renderAdminProperties(); showToast('Property removed.','error'); }
+async function removeProperty(id) {
+  if (!confirm('Are you sure you want to delete this property? This will permanently delete the listing.')) return;
+  try {
+    const res = await fetch(`/api/admin/properties/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    });
+    if (res.ok) {
+      adminProps = adminProps.filter(p => String(p.id) !== String(id) && String(p.ID) !== String(id));
+      await renderAdminProperties();
+      showToast('Property deleted successfully.', 'success');
+      if (typeof loadPmProperties === 'function') loadPmProperties();
+      if (typeof loadOnboardingProperties === 'function') loadOnboardingProperties();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      showToast(err.error || 'Failed to delete property.', 'error');
+    }
+  } catch (err) {
+    showToast('Network error while deleting property.', 'error');
+  }
 }
 
 document.getElementById('propSearch').addEventListener('input', e => renderAdminProperties(document.getElementById('propTypeFilter').value, e.target.value.toLowerCase()));
@@ -800,22 +823,194 @@ async function fetchInquiriesFromAPI() {
   }
 }
 
+function extractPhoneFromMessage(text) {
+  if (!text) return '';
+  const match = text.match(/(?:Phone|Contact|Mobile|Tel)[:\s]*([+0-9\s-]{10,15})/i) || text.match(/\b([6-9]\d{9})\b/);
+  return match ? match[1].replace(/[^0-9+]/g, '') : '';
+}
+
 async function renderInquiries(search = '') {
   if (inquiriesData.length === 0) await fetchInquiriesFromAPI();
   
   let data = [...inquiriesData];
-  if (search) data = data.filter(i => i.name.toLowerCase().includes(search) || i.email.toLowerCase().includes(search));
+  if (search) {
+    data = data.filter(i => 
+      (i.name || '').toLowerCase().includes(search) || 
+      (i.email || '').toLowerCase().includes(search) || 
+      (i.message || '').toLowerCase().includes(search)
+    );
+  }
   
-  document.getElementById('inquiriesTbody').innerHTML = data.map(i => `
+  const tbody = document.getElementById('inquiriesTbody');
+  if (!tbody) return;
+
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:24px;">No inquiries found.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = data.map(i => {
+    const phone = extractPhoneFromMessage(i.message);
+    const cleanPhone = phone.replace(/[^0-9]/g, '');
+    const isPartner = (i.type || '').toLowerCase().includes('partner');
+
+    return `
     <tr>
-      <td style="color:var(--text-muted); white-space:nowrap;">${new Date(i.created_at).toLocaleDateString()}</td>
-      <td><strong style="color:var(--text-primary)">${i.name}</strong></td>
-      <td>${i.email}</td>
-      <td><span class="badge badge-info">${i.type}</span></td>
-      <td style="max-width:300px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${i.message}">${i.message}</td>
+      <td style="color:var(--text-muted); white-space:nowrap;">${new Date(i.created_at).toLocaleDateString('en-GB')}</td>
+      <td>
+        <strong style="color:var(--text-primary); cursor:pointer;" onclick="viewInquiry(${i.id})">${i.name}</strong>
+      </td>
+      <td>
+        <div><a href="mailto:${i.email}" style="color:var(--info); text-decoration:none;">${i.email}</a></div>
+        ${phone ? `<div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;"><i class="fa-solid fa-phone" style="font-size:0.7rem;"></i> ${phone}</div>` : ''}
+      </td>
+      <td>
+        <span class="badge badge-${isPartner ? 'warning' : 'info'}">${i.type}</span>
+      </td>
+      <td style="max-width:260px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:pointer;" title="${(i.message || '').replace(/"/g, '&quot;')}" onclick="viewInquiry(${i.id})">
+        ${i.message}
+      </td>
+      <td>
+        <div class="action-btns" style="justify-content:center;">
+          <button class="act-btn" title="View Full Details" onclick="viewInquiry(${i.id})">
+            <i class="fa-solid fa-eye"></i>
+          </button>
+          ${cleanPhone ? `
+          <a href="https://wa.me/${cleanPhone.startsWith('91') ? cleanPhone : '91' + cleanPhone}?text=${encodeURIComponent('Hello ' + i.name + ', regarding your Homzo inquiry...')}" target="_blank" class="act-btn" style="color:#22c55e; border-color:rgba(34,197,94,0.3);" title="Chat on WhatsApp">
+            <i class="fa-brands fa-whatsapp"></i>
+          </a>` : ''}
+          <a href="mailto:${i.email}?subject=${encodeURIComponent('HOMZO Inquiry - ' + (i.type || 'Request'))}" class="act-btn" style="color:var(--info); border-color:rgba(59,130,246,0.3);" title="Send Email">
+            <i class="fa-solid fa-envelope"></i>
+          </a>
+          ${isPartner ? `
+          <button class="act-btn" style="color:var(--primary); border-color:rgba(212,175,55,0.4);" title="Convert to Partner Account" onclick="convertInquiryToPartner(${i.id})">
+            <i class="fa-solid fa-user-plus"></i>
+          </button>` : ''}
+          <button class="act-btn danger" title="Delete Inquiry" onclick="deleteInquiry(${i.id})">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+      </td>
     </tr>
-  `).join('');
+  `;
+  }).join('');
 }
+
+window.viewInquiry = function(id) {
+  const inq = inquiriesData.find(x => x.id === id || String(x.id) === String(id));
+  if (!inq) return;
+
+  const phone = extractPhoneFromMessage(inq.message);
+  const cleanPhone = phone.replace(/[^0-9]/g, '');
+  const isPartner = (inq.type || '').toLowerCase().includes('partner');
+
+  const idEl = document.getElementById('inqModalId');
+  if (idEl) idEl.value = inq.id;
+  const nameEl = document.getElementById('inqModalName');
+  if (nameEl) nameEl.textContent = inq.name;
+  const typeEl = document.getElementById('inqModalType');
+  if (typeEl) typeEl.textContent = inq.type;
+  const emailEl = document.getElementById('inqModalEmail');
+  if (emailEl) emailEl.textContent = inq.email;
+  const phoneEl = document.getElementById('inqModalPhone');
+  if (phoneEl) phoneEl.textContent = phone || 'Not specified';
+  const dateEl = document.getElementById('inqModalDate');
+  if (dateEl) dateEl.textContent = new Date(inq.created_at).toLocaleString('en-GB');
+  const msgEl = document.getElementById('inqModalMessage');
+  if (msgEl) msgEl.textContent = inq.message;
+
+  const waBtn = document.getElementById('inqModalWhatsappBtn');
+  if (waBtn) {
+    if (cleanPhone) {
+      waBtn.style.display = 'inline-flex';
+      waBtn.href = `https://wa.me/${cleanPhone.startsWith('91') ? cleanPhone : '91' + cleanPhone}?text=${encodeURIComponent('Hello ' + inq.name + ', contacting you from Homzo regarding your inquiry.')}`;
+    } else {
+      waBtn.style.display = 'none';
+    }
+  }
+
+  const emBtn = document.getElementById('inqModalEmailBtn');
+  if (emBtn) emBtn.href = `mailto:${inq.email}?subject=${encodeURIComponent('HOMZO Inquiry Response - ' + (inq.type || 'Request'))}`;
+
+  const callBtn = document.getElementById('inqModalCallBtn');
+  if (callBtn) {
+    if (cleanPhone) {
+      callBtn.style.display = 'inline-flex';
+      callBtn.href = `tel:${cleanPhone}`;
+    } else {
+      callBtn.style.display = 'none';
+    }
+  }
+
+  const partnerAction = document.getElementById('inqModalPartnerAction');
+  if (partnerAction) {
+    if (isPartner) {
+      partnerAction.style.display = 'flex';
+      const convertBtn = document.getElementById('inqModalConvertBtn');
+      if (convertBtn) {
+        convertBtn.onclick = () => {
+          closeModal('inquiryDetailModal');
+          convertInquiryToPartner(inq.id);
+        };
+      }
+    } else {
+      partnerAction.style.display = 'none';
+    }
+  }
+
+  const delBtn = document.getElementById('inqModalDeleteBtn');
+  if (delBtn) {
+    delBtn.onclick = () => {
+      deleteInquiry(inq.id);
+    };
+  }
+
+  openModal('inquiryDetailModal');
+};
+
+window.convertInquiryToPartner = function(id) {
+  const inq = inquiriesData.find(x => x.id === id || String(x.id) === String(id));
+  if (!inq) return;
+
+  const phone = extractPhoneFromMessage(inq.message);
+
+  if (typeof switchPage === 'function') {
+    switchPage('partners');
+  }
+
+  const nameInput = document.getElementById('apPartnerName');
+  const emailInput = document.getElementById('apPartnerEmail');
+  const phoneInput = document.getElementById('apPartnerPhone');
+  const passInput = document.getElementById('apPartnerPassword');
+
+  if (nameInput) nameInput.value = inq.name;
+  if (emailInput) emailInput.value = inq.email;
+  if (phoneInput) phoneInput.value = phone || '';
+  if (passInput) passInput.value = 'Partner@' + Math.floor(1000 + Math.random() * 9000);
+
+  openModal('addPartnerModal');
+  showToast(`Pre-filled partner onboarding form for "${inq.name}"!`, 'info');
+};
+
+window.deleteInquiry = async function(id) {
+  if (!confirm('Are you sure you want to delete this inquiry permanently?')) return;
+  try {
+    const res = await fetch(`/api/inquiries/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    });
+    if (res.ok) {
+      inquiriesData = inquiriesData.filter(x => x.id !== id && String(x.id) !== String(id));
+      closeModal('inquiryDetailModal');
+      renderInquiries();
+      showToast('Inquiry deleted successfully.', 'success');
+    } else {
+      showToast('Failed to delete inquiry.', 'error');
+    }
+  } catch (e) {
+    showToast('Network error while deleting inquiry.', 'error');
+  }
+};
 
 const inqSearch = document.getElementById('inquirySearch');
 if (inqSearch) {
@@ -1292,7 +1487,7 @@ window.togglePartnerStatus = async function(id) {
 }
 
 window.deletePartner = async function(id) {
-  if (!confirm('Are you sure you want to delete this partner account permanently?')) return;
+  if (!confirm('Are you sure you want to delete this partner account and all its associated properties permanently?')) return;
 
   try {
     const res = await fetch(`/api/super/partners/${id}`, {
@@ -1300,8 +1495,12 @@ window.deletePartner = async function(id) {
       headers: getHeaders()
     });
     if (res.ok) {
-      showToast('Partner account deleted.', 'error');
+      showToast('Partner and associated properties deleted successfully.', 'success');
       loadPartners();
+      adminProps = [];
+      if (typeof renderAdminProperties === 'function') renderAdminProperties();
+      if (typeof loadOnboardingProperties === 'function') loadOnboardingProperties();
+      if (typeof loadPmProperties === 'function') loadPmProperties();
     } else {
       showToast('Failed to delete partner.', 'error');
     }
@@ -3670,7 +3869,10 @@ async function deleteProperty(id) {
     });
     if (res.ok) {
       showToast('Property deleted successfully!', 'success');
+      adminProps = adminProps.filter(p => String(p.id) !== String(id) && String(p.ID) !== String(id));
+      await renderAdminProperties();
       await loadPmProperties();
+      if (typeof loadOnboardingProperties === 'function') loadOnboardingProperties();
     } else {
       showToast('Failed to delete property.', 'error');
     }

@@ -320,15 +320,15 @@
         <h2 id="loginCardTitle">Welcome Back!</h2>
         <p class="subtitle" id="loginCardSub">Sign in to continue to your account</p>
         
-        <form id="partnerLoginForm" onsubmit="return false;">
+        <form id="partnerLoginForm" onsubmit="return false;" autocomplete="off">
           <div class="theme-input-group">
             <i class="fa-regular fa-user"></i>
-            <input type="email" id="loginEmail" placeholder="Enter your registered email" required autocomplete="email" />
+            <input type="email" id="loginEmail" placeholder="Enter your registered email" required autocomplete="off" />
           </div>
           
           <div class="theme-input-group">
             <i class="fa-solid fa-lock"></i>
-            <input type="password" id="loginPassword" placeholder="Enter your password" required autocomplete="current-password" />
+            <input type="password" id="loginPassword" placeholder="Enter your password" required autocomplete="new-password" />
             <i class="fa-regular fa-eye-slash pw-toggle-icon" id="pwToggleTheme"></i>
           </div>
           
