@@ -117,38 +117,290 @@
     }
 
     .form-section {
-      padding: 80px 20px;
-      background: var(--bg-surface);
+      padding: 60px 20px;
+      background: var(--bg-surface, #f8fafc);
       border-top: 1px solid var(--border);
       border-bottom: 1px solid var(--border);
     }
-    .form-container {
-      max-width: 900px;
+    .partnership-layout-container {
+      max-width: 1240px;
       margin: 0 auto;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-xl);
-      padding: 50px;
-      box-shadow: var(--shadow-card);
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 36px;
+      align-items: start;
     }
-    @media (max-width: 768px) {
-      .form-container {
-        padding: 30px 20px;
+    @media (max-width: 992px) {
+      .partnership-layout-container {
+        grid-template-columns: 1fr;
+        gap: 30px;
       }
     }
-    .form-grid {
+
+    /* Left: Compact & Sleek Form Card */
+    .partner-form-card {
+      background: var(--bg-card, #ffffff);
+      border: 1px solid var(--border-strong, #e2e8f0);
+      border-radius: var(--radius-xl, 16px);
+      padding: 32px 30px;
+      box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.06), 0 4px 6px -2px rgba(15, 23, 42, 0.02);
+      transition: box-shadow 0.2s ease;
+    }
+    .form-card-header {
+      margin-bottom: 20px;
+    }
+    .partner-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: rgba(255, 92, 53, 0.1);
+      color: var(--primary, #ff5c35);
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .form-card-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+      line-height: 1.25;
+    }
+    .form-card-title span {
+      background: var(--gradient-primary, linear-gradient(135deg, #ff5c35 0%, #ff8c42 100%));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .form-card-subtitle {
+      color: var(--text-secondary);
+      font-size: 0.84rem;
+      line-height: 1.45;
+    }
+
+    .form-grid-compact {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      margin-top: 30px;
+      gap: 12px 14px;
     }
-    @media (max-width: 600px) {
-      .form-grid {
+    @media (max-width: 640px) {
+      .form-grid-compact {
+        grid-template-columns: 1fr;
+      }
+      .partner-form-card {
+        padding: 24px 18px;
+      }
+    }
+    .form-grid-compact .form-group {
+      margin-bottom: 0;
+    }
+    .form-grid-compact .form-group label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--text-primary);
+      display: block;
+    }
+    .form-grid-compact .form-control {
+      padding: 9px 12px;
+      font-size: 0.86rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-strong, #cbd5e1);
+      transition: all 0.2s ease;
+      background: #fff;
+    }
+    .form-grid-compact .form-control:focus {
+      border-color: var(--primary, #ff5c35);
+      box-shadow: 0 0 0 3px rgba(255, 92, 53, 0.12);
+      outline: none;
+    }
+    .form-grid-compact small {
+      font-size: 0.7rem !important;
+      margin-top: 2px !important;
+    }
+    .form-grid-compact .full-width {
+      grid-column: 1 / -1;
+    }
+    .submit-btn-wrap {
+      margin-top: 6px;
+    }
+    .trust-footer-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+      font-size: 0.74rem;
+      color: var(--text-muted, #64748b);
+      text-align: center;
+    }
+
+    /* Right: Professional Showcase & Image Card */
+    .partner-showcase-card {
+      background: var(--bg-card, #ffffff);
+      border: 1px solid var(--border-strong, #e2e8f0);
+      border-radius: var(--radius-xl, 16px);
+      overflow: hidden;
+      box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.06);
+      display: flex;
+      flex-direction: column;
+    }
+    .showcase-image-wrapper {
+      position: relative;
+      width: 100%;
+      height: 290px;
+      overflow: hidden;
+      background: #0f172a;
+    }
+    @media (max-width: 640px) {
+      .showcase-image-wrapper {
+        height: 220px;
+      }
+    }
+    .partner-banner-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+    .showcase-image-wrapper:hover .partner-banner-img {
+      transform: scale(1.03);
+    }
+    .showcase-badge {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      background: rgba(15, 23, 42, 0.82);
+      backdrop-filter: blur(8px);
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+    .showcase-badge i {
+      color: #f59e0b;
+    }
+    .showcase-content {
+      padding: 22px 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .showcase-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .showcase-desc {
+      color: var(--text-secondary);
+      font-size: 0.82rem;
+      line-height: 1.45;
+      margin-bottom: 16px;
+    }
+    .partner-perks-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    @media (max-width: 480px) {
+      .partner-perks-grid {
         grid-template-columns: 1fr;
       }
     }
-    .form-grid .full-width {
-      grid-column: 1 / -1;
+    .perk-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 9px 11px;
+      background: var(--bg-surface, #f8fafc);
+      border: 1px solid var(--border, #e2e8f0);
+      border-radius: 10px;
+    }
+    .perk-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: rgba(255, 92, 53, 0.1);
+      color: var(--primary, #ff5c35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.82rem;
+      flex-shrink: 0;
+    }
+    .perk-item strong {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+    .perk-item span {
+      display: block;
+      font-size: 0.69rem;
+      color: var(--text-secondary);
+      margin-top: 2px;
+      line-height: 1.25;
+    }
+    .partner-testimonial-box {
+      background: linear-gradient(135deg, rgba(255, 92, 53, 0.04) 0%, rgba(255, 140, 66, 0.08) 100%);
+      border: 1px solid rgba(255, 92, 53, 0.2);
+      border-radius: 12px;
+      padding: 12px 14px;
+      position: relative;
+    }
+    .quote-icon {
+      color: var(--primary, #ff5c35);
+      opacity: 0.4;
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+      display: block;
+    }
+    .partner-testimonial-box p {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      font-style: italic;
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .testimonial-author img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1.5px solid var(--primary, #ff5c35);
+    }
+    .testimonial-author strong {
+      display: block;
+      font-size: 0.76rem;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+    .testimonial-author span {
+      display: block;
+      font-size: 0.67rem;
+      color: var(--text-muted);
     }
     
     .cta-banner {
@@ -228,6 +480,7 @@
     </ul>
     <div class="nav-actions">
       <button class="btn btn-primary btn-sm" onclick="location.href='index.html?book=true'"><i class="fa-solid fa-calendar-check"></i> Book Now</button>
+      <button class="nav-hamburger hide-desktop" id="hamburger" aria-label="Toggle Navigation"><i class="fa-solid fa-bars"></i></button>
     </div>
   </div>
 </nav>
@@ -286,65 +539,190 @@
 
 <!-- ════════════════ INQUIRY FORM ════════════════ -->
 <section class="form-section" id="partner-form">
-  <div class="form-container">
-    <div style="text-align:center; margin-bottom:30px;">
-      <h2 class="section-title" style="margin-bottom:8px;">Homzo Partnership <span>Request</span></h2>
-      <p style="color:var(--text-secondary); font-size:0.95rem;">Please fill out the form below. Our partnership evaluation team will review your details and connect with you.</p>
+  <div class="partnership-layout-container">
+    <!-- LEFT: Compact & Professional Partnership Request Form Card -->
+    <div class="partner-form-card">
+      <div class="form-card-header">
+        <span class="partner-tag"><i class="fa-solid fa-handshake"></i> Homzo Partner Onboarding</span>
+        <h2 class="form-card-title">Partnership <span>Request</span></h2>
+        <p class="form-card-subtitle">List your property with Homzo & maximize occupancy with corporate & leisure guests.</p>
+      </div>
+
+      <form id="partnerForm" onsubmit="event.preventDefault();" novalidate>
+        <div class="form-grid-compact">
+          <div class="form-group">
+            <label>Property Name <span style="color:#ef4444; font-weight:bold;">*</span></label>
+            <input type="text" class="form-control" placeholder="e.g. Homzo Grand Villa" id="ptPropName" required minlength="3">
+            <small style="color:var(--text-muted); font-size:0.7rem; margin-top:2px; display:block;">Min 3 valid characters</small>
+          </div>
+          <div class="form-group">
+            <label>Owner / Manager Name <span style="color:#ef4444; font-weight:bold;">*</span></label>
+            <input type="text" class="form-control" placeholder="Enter full name" id="ptOwnerName" required minlength="3">
+            <small style="color:var(--text-muted); font-size:0.7rem; margin-top:2px; display:block;">Legal property owner/manager</small>
+          </div>
+          <div class="form-group">
+            <label>Mobile Number <span style="color:#ef4444; font-weight:bold;">*</span></label>
+            <div class="phone-input-group" style="display:flex; align-items:center; border:1px solid var(--border-strong, #cbd5e1); border-radius:8px; background:#fff; overflow:hidden; transition:0.2s;">
+              <select id="ptCountryCode" style="display:inline-flex; align-items:center; padding:9px 8px; background:#f1f5f9; border:none; border-right:1px solid #cbd5e1; font-weight:700; color:#1e293b; font-size:0.86rem; outline:none; cursor:pointer;">
+                <option value="+91" selected>🇮🇳 +91 (India)</option>
+                <option value="+1">🇺🇸 +1 (USA)</option>
+                <option value="+44">🇬🇧 +44 (UK)</option>
+                <option value="+971">🇦🇪 +971 (UAE)</option>
+                <option value="+1-CA">🇨🇦 +1 (Canada)</option>
+                <option value="+61">🇦🇺 +61 (Australia)</option>
+                <option value="+65">🇸🇬 +65 (Singapore)</option>
+                <option value="+49">🇩🇪 +49 (Germany)</option>
+                <option value="+33">🇫🇷 +33 (France)</option>
+                <option value="+966">🇸🇦 +966 (Saudi Arabia)</option>
+                <option value="+974">🇶🇦 +974 (Qatar)</option>
+                <option value="+81">🇯🇵 +81 (Japan)</option>
+                <option value="+86">🇨🇳 +86 (China)</option>
+                <option value="+7">🇷🇺 +7 (Russia)</option>
+                <option value="+880">🇧🇩 +880 (Bangladesh)</option>
+                <option value="+977">🇳🇵 +977 (Nepal)</option>
+                <option value="+94">🇱🇰 +94 (Sri Lanka)</option>
+                <option value="+0">🌍 Other (+...)</option>
+              </select>
+              <input type="tel" class="form-control" placeholder="e.g. 9876543210" id="ptPhone" required maxlength="10" style="border:none; box-shadow:none; border-radius:0; padding:9px 12px; width:100%; font-size:0.86rem;" inputmode="numeric">
+            </div>
+            <small id="ptPhoneHint" style="color:var(--text-muted); font-size:0.7rem; margin-top:2px; display:block;">10-digit Indian number starting with 6-9</small>
+          </div>
+          <div class="form-group">
+            <label>Email Address <span style="color:#ef4444; font-weight:bold;">*</span></label>
+            <input type="email" class="form-control" placeholder="e.g. owner@example.com" id="ptEmail" required>
+            <small style="color:var(--text-muted); font-size:0.7rem; margin-top:2px; display:block;">For verification & reports</small>
+          </div>
+          <div class="form-group">
+            <label>Property Type <span style="color:#ef4444; font-weight:bold;">*</span></label>
+            <select class="form-control" id="ptType" required>
+              <option value="">Select Property Type</option>
+              <option>Hotel</option>
+              <option>Homestay</option>
+              <option>Villa</option>
+              <option>Guest House</option>
+              <option>Serviced Apartment</option>
+              <option>Resort</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Number of Rooms / Units <span style="color:#ef4444; font-weight:bold;">*</span></label>
+            <input type="number" class="form-control" min="5" max="50000" step="1" placeholder="e.g. 15 (Min 5 rooms)" id="ptRooms" required onkeydown="if(['e', 'E', '+', '-', '.'].includes(event.key)) event.preventDefault();" oninput="if(this.value < 0) this.value = Math.abs(this.value);">
+            <small style="color:var(--text-muted); font-size:0.7rem; margin-top:2px; display:block;">Range: 5 to 5,000+ rooms</small>
+          </div>
+          <div class="form-group">
+            <label>State <span style="color:#ef4444; font-weight:bold;">*</span></label>
+            <select class="form-control" id="ptState" required>
+              <option value="">Select State</option>
+              <option value="Maharashtra">Maharashtra</option>
+              <option value="Delhi NCR">Delhi NCR</option>
+              <option value="Karnataka">Karnataka</option>
+              <option value="Goa">Goa</option>
+              <option value="Rajasthan">Rajasthan</option>
+              <option value="Gujarat">Gujarat</option>
+              <option value="Uttar Pradesh">Uttar Pradesh</option>
+              <option value="Tamil Nadu">Tamil Nadu</option>
+              <option value="Telangana">Telangana</option>
+              <option value="West Bengal">West Bengal</option>
+              <option value="Kerala">Kerala</option>
+              <option value="Punjab">Punjab</option>
+              <option value="Haryana">Haryana</option>
+              <option value="Uttarakhand">Uttarakhand</option>
+              <option value="Himachal Pradesh">Himachal Pradesh</option>
+              <option value="Madhya Pradesh">Madhya Pradesh</option>
+              <option value="Bihar">Bihar</option>
+              <option value="Odisha">Odisha</option>
+              <option value="Assam">Assam</option>
+              <option value="Other">Other State</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>City <span style="color:#ef4444; font-weight:bold;">*</span></label>
+            <select class="form-control" id="ptCity" required disabled>
+              <option value="">Select State First</option>
+            </select>
+            <input type="text" class="form-control" id="ptCustomCity" placeholder="Enter city name" style="display:none; margin-top:6px;">
+            <small style="color:var(--text-muted); font-size:0.7rem; margin-top:2px; display:block;">Select state to load verified cities</small>
+          </div>
+          <div class="form-group full-width">
+            <label>Property Address <span style="color:#ef4444; font-weight:bold;">*</span></label>
+            <input type="text" class="form-control" placeholder="e.g. Plot No. 12, MG Road, Near City Mall, Pincode 400001" id="ptAddress" required minlength="15">
+            <small style="color:var(--text-muted); font-size:0.7rem; margin-top:2px; display:block;">Physical address with plot/building, street/area, landmark & pincode (min 15 chars; junk text rejected)</small>
+          </div>
+          <div class="form-group full-width">
+            <label>Message / Details (Optional)</label>
+            <textarea class="form-control" rows="2" placeholder="Tell us more about property amenities, current occupancy, or questions..." id="ptMessage" style="resize:vertical;"></textarea>
+          </div>
+          <div class="full-width submit-btn-wrap">
+            <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:12px 24px; font-weight:700; font-size:0.92rem; border-radius:8px;">
+              <i class="fa-solid fa-paper-plane"></i> Submit Partnership Request
+            </button>
+            <div class="trust-footer-badge">
+              <span><i class="fa-solid fa-lock" style="color:var(--primary);"></i> 256-Bit Encrypted</span>
+              <span><i class="fa-solid fa-bolt" style="color:var(--primary);"></i> Fast 24h Callback</span>
+              <span><i class="fa-solid fa-shield-check" style="color:var(--primary);"></i> Zero Onboarding Fee</span>
+            </div>
+          </div>
+        </div>
+      </form>
     </div>
-    
-    <form id="partnerForm" onsubmit="event.preventDefault();">
-      <div class="form-grid">
-        <div class="form-group">
-          <label>Property Name</label>
-          <input type="text" class="form-control" placeholder="e.g. Homzo Grand Villa" id="ptPropName" required>
+
+    <!-- RIGHT: Homzo Partnership Showcase & Trust Card -->
+    <div class="partner-showcase-card">
+      <div class="showcase-image-wrapper">
+        <img src="homzo_partner_banner.jpg" alt="Homzo Hotel Partnership" class="partner-banner-img" loading="lazy">
+        <div class="showcase-badge"><i class="fa-solid fa-certificate"></i> Verified Partner Network</div>
+      </div>
+      <div class="showcase-content">
+        <div>
+          <h3 class="showcase-title">Why Top Hoteliers Partner With Homzo</h3>
+          <p class="showcase-desc">We connect premium verified accommodations with corporate travelers, verified students, families, and international tourists across India.</p>
+
+          <div class="partner-perks-grid">
+            <div class="perk-item">
+              <div class="perk-icon"><i class="fa-solid fa-chart-line"></i></div>
+              <div>
+                <strong>35%+ Higher Revenue</strong>
+                <span>Dynamic algorithmic pricing to maximize REVPAR.</span>
+              </div>
+            </div>
+            <div class="perk-item">
+              <div class="perk-icon"><i class="fa-solid fa-wallet"></i></div>
+              <div>
+                <strong>Prompt Weekly Payouts</strong>
+                <span>Direct bank reconciliation with zero hidden cuts.</span>
+              </div>
+            </div>
+            <div class="perk-item">
+              <div class="perk-icon"><i class="fa-solid fa-building-shield"></i></div>
+              <div>
+                <strong>Zero Hidden Charges</strong>
+                <span>Completely free property inspection & onboarding.</span>
+              </div>
+            </div>
+            <div class="perk-item">
+              <div class="perk-icon"><i class="fa-solid fa-headset"></i></div>
+              <div>
+                <strong>Dedicated Manager</strong>
+                <span>Personal support for reservations & guest escalation.</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="form-group">
-          <label>Owner / Manager Name</label>
-          <input type="text" class="form-control" placeholder="Enter your full name" id="ptOwnerName" required>
-        </div>
-        <div class="form-group">
-          <label>Mobile Number (10 Digits)</label>
-          <input type="tel" class="form-control" placeholder="e.g. 9876543210" id="ptPhone" required maxlength="10" pattern="[0-9]{10}" oninput="this.value = this.value.replace(/[^0-9]/g, '')" title="Please enter a valid 10-digit mobile number">
-        </div>
-        <div class="form-group">
-          <label>Email Address</label>
-          <input type="email" class="form-control" placeholder="e.g. owner@example.com" id="ptEmail" required>
-        </div>
-        <div class="form-group">
-          <label>Property Type</label>
-          <select class="form-control" id="ptType" required>
-            <option value="">Select Property Type</option>
-            <option>Hotel</option>
-            <option>Homestay</option>
-            <option>Villa</option>
-            <option>Guest House</option>
-            <option>Serviced Apartment</option>
-            <option>Other</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>City</label>
-          <input type="text" class="form-control" placeholder="e.g. Mumbai" id="ptCity" required>
-        </div>
-        <div class="form-group full-width">
-          <label>Number of Rooms / Units</label>
-          <input type="number" class="form-control" min="1" placeholder="e.g. 15" id="ptRooms" required>
-        </div>
-        <div class="form-group full-width">
-          <label>Property Address</label>
-          <input type="text" class="form-control" placeholder="Enter complete property address" id="ptAddress" required>
-        </div>
-        <div class="form-group full-width">
-          <label>Message / Details (Optional)</label>
-          <textarea class="form-control" rows="4" placeholder="Tell us more about your property..." id="ptMessage"></textarea>
-        </div>
-        <div class="full-width" style="text-align:center; margin-top:10px;">
-          <button type="submit" class="btn btn-primary" style="width:100%; max-width:300px; justify-content:center;">
-            <i class="fa-solid fa-paper-plane"></i> Submit Partnership Request
-          </button>
+
+        <div class="partner-testimonial-box">
+          <i class="fa-solid fa-quote-left quote-icon"></i>
+          <p>"Partnering with Homzo transformed our occupancy from 45% to over 88% within 90 days. Their corporate network and transparent weekly payouts are unbeatable."</p>
+          <div class="testimonial-author">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80" alt="Partner Testimonial">
+            <div>
+              <strong>Rajesh Singhania</strong>
+              <span>Owner, Grand Vista Homzo Stay (Pune)</span>
+            </div>
+          </div>
         </div>
       </div>
-    </form>
+    </div>
   </div>
 </section>
 
@@ -421,6 +799,21 @@
 <div id="toast-container"></div>
 
 <script>
+  // Mobile Hamburger Toggle
+  const hamburger = document.getElementById('hamburger');
+  const navLinks = document.getElementById('navLinks');
+  if (hamburger && navLinks) {
+    hamburger.addEventListener('click', () => {
+      navLinks.classList.toggle('open');
+      navLinks.classList.toggle('active');
+      const isOpen = navLinks.classList.contains('open');
+      hamburger.innerHTML = isOpen
+        ? '<i class="fa-solid fa-xmark"></i>'
+        : '<i class="fa-solid fa-bars"></i>';
+    });
+  }
+
+  // Toast Notification System
   function showToast(msg, type = 'info') {
     const c = document.getElementById('toast-container');
     if (!c) return;
@@ -435,37 +828,260 @@
       t.style.transform = 'translateX(60px)';
       t.style.transition = '0.3s';
       setTimeout(() => t.remove(), 300);
-    }, 4000);
+    }, 4500);
   }
 
+  // Cascading Indian States and Cities Mapping
+  const stateCityMap = {
+    "Maharashtra": ["Mumbai", "Pune", "Nagpur", "Nashik", "Aurangabad", "Navi Mumbai", "Thane", "Kolhapur", "Solapur", "Lonavala", "Mahabaleshwar", "Alibaug", "Shirdi", "Other"],
+    "Delhi NCR": ["New Delhi", "South Delhi", "Central Delhi", "Noida", "Greater Noida", "Gurgaon (Gurugram)", "Ghaziabad", "Faridabad", "Other"],
+    "Karnataka": ["Bengaluru", "Mysuru (Mysore)", "Mangalore", "Hubli", "Belgaum", "Coorg", "Chikmagalur", "Hampi", "Other"],
+    "Goa": ["North Goa (Calangute/Baga/Panaji)", "South Goa (Madgaon/Colva/Palolem)", "Vasco da Gama", "Other"],
+    "Rajasthan": ["Jaipur", "Udaipur", "Jodhpur", "Jaisalmer", "Kota", "Ajmer", "Pushkar", "Mount Abu", "Bikaner", "Other"],
+    "Gujarat": ["Ahmedabad", "Surat", "Vadodara", "Rajkot", "Gandhinagar", "Dwarka", "Somnath", "Kutch", "Other"],
+    "Uttar Pradesh": ["Lucknow", "Kanpur", "Varanasi", "Agra", "Prayagraj", "Ayodhya", "Noida", "Ghaziabad", "Mathura", "Vrindavan", "Other"],
+    "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai", "Tiruchirappalli", "Salem", "Ooty", "Kodaikanal", "Other"],
+    "Telangana": ["Hyderabad", "Secunderabad", "Warangal", "Nizamabad", "Other"],
+    "West Bengal": ["Kolkata", "Howrah", "Siliguri", "Darjeeling", "Durgapur", "Other"],
+    "Kerala": ["Kochi (Cochin)", "Thiruvananthapuram", "Kozhikode", "Munnar", "Alleppey (Alappuzha)", "Wayanad", "Varkala", "Other"],
+    "Punjab": ["Chandigarh", "Amritsar", "Ludhiana", "Jalandhar", "Patiala", "Other"],
+    "Haryana": ["Gurugram", "Faridabad", "Panipat", "Ambala", "Karnal", "Panchkula", "Other"],
+    "Uttarakhand": ["Dehradun", "Rishikesh", "Haridwar", "Nainital", "Mussoorie", "Other"],
+    "Himachal Pradesh": ["Shimla", "Manali", "Dharamshala", "Kullu", "Kasol", "Spiti", "Other"],
+    "Madhya Pradesh": ["Bhopal", "Indore", "Gwalior", "Jabalpur", "Ujjain", "Other"],
+    "Bihar": ["Patna", "Gaya", "Muzaffarpur", "Bhagalpur", "Bodh Gaya", "Other"],
+    "Odisha": ["Bhubaneswar", "Puri", "Cuttack", "Rourkela", "Other"],
+    "Assam": ["Guwahati", "Dibrugarh", "Silchar", "Kaziranga", "Other"],
+    "Other": ["Other"]
+  };
+
+  const stateSelect = document.getElementById('ptState');
+  const citySelect = document.getElementById('ptCity');
+  const customCityInput = document.getElementById('ptCustomCity');
+
+  stateSelect.addEventListener('change', () => {
+    const selectedState = stateSelect.value;
+    citySelect.innerHTML = '';
+    customCityInput.style.display = 'none';
+    customCityInput.value = '';
+
+    if (!selectedState) {
+      citySelect.disabled = true;
+      citySelect.innerHTML = '<option value="">Select State First</option>';
+      return;
+    }
+
+    citySelect.disabled = false;
+    citySelect.innerHTML = '<option value="">Select City</option>';
+
+    const cities = stateCityMap[selectedState] || ["Other"];
+    cities.forEach(city => {
+      const opt = document.createElement('option');
+      opt.value = city;
+      opt.textContent = city;
+      citySelect.appendChild(opt);
+    });
+  });
+
+  citySelect.addEventListener('change', () => {
+    if (citySelect.value === 'Other') {
+      customCityInput.style.display = 'block';
+      customCityInput.required = true;
+      customCityInput.focus();
+    } else {
+      customCityInput.style.display = 'none';
+      customCityInput.required = false;
+      customCityInput.value = '';
+    }
+  });
+
+  // Strict Validation Helpers
+  function hasMinAlphanumeric(text, minCount) {
+    if (!text || typeof text !== 'string') return false;
+    const matches = text.match(/[a-zA-Z0-9]/g) || [];
+    return matches.length >= minCount;
+  }
+
+  function hasMinLetters(text, minCount) {
+    if (!text || typeof text !== 'string') return false;
+    const matches = text.match(/[a-zA-Z]/g) || [];
+    return matches.length >= minCount;
+  }
+
+  function isValidContactPhone(phone, countryCode = '+91') {
+    if (!phone) return false;
+    const clean = phone.replace(/\D/g, '');
+    if (countryCode === '+91') {
+      if (!/^[6-9]\d{9}$/.test(clean)) return false;
+      if (/^(\d)\1{9}$/.test(clean)) return false; // Block 0000000000, 1111111111, etc.
+      return true;
+    } else {
+      if (clean.length < 7 || clean.length > 15) return false;
+      if (/^(\d)\1{6,}$/.test(clean)) return false; // Block all identical digits
+      return true;
+    }
+  }
+
+  function isValidPropertyAddress(addr) {
+    if (!addr || typeof addr !== 'string') return false;
+    const clean = addr.trim();
+    if (clean.length < 15) return false;
+
+    const words = clean.split(/[\s,.-]+/).filter(w => w.length >= 2);
+    if (words.length < 3) return false;
+
+    const lower = clean.toLowerCase();
+    if (/(.)\1{3,}/.test(lower)) return false;
+
+    const junkPatterns = [
+      /qwerty/i, /asdfgh/i, /zxcvbn/i, /123456/i, /abcdef/i,
+      /test\s*address/i, /dummy\s*address/i, /fake\s*address/i,
+      /sample\s*address/i, /kux\s*bhi/i, /kuch\s*bhi/i, /kuchh\s*bhi/i,
+      /bla\s*bla/i, /xyzxyz/i, /abcabc/i
+    ];
+    for (const pattern of junkPatterns) {
+      if (pattern.test(lower)) return false;
+    }
+
+    const uniqueWords = new Set(words.map(w => w.toLowerCase()));
+    if (uniqueWords.size < 2) return false;
+
+    let vowelWords = 0;
+    for (const w of words) {
+      if (/[aeiouy]/i.test(w)) vowelWords++;
+    }
+    if (vowelWords < 2) return false;
+
+    const addressKeywords = /\b(plot|flat|floor|bldg|building|house|h\.?no|no\.?|apt|apartment|society|complex|vihar|nagar|colony|sector|sec|road|rd|marg|lane|street|st|chowk|circle|near|opp|opposite|behind|beside|bazar|market|phase|block|tower|cross|layout|enclave|pincode|pin|post|residency|villa|heights|estate|hub|plaza)\b/i;
+    const hasNumber = /\b\d{1,6}\b/.test(clean);
+    const hasKeyword = addressKeywords.test(clean);
+
+    if (!hasKeyword && !hasNumber && words.length < 4) {
+      return false;
+    }
+
+    return true;
+  }
+
+  // Country Code Dropdown dynamic behavior
+  const ptCountryCodeEl = document.getElementById('ptCountryCode');
+  const ptPhoneEl = document.getElementById('ptPhone');
+  const ptPhoneHintEl = document.getElementById('ptPhoneHint');
+
+  if (ptCountryCodeEl && ptPhoneEl) {
+    ptCountryCodeEl.addEventListener('change', () => {
+      const isIndia = ptCountryCodeEl.value === '+91';
+      ptPhoneEl.maxLength = isIndia ? 10 : 15;
+      ptPhoneEl.placeholder = isIndia ? "e.g. 9876543210" : "e.g. 5551234567";
+      ptPhoneEl.value = ptPhoneEl.value.replace(/[^0-9]/g, '').slice(0, isIndia ? 10 : 15);
+      if (ptPhoneHintEl) {
+        ptPhoneHintEl.textContent = isIndia 
+          ? "10-digit Indian mobile number starting with 6, 7, 8 or 9" 
+          : "Valid international mobile number (7 to 15 digits)";
+      }
+    });
+
+    ptPhoneEl.addEventListener('input', () => {
+      const isIndia = ptCountryCodeEl.value === '+91';
+      const maxLen = isIndia ? 10 : 15;
+      ptPhoneEl.value = ptPhoneEl.value.replace(/[^0-9]/g, '').slice(0, maxLen);
+    });
+  }
+
+  // Form Submission Handler
   document.getElementById('partnerForm').addEventListener('submit', async e => {
     e.preventDefault();
     
     const propName = document.getElementById('ptPropName').value.trim();
     const ownerName = document.getElementById('ptOwnerName').value.trim();
+    const countryCode = document.getElementById('ptCountryCode') ? document.getElementById('ptCountryCode').value : '+91';
     const phone = document.getElementById('ptPhone').value.trim();
     const email = document.getElementById('ptEmail').value.trim();
     const type = document.getElementById('ptType').value;
-    const city = document.getElementById('ptCity').value.trim();
-    const rooms = document.getElementById('ptRooms').value;
+    const state = document.getElementById('ptState').value;
+    let city = document.getElementById('ptCity').value;
+    if (city === 'Other') {
+      city = document.getElementById('ptCustomCity').value.trim();
+    }
+    const roomsVal = document.getElementById('ptRooms').value.trim();
+    const rooms = parseInt(roomsVal, 10);
     const address = document.getElementById('ptAddress').value.trim();
     const userMessage = document.getElementById('ptMessage').value.trim();
-    
-    if (!/^\d{10}$/.test(phone)) {
-      showToast('Mobile Number must be exactly 10 digits.', 'error');
+
+    // 1. Property Name check
+    if (!propName || !hasMinAlphanumeric(propName, 3)) {
+      showToast('Please enter a valid Property Name (minimum 3 characters, not dots or symbols).', 'error');
+      document.getElementById('ptPropName').focus();
       return;
     }
-    
-    if (!address) {
-      showToast('Property Address is required.', 'error');
+
+    // 2. Owner / Manager Name check
+    if (!ownerName || !hasMinLetters(ownerName, 3)) {
+      showToast('Please enter a valid Owner / Manager Name (minimum 3 letters, not dots or numbers).', 'error');
+      document.getElementById('ptOwnerName').focus();
+      return;
+    }
+
+    // 3. Mobile Number validation
+    if (!isValidContactPhone(phone, countryCode)) {
+      if (countryCode === '+91') {
+        showToast('Please enter a genuine 10-digit Indian mobile number (starts with 6, 7, 8 or 9; fake/repeated numbers like 0000000000 are not allowed).', 'error');
+      } else {
+        showToast('Please enter a valid international mobile number (7 to 15 digits).', 'error');
+      }
+      document.getElementById('ptPhone').focus();
+      return;
+    }
+
+    // 4. Email validation
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showToast('Please enter a valid email address.', 'error');
+      document.getElementById('ptEmail').focus();
+      return;
+    }
+
+    // 5. Property Type check
+    if (!type) {
+      showToast('Please select a Property Type.', 'error');
+      document.getElementById('ptType').focus();
+      return;
+    }
+
+    // 6. State check
+    if (!state) {
+      showToast('Please select your State.', 'error');
+      document.getElementById('ptState').focus();
+      return;
+    }
+
+    // 7. City check
+    if (!city || city === 'Select State First' || !hasMinAlphanumeric(city, 2)) {
+      showToast('Please select or specify your City.', 'error');
+      document.getElementById('ptCity').focus();
+      return;
+    }
+
+    // 8. Number of Rooms check (5 to 50,000)
+    if (isNaN(rooms) || rooms < 5 || rooms > 50000) {
+      showToast('Number of Rooms must be between 5 and 5,000+ rooms. Negative or smaller room counts are strictly prohibited.', 'error');
+      document.getElementById('ptRooms').focus();
+      return;
+    }
+
+    // 9. Address check (genuine physical address, not junk/random text)
+    if (!isValidPropertyAddress(address)) {
+      showToast('Please enter a complete and genuine Property Address (e.g., Plot 12, MG Road, Near City Mall, Pincode 400001). Arbitrary or random text is rejected.', 'error');
+      document.getElementById('ptAddress').focus();
       return;
     }
     
     const message = `[Partner Inquiry Details]
 Property Name: ${propName}
 Owner Name: ${ownerName}
-Mobile: ${phone}
+Country Code: ${countryCode}
+Mobile: ${countryCode} ${phone}
 Property Type: ${type}
+State: ${state}
 City: ${city}
 Number of Rooms: ${rooms}
 Address: ${address}
@@ -474,6 +1090,7 @@ Message: ${userMessage || 'N/A'}`;
     const submitBtn = e.target.querySelector('button[type="submit"]');
     const originalHtml = submitBtn.innerHTML;
     submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+    submitBtn.disabled = true;
     
     try {
       const res = await fetch('/api/inquiries', {
@@ -483,19 +1100,33 @@ Message: ${userMessage || 'N/A'}`;
           name: ownerName,
           email: email,
           type: 'Partner',
-          message: message
+          message: message,
+          propName: propName,
+          countryCode: countryCode,
+          phone: `${countryCode} ${phone}`,
+          rooms: rooms,
+          address: address,
+          city: city,
+          state: state
         })
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to submit inquiry');
+      
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to submit inquiry.');
+      }
       
       showToast('Thank you! Your Homzo Partnership Request has been submitted successfully.', 'success');
       e.target.reset();
+      citySelect.innerHTML = '<option value="">Select State First</option>';
+      citySelect.disabled = true;
+      customCityInput.style.display = 'none';
     } catch (err) {
       console.error(err);
-      showToast('Failed to submit form. Check if server is running.', 'error');
+      showToast(err.message || 'Failed to submit form. Please verify your connection.', 'error');
     } finally {
       submitBtn.innerHTML = originalHtml;
+      submitBtn.disabled = false;
     }
   });
 </script>

@@ -23,6 +23,20 @@ document.querySelectorAll('.modal-overlay').forEach(m => {
   m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); });
 });
 
+function isValidClientPhone(phone, countryCode = '+91') {
+  if (!phone) return false;
+  const clean = phone.replace(/\D/g, '');
+  if (countryCode === '+91') {
+    if (!/^[6-9]\d{9}$/.test(clean)) return false;
+    if (/^(\d)\1{9}$/.test(clean)) return false; // Block 0000000000, etc.
+    return true;
+  } else {
+    if (clean.length < 7 || clean.length > 15) return false;
+    if (/^(\d)\1{6,}$/.test(clean)) return false; // Block repeated digits
+    return true;
+  }
+}
+
 // ─── Navbar scroll (60fps Optimized, Zero Lag) ─────────
 let scrollTicking = false;
 window.addEventListener('scroll', () => {
@@ -373,6 +387,7 @@ document.getElementById('custLoginSubmitBtn').addEventListener('click', async ()
 document.getElementById('custSignUpSubmitBtn').addEventListener('click', async () => {
   const name = document.getElementById('custRegName').value.trim();
   const email = document.getElementById('custRegEmail').value.trim();
+  const countryCode = document.getElementById('custRegCountryCode') ? document.getElementById('custRegCountryCode').value : '+91';
   const phone = document.getElementById('custRegPhone').value.trim();
   const password = document.getElementById('custRegPassword').value;
   
@@ -380,9 +395,12 @@ document.getElementById('custSignUpSubmitBtn').addEventListener('click', async (
     showToast('Please fill in all fields.', 'error');
     return;
   }
-  const phoneRegex = /^[0-9]{10}$/;
-  if (!phoneRegex.test(phone)) {
-    showToast('Please enter a valid 10-digit phone number.', 'error');
+  if (!isValidClientPhone(phone, countryCode)) {
+    if (countryCode === '+91') {
+      showToast('Please enter a valid 10-digit Indian mobile number (starts with 6, 7, 8 or 9).', 'error');
+    } else {
+      showToast('Please enter a valid international mobile number (7 to 15 digits).', 'error');
+    }
     return;
   }
   if (password.length < 6) {
@@ -391,10 +409,11 @@ document.getElementById('custSignUpSubmitBtn').addEventListener('click', async (
   }
   
   try {
+    const fullPhone = `${countryCode} ${phone}`;
     const res = await fetch('/api/auth/customer/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, phone, password })
+      body: JSON.stringify({ name, email, phone: fullPhone, password })
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Registration failed.');
@@ -441,16 +460,60 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   const bkPhoneInput = document.getElementById('bkPhone');
+  const bkCountryCodeEl = document.getElementById('bkCountryCode');
+  const bkPhoneHintEl = document.getElementById('bkPhoneHint');
+
   if (bkPhoneInput) {
     bkPhoneInput.addEventListener('input', (e) => {
-      e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
+      const isIndia = !bkCountryCodeEl || bkCountryCodeEl.value === '+91';
+      const maxLen = isIndia ? 10 : 15;
+      e.target.value = e.target.value.replace(/\D/g, '').slice(0, maxLen);
+    });
+  }
+
+  if (bkCountryCodeEl) {
+    bkCountryCodeEl.addEventListener('change', () => {
+      const isIndia = bkCountryCodeEl.value === '+91';
+      if (bkPhoneInput) {
+        bkPhoneInput.maxLength = isIndia ? 10 : 15;
+        bkPhoneInput.placeholder = isIndia ? "10-digit Phone Number" : "International Phone Number";
+        bkPhoneInput.value = bkPhoneInput.value.slice(0, isIndia ? 10 : 15);
+      }
+      if (bkPhoneHintEl) {
+        bkPhoneHintEl.textContent = isIndia 
+          ? "10-digit Indian mobile number starting with 6, 7, 8 or 9" 
+          : "Valid international mobile number (7 to 15 digits)";
+      }
+    });
+  }
+
+  const bkTypeSelect = document.getElementById('bkType');
+  if (bkTypeSelect && bkCountryCodeEl) {
+    bkTypeSelect.addEventListener('change', (e) => {
+      if (e.target.value.toLowerCase() === 'foreigner') {
+        if (bkCountryCodeEl.value === '+91') {
+          bkCountryCodeEl.value = '+1';
+          bkCountryCodeEl.dispatchEvent(new Event('change'));
+        }
+      }
     });
   }
 
   const custRegPhoneInput = document.getElementById('custRegPhone');
+  const custRegCountryCodeEl = document.getElementById('custRegCountryCode');
   if (custRegPhoneInput) {
     custRegPhoneInput.addEventListener('input', (e) => {
-      e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
+      const isIndia = !custRegCountryCodeEl || custRegCountryCodeEl.value === '+91';
+      const maxLen = isIndia ? 10 : 15;
+      e.target.value = e.target.value.replace(/\D/g, '').slice(0, maxLen);
+    });
+  }
+  if (custRegCountryCodeEl && custRegPhoneInput) {
+    custRegCountryCodeEl.addEventListener('change', () => {
+      const isIndia = custRegCountryCodeEl.value === '+91';
+      custRegPhoneInput.maxLength = isIndia ? 10 : 15;
+      custRegPhoneInput.placeholder = isIndia ? "10-digit Phone" : "International Phone";
+      custRegPhoneInput.value = custRegPhoneInput.value.slice(0, isIndia ? 10 : 15);
     });
   }
 
@@ -1040,13 +1103,17 @@ if (confirmBookBtnEl) {
       showToast('Please enter a valid email address.', 'error');
       return;
     }
+    const bkCountryCode = document.getElementById('bkCountryCode') ? document.getElementById('bkCountryCode').value : '+91';
     if (!phone) {
       showToast('Please enter your phone number.', 'error');
       return;
     }
-    const phoneRegex = /^[0-9]{10}$/;
-    if (!phoneRegex.test(phone)) {
-      showToast('Please enter a valid 10-digit phone number.', 'error');
+    if (!isValidClientPhone(phone, bkCountryCode)) {
+      if (bkCountryCode === '+91') {
+        showToast('Please enter a valid 10-digit Indian mobile number (starts with 6, 7, 8 or 9).', 'error');
+      } else {
+        showToast('Please enter a valid international mobile number (7 to 15 digits).', 'error');
+      }
       return;
     }
     if (!dob) {
@@ -1063,7 +1130,7 @@ if (confirmBookBtnEl) {
     }
     
     pendingBookingPayload = {
-      name, email, phone, guest_type: type, property, checkin, checkout, dob, persons, notes,
+      name, email, phone: `${bkCountryCode} ${phone}`, guest_type: type, property, checkin, checkout, dob, persons, notes,
       customerId: currentCustomer ? currentCustomer.id : ''
     };
     

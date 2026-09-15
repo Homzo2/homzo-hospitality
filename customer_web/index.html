@@ -843,10 +843,29 @@
             </div>
           </div>
           <div class="form-group" style="margin-bottom: 10px;">
-            <label style="font-size: 0.7rem;">Phone</label>
-            <div class="input-icon-wrap">
-              <i class="fa-solid fa-phone" style="left: 14px;"></i>
-              <input type="tel" class="form-control" placeholder="10-digit Phone" id="custRegPhone" style="padding: 10px 10px 10px 34px; font-size: 0.82rem;" maxlength="10" pattern="[0-9]{10}" inputmode="numeric">
+            <label style="font-size: 0.7rem;">Phone <span style="color:#ef4444;">*</span></label>
+            <div style="display:flex; align-items:center; border:1px solid #cbd5e1; border-radius:6px; background:#fff; overflow:hidden;">
+              <select id="custRegCountryCode" style="border:none; background:#f1f5f9; padding:8px 4px; font-weight:600; font-size:0.75rem; color:#334155; outline:none; border-right:1px solid #cbd5e1; cursor:pointer;">
+                <option value="+91" selected>🇮🇳 +91</option>
+                <option value="+1">🇺🇸 +1</option>
+                <option value="+44">🇬🇧 +44</option>
+                <option value="+971">🇦🇪 +971</option>
+                <option value="+1-CA">🇨🇦 +1</option>
+                <option value="+61">🇦🇺 +61</option>
+                <option value="+65">🇸🇬 +65</option>
+                <option value="+49">🇩🇪 +49</option>
+                <option value="+33">🇫🇷 +33</option>
+                <option value="+966">🇸🇦 +966</option>
+                <option value="+974">🇶🇦 +974</option>
+                <option value="+81">🇯🇵 +81</option>
+                <option value="+86">🇨🇳 +86</option>
+                <option value="+7">🇷🇺 +7</option>
+                <option value="+880">🇧🇩 +880</option>
+                <option value="+977">🇳🇵 +977</option>
+                <option value="+94">🇱🇰 +94</option>
+                <option value="+0">🌍 Other</option>
+              </select>
+              <input type="tel" class="form-control" placeholder="10-digit Phone" id="custRegPhone" style="padding: 8px 10px; font-size: 0.82rem; border:none; box-shadow:none; border-radius:0; width:100%;" maxlength="10" inputmode="numeric">
             </div>
           </div>
         </div>
@@ -1051,11 +1070,31 @@
           </div>
         </div>
         <div class="form-group">
-          <label>Phone Number</label>
-          <div class="input-icon-wrap">
-            <i class="fa-solid fa-phone"></i>
-            <input type="tel" class="form-control" placeholder="10-digit Phone Number" id="bkPhone" maxlength="10" pattern="[0-9]{10}" inputmode="numeric">
+          <label>Phone Number <span style="color:#ef4444; font-weight:bold;">*</span></label>
+          <div style="display:flex; align-items:center; border:1px solid var(--border-strong, #cbd5e1); border-radius:var(--radius-md, 8px); background:#fff; overflow:hidden;">
+            <select id="bkCountryCode" style="display:inline-flex; align-items:center; padding:10px 8px; background:#f1f5f9; border:none; border-right:1px solid #cbd5e1; font-weight:700; color:#1e293b; font-size:0.85rem; outline:none; cursor:pointer;">
+              <option value="+91" selected>🇮🇳 +91 (India)</option>
+              <option value="+1">🇺🇸 +1 (USA)</option>
+              <option value="+44">🇬🇧 +44 (UK)</option>
+              <option value="+971">🇦🇪 +971 (UAE)</option>
+              <option value="+1-CA">🇨🇦 +1 (Canada)</option>
+              <option value="+61">🇦🇺 +61 (Australia)</option>
+              <option value="+65">🇸🇬 +65 (Singapore)</option>
+              <option value="+49">🇩🇪 +49 (Germany)</option>
+              <option value="+33">🇫🇷 +33 (France)</option>
+              <option value="+966">🇸🇦 +966 (Saudi Arabia)</option>
+              <option value="+974">🇶🇦 +974 (Qatar)</option>
+              <option value="+81">🇯🇵 +81 (Japan)</option>
+              <option value="+86">🇨🇳 +86 (China)</option>
+              <option value="+7">🇷🇺 +7 (Russia)</option>
+              <option value="+880">🇧🇩 +880 (Bangladesh)</option>
+              <option value="+977">🇳🇵 +977 (Nepal)</option>
+              <option value="+94">🇱🇰 +94 (Sri Lanka)</option>
+              <option value="+0">🌍 Other (+...)</option>
+            </select>
+            <input type="tel" class="form-control" placeholder="10-digit Phone Number" id="bkPhone" maxlength="10" style="border:none; box-shadow:none; border-radius:0; padding:10px 12px; width:100%;" inputmode="numeric">
           </div>
+          <small id="bkPhoneHint" style="color:var(--text-muted); font-size:0.75rem; margin-top:4px; display:block;">10-digit Indian mobile number</small>
         </div>
       </div>
       

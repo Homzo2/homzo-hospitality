@@ -318,6 +318,10 @@ ul { list-style: none; }
 }
 .form-control::placeholder { color: var(--text-muted); }
 select.form-control { cursor: pointer; }
+.phone-input-group:focus-within {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px var(--primary-glow) !important;
+}
 
 /* ── Input with Icon ── */
 .input-icon-wrap {
