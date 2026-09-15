@@ -26,9 +26,22 @@ if (databaseUrl) {
   sequelize = new Sequelize({
     dialect: 'sqlite',
     storage: dbPath,
-    logging: false
+    logging: false,
+    retry: {
+      match: [
+        /SQLITE_BUSY/,
+        /database is locked/
+      ],
+      max: 10
+    },
+    pool: {
+      max: 15,
+      min: 1,
+      acquire: 30000,
+      idle: 10000
+    }
   });
-  console.log('Using SQLite Local File-based Database Connection.');
+  console.log('Using SQLite Local File-based Database Connection with Concurrency Pool.');
 }
 
 
@@ -139,12 +152,29 @@ const Partner = sequelize.define('Partner', {
   Email: { type: DataTypes.STRING, allowNull: false, unique: true },
   Password: { type: DataTypes.STRING, allowNull: false },
   Phone: { type: DataTypes.STRING },
+  Alternate_Phone: { type: DataTypes.STRING },
+  Avatar: { type: DataTypes.STRING },
+  Business_Name: { type: DataTypes.STRING },
+  Address: { type: DataTypes.STRING },
+  City: { type: DataTypes.STRING },
+  State: { type: DataTypes.STRING },
+  Pincode: { type: DataTypes.STRING },
   Assigned_Properties: { type: DataTypes.STRING },
   Status: { type: DataTypes.STRING, defaultValue: 'active' },
+  Entity_Type: { type: DataTypes.STRING, defaultValue: 'Individual' },
+  Aadhaar: { type: DataTypes.STRING },
   GST: { type: DataTypes.STRING },
   PAN: { type: DataTypes.STRING },
+  Bank_Name: { type: DataTypes.STRING },
+  Bank_Account_Holder: { type: DataTypes.STRING },
   Bank_Account: { type: DataTypes.STRING },
   Bank_IFSC: { type: DataTypes.STRING },
+  Aadhaar_Doc: { type: DataTypes.STRING },
+  PAN_Doc: { type: DataTypes.STRING },
+  GST_Doc: { type: DataTypes.STRING },
+  Cheque_Doc: { type: DataTypes.STRING },
+  Address_Proof_Doc: { type: DataTypes.STRING },
+  KYC_Remarks: { type: DataTypes.TEXT },
   Verification_Status: { type: DataTypes.STRING, defaultValue: 'pending' },
   Date_Created: { type: DataTypes.STRING }
 }, { tableName: 'Partners', timestamps: false });
@@ -423,7 +453,7 @@ async function seedFromCSV() {
         'partner_meta_database.csv',
         'notifications_database.csv'
       ];
-      if (transactionalFiles.includes(csvFile)) {
+      if (transactionalFiles.includes(csvFile) && csvFile !== 'partners_database.csv') {
         continue;
       }
     }
@@ -504,7 +534,51 @@ async function seedFromCSV() {
 }
 
 async function initDb() {
-  await sequelize.sync({ alter: true });
+  try {
+    if (databaseUrl) {
+      await sequelize.sync({ alter: true });
+    } else {
+      try {
+        await sequelize.query("PRAGMA journal_mode = WAL;");
+        await sequelize.query("PRAGMA busy_timeout = 15000;");
+        await sequelize.query("PRAGMA synchronous = NORMAL;");
+        console.log('SQLite WAL mode (concurrent read/write) & 15s busy timeout active.');
+      } catch (pe) {
+        console.warn('Notice setting SQLite WAL pragmas:', pe.message);
+      }
+
+      await sequelize.sync();
+      // Ensure any newly added columns in SQLite are safely created
+      const [cols] = await sequelize.query("PRAGMA table_info(Partners);");
+      const colNames = cols.map(c => c.name);
+      const newCols = [
+        ['Alternate_Phone', 'TEXT'],
+        ['Avatar', 'TEXT'],
+        ['Business_Name', 'TEXT'],
+        ['Address', 'TEXT'],
+        ['City', 'TEXT'],
+        ['State', 'TEXT'],
+        ['Pincode', 'TEXT'],
+        ['Entity_Type', 'TEXT DEFAULT "Individual"'],
+        ['Aadhaar', 'TEXT'],
+        ['Bank_Name', 'TEXT'],
+        ['Bank_Account_Holder', 'TEXT'],
+        ['Aadhaar_Doc', 'TEXT'],
+        ['PAN_Doc', 'TEXT'],
+        ['GST_Doc', 'TEXT'],
+        ['Cheque_Doc', 'TEXT'],
+        ['Address_Proof_Doc', 'TEXT'],
+        ['KYC_Remarks', 'TEXT']
+      ];
+      for (const [col, colType] of newCols) {
+        if (!colNames.includes(col)) {
+          await sequelize.query(`ALTER TABLE Partners ADD COLUMN ${col} ${colType};`).catch(() => {});
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('Sync notice:', e.message);
+  }
   await seedFromCSV();
 }
 

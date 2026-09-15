@@ -27,11 +27,12 @@ async function runTestSuite() {
       return true;
     } else {
       console.error(` ❌ [FAIL] - ${testName}`);
-      process.exit(1);
+      throw new Error(`Assertion failed: ${testName}`);
     }
   }
 
-  // 1. --- TEST SUITE: CUSTOMER FLOWS (PUBLIC WEB) ---
+  try {
+    // 1. --- TEST SUITE: CUSTOMER FLOWS (PUBLIC WEB) ---
   console.log('\n------------------------------------------------------');
   console.log('👤 Suite 1: Customer Auth & Notifications (Public Web)');
   console.log('------------------------------------------------------');
@@ -208,6 +209,7 @@ async function runTestSuite() {
     });
     const data = await res.json();
     assert(res.ok && data.success === true, 'Partner: Raise support helpdesk ticket');
+    testTicketId = data.ticketId;
   } catch (err) {
     assert(false, `Ticket creation failed: ${err.message}`);
   }
@@ -435,13 +437,91 @@ async function runTestSuite() {
     assert(false, `Task status update failed: ${err.message}`);
   }
 
-  // Clean up: delete test property so database is not bloated
-  try {
-    await fetch(`${BASE_URL}/api/properties/${testPropertyId}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${adminToken}` }
-    });
-  } catch (e) {}
+  } finally {
+    console.log('\n------------------------------------------------------');
+    console.log('🧹 Suite 8: Automated Post-Test Cleanup');
+    console.log('------------------------------------------------------');
+
+    // 1. Delete test property
+    if (testPropertyId && adminToken) {
+      try {
+        const delRes = await fetch(`${BASE_URL}/api/admin/properties/${testPropertyId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const delData = await delRes.json();
+        console.log(` ✅ Cleaned test property (ID ${testPropertyId}):`, delData.message || 'Deleted');
+      } catch (e) {
+        console.error(' ⚠️ Failed to delete test property:', e.message);
+      }
+    }
+
+    // 2. Delete test booking / guest
+    if (testGuestId && adminToken) {
+      try {
+        const delRes = await fetch(`${BASE_URL}/api/admin/bookings/${testGuestId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const delData = await delRes.json();
+        console.log(` ✅ Cleaned test booking (ID BKG${1000 + testGuestId}):`, delData.message || 'Deleted');
+      } catch (e) {
+        console.error(' ⚠️ Failed to delete test booking:', e.message);
+      }
+    }
+
+    // 3. Delete test review
+    if (testReviewId) {
+      try {
+        const delRes = await fetch(`${BASE_URL}/api/reviews/${testReviewId}`, {
+          method: 'DELETE'
+        });
+        const delData = await delRes.json();
+        console.log(` ✅ Cleaned test review (ID ${testReviewId}):`, delData.message || 'Deleted');
+      } catch (e) {
+        console.error(' ⚠️ Failed to delete test review:', e.message);
+      }
+    }
+
+    // 4. Delete test operational task
+    if (testTaskId && adminToken) {
+      try {
+        const delRes = await fetch(`${BASE_URL}/api/admin/tasks/${testTaskId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const delData = await delRes.json();
+        console.log(` ✅ Cleaned test task (ID ${testTaskId}):`, delData.message || 'Deleted');
+      } catch (e) {
+        console.error(' ⚠️ Failed to delete test task:', e.message);
+      }
+    }
+
+    // 5. Delete test support ticket
+    if (testTicketId && adminToken) {
+      try {
+        const delRes = await fetch(`${BASE_URL}/api/admin/tickets/${testTicketId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+        const delData = await delRes.json();
+        console.log(` ✅ Cleaned test ticket (ID ${testTicketId}):`, delData.message || 'Deleted');
+      } catch (e) {
+        console.error(' ⚠️ Failed to delete test ticket:', e.message);
+      }
+    }
+
+    // 6. Comprehensive scrub via /api/qa/cleanup (removes test customers, audit logs, payouts, and orphaned test data)
+    try {
+      const cleanRes = await fetch(`${BASE_URL}/api/qa/cleanup`, { method: 'POST' });
+      const cleanData = await cleanRes.json();
+      console.log(' ✅ Comprehensive QA Cleanup Summary:', cleanData.summary || cleanData);
+    } catch (e) {
+      console.error(' ⚠️ Comprehensive cleanup request failed:', e.message);
+    }
+
+    console.log(' ✨ CRM and database completely scrubbed of dummy test data.');
+  }
 
   console.log('\n======================================================');
   console.log('🎉 QA Automation Suite Completed successfully! All tests [PASSED].');

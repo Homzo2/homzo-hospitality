@@ -5,6 +5,15 @@ const fs = require('fs');
 const xlsx = require('xlsx');
 const path = require('path');
 const crypto = require('crypto');
+const os = require('os');
+
+// Process-wide error guards to prevent server crash during concurrent traffic or socket drops
+process.on('uncaughtException', (err) => {
+  console.error('⚠️ [SERVER GUARD - UNCAUGHT EXCEPTION]:', err);
+});
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('⚠️ [SERVER GUARD - UNHANDLED REJECTION]:', reason);
+});
 
 const {
   initWhatsAppGateway,
@@ -820,7 +829,8 @@ const fileToModelMap = {
   'employees_database.csv': Employee,
   'jobs_database.csv': Job,
   'applications_database.csv': Application,
-  'customers_database.csv': Customer
+  'customers_database.csv': Customer,
+  'payouts_database.csv': Payout
 };
 
 const writeQueue = {};
@@ -1252,6 +1262,9 @@ app.post('/api/auth/customer/register', (req, res) => {
     const { name, email, password, phone } = req.body;
     if (!name || !email || !password || !phone) {
       return res.status(400).json({ error: 'All fields (name, email, password, phone) are required.' });
+    }
+    if (!isValidContactPhone(phone)) {
+      return res.status(400).json({ error: 'Please enter a valid phone number (10 digits for Indian numbers, or 7-15 digits for international numbers).' });
     }
     
     const customers = readExcelDb(customersDbPath);
@@ -2989,6 +3002,41 @@ app.put('/api/partner/tickets/:id/resolve', authenticateToken, requireRole('part
   res.json({ success: true, message: 'Ticket marked as resolved.' });
 });
 
+// Partner: Delete ticket
+app.delete('/api/partner/tickets/:id', authenticateToken, requireRole('partner'), (req, res) => {
+  try {
+    const ticketId = parseInt(req.params.id);
+    const tickets = readExcelDb(ticketsDbPath);
+    const idx = tickets.findIndex(t => parseInt(t.ID) === ticketId && (t.Partner_Email.toLowerCase() === req.user.email.toLowerCase() || req.user.role === 'super_admin'));
+    if (idx === -1) {
+      return res.status(404).json({ error: 'Ticket not found.' });
+    }
+    const deleted = tickets.splice(idx, 1)[0];
+    writeExcelDb(ticketsDbPath, 'Tickets', tickets);
+    res.json({ success: true, message: 'Ticket deleted successfully.', deleted });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete ticket.' });
+  }
+});
+
+// Admin: Delete ticket
+app.delete('/api/admin/tickets/:id', authenticateToken, requireRole('super_admin'), (req, res) => {
+  try {
+    const ticketId = parseInt(req.params.id);
+    const tickets = readExcelDb(ticketsDbPath);
+    const idx = tickets.findIndex(t => parseInt(t.ID) === ticketId);
+    if (idx === -1) {
+      return res.status(404).json({ error: 'Ticket not found.' });
+    }
+    const deleted = tickets.splice(idx, 1)[0];
+    writeExcelDb(ticketsDbPath, 'Tickets', tickets);
+    logAction(req.user.email, 'super_admin', 'delete_ticket', `Deleted ticket ID #${ticketId}`, req);
+    res.json({ success: true, message: 'Ticket deleted successfully.', deleted });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete ticket.' });
+  }
+});
+
 // Get notifications
 app.get('/api/partner/notifications', authenticateToken, requireRole('partner'), (req, res) => {
   const notifs = readExcelDb(notificationsDbPath);
@@ -3265,8 +3313,8 @@ app.post('/api/guests', (req, res) => {
   if (!email || !emailRegex.test(email.trim())) {
     return res.status(400).json({ error: 'Valid email address is required.' });
   }
-  if (!phone || phone.trim() === '') {
-    return res.status(400).json({ error: 'Phone number is required.' });
+  if (!phone || !isValidContactPhone(phone)) {
+    return res.status(400).json({ error: 'Please enter a valid phone number (10 digits for Indian numbers, or 7-15 digits for international numbers).' });
   }
   if (!dob) {
     return res.status(400).json({ error: 'Date of Birth is required.' });
@@ -3418,6 +3466,25 @@ app.put('/api/admin/bookings/:id/status', authenticateToken, requireRole('super_
   }
 });
 
+// Admin: Delete a booking
+app.delete('/api/admin/bookings/:id', authenticateToken, requireRole('super_admin'), (req, res) => {
+  try {
+    const rawId = req.params.id;
+    const clientId = rawId.startsWith('BKG') ? parseInt(rawId.replace('BKG', '')) - 1000 : parseInt(rawId);
+    const clients = readExcelDb(clientsDbPath);
+    const idx = clients.findIndex(c => parseInt(c.ID) === clientId);
+    if (idx === -1) {
+      return res.status(404).json({ error: 'Booking not found.' });
+    }
+    const deleted = clients.splice(idx, 1)[0];
+    writeExcelDb(clientsDbPath, 'Clients', clients);
+    logAction(req.user.email, 'super_admin', 'delete_booking', `Deleted booking ID BKG${1000 + clientId}`, req);
+    res.json({ success: true, message: 'Booking deleted successfully.', deleted });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete booking.' });
+  }
+});
+
 // Admin: Trigger sending invoice email simulation
 app.post('/api/admin/bookings/:id/invoice', authenticateToken, requireRole('super_admin'), (req, res) => {
   const bookingId = req.params.id; // e.g. BKG1008
@@ -3506,24 +3573,140 @@ app.get('/api/properties', (req, res) => {
 
 // ─── INQUIRIES API ───
 
+// Helper to validate genuine phone number (supports Indian 10-digit or International 7-15 digits)
+function isValidContactPhone(phone, countryCode = '') {
+  if (!phone) return false;
+  const raw = String(phone).trim();
+  const digits = raw.replace(/\D/g, '');
+  
+  // Detect if Indian phone
+  const isIndia = countryCode === '+91' || raw.startsWith('+91') || (digits.startsWith('91') && digits.length === 12) || (!countryCode && digits.length === 10);
+  
+  if (isIndia) {
+    const indianDigits = (digits.startsWith('91') && digits.length === 12) ? digits.substring(2) : digits;
+    if (!/^[6-9]\d{9}$/.test(indianDigits)) return false;
+    if (/^(\d)\1{9}$/.test(indianDigits)) return false; // 0000000000, 1111111111, etc.
+    return true;
+  } else {
+    // International phone number (ITU-T E.164: 7 to 15 digits)
+    if (digits.length < 7 || digits.length > 15) return false;
+    if (/^(\d)\1{6,}$/.test(digits)) return false; // All identical digits
+    return true;
+  }
+}
+
+// Helper to validate genuine property address (prevents random gibberish / junk / "kux bhi")
+function isValidPropertyAddress(addr) {
+  if (!addr || typeof addr !== 'string') return false;
+  const clean = addr.trim();
+  if (clean.length < 15) return false;
+
+  const words = clean.split(/[\s,.-]+/).filter(w => w.length >= 2);
+  if (words.length < 3) return false;
+
+  const lower = clean.toLowerCase();
+  if (/(.)\1{3,}/.test(lower)) return false;
+
+  const junkPatterns = [
+    /qwerty/i, /asdfgh/i, /zxcvbn/i, /123456/i, /abcdef/i,
+    /test\s*address/i, /dummy\s*address/i, /fake\s*address/i,
+    /sample\s*address/i, /kux\s*bhi/i, /kuch\s*bhi/i, /kuchh\s*bhi/i,
+    /bla\s*bla/i, /xyzxyz/i, /abcabc/i
+  ];
+  for (const pattern of junkPatterns) {
+    if (pattern.test(lower)) return false;
+  }
+
+  const uniqueWords = new Set(words.map(w => w.toLowerCase()));
+  if (uniqueWords.size < 2) return false;
+
+  let vowelWords = 0;
+  for (const w of words) {
+    if (/[aeiouy]/i.test(w)) vowelWords++;
+  }
+  if (vowelWords < 2) return false;
+
+  const addressKeywords = /\b(plot|flat|floor|bldg|building|house|h\.?no|no\.?|apt|apartment|society|complex|vihar|nagar|colony|sector|sec|road|rd|marg|lane|street|st|chowk|circle|near|opp|opposite|behind|beside|bazar|market|phase|block|tower|cross|layout|enclave|pincode|pin|post|residency|villa|heights|estate|hub|plaza)\b/i;
+  const hasNumber = /\b\d{1,6}\b/.test(clean);
+  const hasKeyword = addressKeywords.test(clean);
+
+  if (!hasKeyword && !hasNumber && words.length < 4) {
+    return false;
+  }
+
+  return true;
+}
+
+// Helper to validate genuine text (not just dots, commas, symbols)
+function isValidTextContent(str, minLetters = 3) {
+  if (!str || typeof str !== 'string') return false;
+  const letters = (str.match(/[a-zA-Z0-9]/g) || []).length;
+  return letters >= minLetters;
+}
+
 app.post('/api/inquiries', (req, res) => {
-  const { name, email, type, message } = req.body;
-  if (!name || !email || !message) {
-    return res.status(400).json({ error: 'Name, email, and message are required.' });
+  const { name, email, type, message, propName, phone, countryCode, rooms, address, city, state } = req.body;
+  
+  if (!name || !isValidTextContent(name, 2)) {
+    return res.status(400).json({ error: 'Please enter a valid Owner / Manager Name (minimum 2 letters, not dots or symbols).' });
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || !emailRegex.test(String(email).trim())) {
+    return res.status(400).json({ error: 'Please enter a valid email address.' });
+  }
+
+  if (!message || message.trim().length === 0) {
+    return res.status(400).json({ error: 'Inquiry details are required.' });
+  }
+
+  // If partner inquiry or structured partner fields are supplied, validate them strictly
+  if (type === 'Partner' || (message && message.includes('[Partner Inquiry Details]'))) {
+    // 1. Property Name check
+    const pName = propName || (message.match(/Property Name:\s*(.*)/) ? message.match(/Property Name:\s*(.*)/)[1].trim() : '');
+    if (!isValidTextContent(pName, 3)) {
+      return res.status(400).json({ error: 'Please enter a valid Property Name (minimum 3 characters, not dots or symbols).' });
+    }
+
+    // 2. Mobile Phone check
+    const rawPhone = phone || (message.match(/Mobile:\s*(.*)/) ? message.match(/Mobile:\s*(.*)/)[1].trim() : '');
+    const rawCountry = countryCode || (message.match(/Country Code:\s*(.*)/) ? message.match(/Country Code:\s*(.*)/)[1].trim() : '');
+    if (!isValidContactPhone(rawPhone, rawCountry)) {
+      return res.status(400).json({ error: 'Please enter a genuine contact mobile number (10 digits starting with 6-9 for India, or 7-15 digits for international numbers).' });
+    }
+
+    // 3. Number of Rooms check (5 to 5000+)
+    const rawRooms = rooms !== undefined ? rooms : (message.match(/Number of Rooms:\s*(.*)/) ? message.match(/Number of Rooms:\s*(.*)/)[1].trim() : '');
+    const roomNum = parseInt(rawRooms, 10);
+    if (isNaN(roomNum) || roomNum < 5 || roomNum > 50000) {
+      return res.status(400).json({ error: 'Number of Rooms must be a valid number between 5 and 50,000. Negative or smaller room counts are not accepted.' });
+    }
+
+    // 4. Property Address check (strict anti-junk check)
+    const rawAddr = address || (message.match(/Address:\s*(.*)/) ? message.match(/Address:\s*(.*)/)[1].trim() : '');
+    if (!isValidPropertyAddress(rawAddr)) {
+      return res.status(400).json({ error: 'Please enter a complete and genuine Property Address (e.g., Plot No. 12, MG Road, Near City Mall, Pincode 400001). Arbitrary or random text is not allowed.' });
+    }
+
+    // 5. City and State check
+    const rawCity = city || (message.match(/City:\s*(.*)/) ? message.match(/City:\s*(.*)/)[1].trim() : '');
+    if (!isValidTextContent(rawCity, 2)) {
+      return res.status(400).json({ error: 'Please select or enter a valid City.' });
+    }
   }
 
   const inquiriesData = readExcelDb(inquiriesDbPath);
   let newId = 1;
   if (inquiriesData.length > 0) {
-    newId = Math.max(...inquiriesData.map(i => i.ID)) + 1;
+    newId = Math.max(...inquiriesData.map(i => i.ID || 0)) + 1;
   }
 
   const newInquiry = {
     ID: newId,
-    Name: name,
-    Email: email,
+    Name: name.trim(),
+    Email: email.trim(),
     Type: type || 'Other',
-    Message: message,
+    Message: message.trim(),
     Date_Added: new Date().toISOString()
   };
 
@@ -4310,6 +4493,24 @@ app.put('/api/admin/tasks/:id', authenticateToken, requireRole('super_admin'), (
   }
 });
 
+// Admin: Delete a task
+app.delete('/api/admin/tasks/:id', authenticateToken, requireRole('super_admin'), (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const tasks = readExcelDb(tasksDbPath);
+    const idx = tasks.findIndex(t => parseInt(t.ID) === id);
+    if (idx === -1) {
+      return res.status(404).json({ error: 'Task not found.' });
+    }
+    const deleted = tasks.splice(idx, 1)[0];
+    writeExcelDb(tasksDbPath, 'Tasks', tasks);
+    logAction(req.user.email, 'super_admin', 'delete_task', `Deleted task ID ${id}`, req);
+    res.json({ success: true, message: 'Task deleted successfully.', deleted });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to delete task.' });
+  }
+});
+
 // GET dashboard stats for Admin Console
 app.get('/api/admin/dashboard/stats', authenticateToken, requireRole('super_admin'), (req, res) => {
   try {
@@ -4772,15 +4973,34 @@ app.put('/api/admin/customers/:id', authenticateToken, requireRole('super_admin'
 app.delete('/api/admin/customers/:id', authenticateToken, requireRole('super_admin'), (req, res) => {
   try {
     const id = req.params.id;
+    let found = false;
+    let deletedName = '';
+
+    // 1. Delete from Customers database
+    const customers = readExcelDb(customersDbPath);
+    const cIdx = customers.findIndex(c => String(c.ID) === String(id) || (c.Email && c.Email.toLowerCase() === String(id).toLowerCase()));
+    if (cIdx !== -1) {
+      deletedName = customers[cIdx].Name || deletedName;
+      customers.splice(cIdx, 1);
+      writeExcelDb(customersDbPath, 'Customers', customers);
+      found = true;
+    }
+
+    // 2. Delete from Clients (Guest Bookings) database
     const clients = readExcelDb(clientsDbPath);
-    const idx = clients.findIndex(c => String(c.ID) === String(id));
-    if (idx === -1) {
+    const idx = clients.findIndex(c => String(c.ID) === String(id) || (c.Email && c.Email.toLowerCase() === String(id).toLowerCase()));
+    if (idx !== -1) {
+      deletedName = clients[idx].Name || deletedName;
+      clients.splice(idx, 1);
+      writeExcelDb(clientsDbPath, 'Clients', clients);
+      found = true;
+    }
+
+    if (!found) {
       return res.status(404).json({ error: 'Customer not found.' });
     }
-    const name = clients[idx].Name;
-    clients.splice(idx, 1);
-    writeExcelDb(clientsDbPath, 'Clients', clients);
-    logAction(req.user.email, 'super_admin', 'delete_customer', `Deleted customer ${name} (ID: ${id})`, req);
+
+    logAction(req.user.email, 'super_admin', 'delete_customer', `Deleted customer ${deletedName || id} (ID: ${id})`, req);
     res.json({ success: true, message: 'Customer deleted successfully.' });
   } catch (e) {
     res.status(500).json({ error: 'Failed to delete customer.' });
@@ -5374,20 +5594,18 @@ app.post('/api/admin/system/qa-test', authenticateToken, requireRole('super_admi
     if (!payoutRes.ok || !payoutData.success) throw new Error('Payout approval failed.');
     addLog('✅ [PASS] - Execute partner payout approval endpoint', 'pass');
 
-    // Clean up
-    try {
-      await fetch(`${BASE_URL}/api/properties/${testPropertyId}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': adminToken }
-      });
-    } catch (e) {}
-
     addLog('🎉 AI QA Testing Agent: All tests [PASSED] successfully!', 'success');
     res.json({ success: true, logs });
 
   } catch (err) {
     addLog(`❌ AI QA Testing Agent: Test Failed! Error: ${err.message}`, 'error');
     res.json({ success: false, logs });
+  } finally {
+    try {
+      runQaCleanup();
+    } catch (cleanErr) {
+      console.error('Error during QA cleanup:', cleanErr);
+    }
   }
 });
 
@@ -7348,6 +7566,157 @@ app.post('/api/payments/stripe/create-intent', async (req, res) => {
   }
 });
 
+// ─── QA TEST DUMMY DATA CLEANUP ENDPOINT ───
+// Purges any dummy records created during automated QA testing so the CRM remains 100% clean
+function runQaCleanup() {
+  let summary = {
+    clientsDeleted: 0,
+    customersDeleted: 0,
+    reviewsDeleted: 0,
+    propertiesDeleted: 0,
+    tasksDeleted: 0,
+    ticketsDeleted: 0,
+    inquiriesDeleted: 0,
+    payoutsDeleted: 0,
+    auditLogsDeleted: 0
+  };
+
+  try {
+    // 1. Clean Clients (Bookings)
+    const clients = readExcelDb(clientsDbPath);
+    const cleanClients = clients.filter(c => {
+      const isTest = (c.Email && (c.Email.toLowerCase().includes('@test.com') || c.Email.toLowerCase() === 'qa_guest@homzo.in')) ||
+                     (c.Name && (c.Name.startsWith('QA ') || c.Name.includes('Test Guest') || c.Name.startsWith('Guest Booking '))) ||
+                     (c.Property && (c.Property.startsWith('QA ') || c.Property.startsWith('Homzo Boutique Villa '))) ||
+                     (c.Payment_ID && (c.Payment_ID.includes('QA_TEST') || c.Payment_ID.includes('PAY_TEST_')));
+      if (isTest) summary.clientsDeleted++;
+      return !isTest;
+    });
+    if (summary.clientsDeleted > 0) {
+      writeExcelDb(clientsDbPath, 'Clients', cleanClients);
+    }
+
+    // 2. Clean Customers
+    const customers = readExcelDb(customersDbPath);
+    const cleanCustomers = customers.filter(c => {
+      const isTest = (c.Email && (c.Email.toLowerCase().includes('@test.com') || c.Email.toLowerCase() === 'qa_guest@homzo.in')) ||
+                     (c.Name && (c.Name.startsWith('QA ') || c.Name.includes('Test Guest')));
+      if (isTest) summary.customersDeleted++;
+      return !isTest;
+    });
+    if (summary.customersDeleted > 0) {
+      writeExcelDb(customersDbPath, 'Customers', cleanCustomers);
+    }
+
+    // 3. Clean Reviews
+    const reviews = readExcelDb(reviewsDbPath);
+    const cleanReviews = reviews.filter(r => {
+      const isTest = (r.Email && (r.Email.toLowerCase().includes('@test.com') || r.Email.toLowerCase() === 'qa_guest@homzo.in')) ||
+                     (r.Name && (r.Name.startsWith('QA ') || r.Name.includes('Test Guest'))) ||
+                     (r.Review && (r.Review.includes('supreme cleanliness') || r.Review.includes('QA Test') || r.Review.includes('Excellent hotel')));
+      if (isTest) summary.reviewsDeleted++;
+      return !isTest;
+    });
+    if (summary.reviewsDeleted > 0) {
+      writeExcelDb(reviewsDbPath, 'Reviews', cleanReviews);
+    }
+
+    // 4. Clean Properties
+    const properties = readExcelDb(propertiesDbPath);
+    const cleanProperties = properties.filter(p => {
+      const isTest = p.Name && (p.Name.startsWith('QA ') || p.Name.startsWith('Homzo Boutique Villa '));
+      if (isTest) summary.propertiesDeleted++;
+      return !isTest;
+    });
+    if (summary.propertiesDeleted > 0) {
+      writeExcelDb(propertiesDbPath, 'Properties', cleanProperties);
+    }
+
+    // 5. Clean Tasks
+    const tasks = readExcelDb(tasksDbPath);
+    const cleanTasks = tasks.filter(t => {
+      const isTest = (t.Task_Name && (t.Task_Name.includes('Room 205 Linen') || t.Task_Name.startsWith('QA ')));
+      if (isTest) summary.tasksDeleted++;
+      return !isTest;
+    });
+    if (summary.tasksDeleted > 0) {
+      writeExcelDb(tasksDbPath, 'Tasks', cleanTasks);
+    }
+
+    // 6. Clean Tickets
+    const tickets = readExcelDb(ticketsDbPath);
+    const cleanTickets = tickets.filter(t => {
+      const isTest = (t.Subject && (t.Subject.includes('WiFi issue Room 302') || t.Subject.startsWith('QA ')));
+      if (isTest) summary.ticketsDeleted++;
+      return !isTest;
+    });
+    if (summary.ticketsDeleted > 0) {
+      writeExcelDb(ticketsDbPath, 'Tickets', cleanTickets);
+    }
+
+    // 7. Clean Inquiries
+    const inquiries = readExcelDb(inquiriesDbPath);
+    const cleanInquiries = inquiries.filter(i => {
+      const isTest = (i.Email && i.Email.toLowerCase().includes('@test.com')) ||
+                     (i.Name && (i.Name.startsWith('Partner ') || i.Name.startsWith('QA ')));
+      if (isTest) summary.inquiriesDeleted++;
+      return !isTest;
+    });
+    if (summary.inquiriesDeleted > 0) {
+      writeExcelDb(inquiriesDbPath, 'Inquiries', cleanInquiries);
+    }
+
+    // 8. Clean Payouts
+    const payouts = readExcelDb(payoutsDbPath);
+    const cleanPayouts = payouts.filter(p => {
+      const isTest = String(p.ID) === '401' || (p.Partner === 'Default Partner' && Number(p.Amount) === 45000);
+      if (isTest) summary.payoutsDeleted++;
+      return !isTest;
+    });
+    if (summary.payoutsDeleted > 0) {
+      writeExcelDb(payoutsDbPath, 'Payouts', cleanPayouts);
+    }
+
+    // 9. Clean Audit Logs
+    const auditLogs = readExcelDb(auditLogsDbPath);
+    const cleanAuditLogs = auditLogs.filter(a => {
+      const isTest = (a.Email && a.Email.toLowerCase().includes('@test.com')) ||
+                     (a.Action === 'approve_payout' && a.Details && a.Details.includes('Default Partner')) ||
+                     (a.Action === 'hold_payout' && a.Details && a.Details.includes('Default Partner')) ||
+                     (a.Details && (a.Details.includes('QA Luxury') || a.Details.includes('QA Admin Property') || a.Details.includes('Room 205 Linen') || a.Details.includes('WiFi issue Room 302')));
+      if (isTest) summary.auditLogsDeleted++;
+      return !isTest;
+    });
+    if (summary.auditLogsDeleted > 0) {
+      writeExcelDb(auditLogsDbPath, 'AuditLogs', cleanAuditLogs);
+    }
+
+    // 10. Clean in-memory CRM data
+    if (typeof customerCrmData === 'object' && customerCrmData !== null) {
+      for (const key of Object.keys(customerCrmData)) {
+        if (key.includes('@test.com') || key.startsWith('qa_')) {
+          delete customerCrmData[key];
+        }
+      }
+    }
+
+    console.log('🧹 [QA CLEANUP] Removed test dummy records from CRM & Database:', summary);
+  } catch (e) {
+    console.error('Error during runQaCleanup:', e);
+  }
+  return summary;
+}
+
+app.post('/api/qa/cleanup', (req, res) => {
+  try {
+    const summary = runQaCleanup();
+    res.json({ success: true, message: 'QA test dummy records cleaned successfully.', summary });
+  } catch (err) {
+    console.error('QA cleanup error:', err);
+    res.status(500).json({ error: 'Failed to cleanup QA records.' });
+  }
+});
+
 // Start Server
 async function start() {
   try {
@@ -7356,8 +7725,29 @@ async function start() {
     await populateCache();
     runLegacySeedScripts();
     
-    app.listen(PORT, () => {
-      console.log(`Excel Backend Server is running on http://localhost:${PORT}`);
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log('\n===============================================================');
+      console.log(`🏨 [HOMZO HOSPITALITY BACKEND SERVER STARTED]`);
+      console.log(`💻 Local (this PC):       http://localhost:${PORT}`);
+      
+      const nets = os.networkInterfaces();
+      const localIps = [];
+      for (const name of Object.keys(nets)) {
+        for (const net of nets[name]) {
+          if (net.family === 'IPv4' && !net.internal) {
+            localIps.push(net.address);
+          }
+        }
+      }
+      if (localIps.length > 0) {
+        localIps.forEach(ip => {
+          console.log(`📱 Network (Mobile/PC):   http://${ip}:${PORT}`);
+        });
+      } else {
+        console.log(`📱 Network (Mobile/PC):   http://0.0.0.0:${PORT}`);
+      }
+      console.log(`⚡ Multi-device & Concurrent Users: Active on 0.0.0.0`);
+      console.log('===============================================================\n');
       initGoogleSheets();
       initWhatsAppGateway();
     });
