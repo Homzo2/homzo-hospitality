@@ -2084,10 +2084,78 @@
 }
 
 /* Ensure all modals are scrollable if they exceed viewport height */
-.modal-card {
+.modal-card, .modal-box {
+  max-width: 95vw !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
   max-height: 90vh !important;
   overflow-y: auto !important;
 }
+
+/* Universal Table Responsiveness */
+.table-card, .table-responsive, .mc-table-container, .sac-table-container, .dec-table-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+/* Comprehensive Mobile & Small Screen Adaptations */
+@media (max-width: 768px) {
+  .topbar {
+    padding: 10px 16px !important;
+    gap: 10px !important;
+  }
+  .topbar-title {
+    font-size: 0.95rem !important;
+  }
+  .page-content {
+    padding: 16px 12px !important;
+  }
+  .page-header {
+    margin-bottom: 20px !important;
+  }
+  .page-header h1 {
+    font-size: 1.4rem !important;
+  }
+  .kpi-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  .charts-row, .bottom-row {
+    flex-direction: column !important;
+  }
+  .modal-box, .modal-card {
+    padding: 20px 16px !important;
+    border-radius: var(--radius-md) !important;
+  }
+  .form-row, .modal-footer {
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+  .btn {
+    min-height: 40px !important;
+  }
+  input, select, textarea {
+    font-size: 16px !important; /* Prevents auto-zoom on iOS */
+  }
+}
+
+@media (max-width: 480px) {
+  .topbar-actions {
+    gap: 6px !important;
+  }
+  .topbar-icon-btn {
+    width: 34px !important;
+    height: 34px !important;
+    font-size: 13px !important;
+  }
+  .act-btn {
+    padding: 6px 10px !important;
+    font-size: 0.75rem !important;
+  }
+}
+
 
 
 
