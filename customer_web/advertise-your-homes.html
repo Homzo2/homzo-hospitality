@@ -116,59 +116,63 @@
       line-height: 1.5;
     }
 
+    /* ════════════════ PARTNERSHIP FORM SECTION ════════════════ */
     .form-section {
-      padding: 60px 20px;
-      background: var(--bg-surface, #f8fafc);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
+      padding: 70px 20px 90px;
+      background: linear-gradient(180deg, var(--bg-surface, #f8fafc) 0%, var(--bg-base, #f1f5f9) 100%);
+      border-top: 1px solid var(--border, #e2e8f0);
+      border-bottom: 1px solid var(--border, #e2e8f0);
+      position: relative;
     }
     .partnership-layout-container {
-      max-width: 1240px;
+      max-width: 900px;
       margin: 0 auto;
-      display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      gap: 36px;
-      align-items: start;
-    }
-    @media (max-width: 992px) {
-      .partnership-layout-container {
-        grid-template-columns: 1fr;
-        gap: 30px;
-      }
     }
 
-    /* Left: Compact & Sleek Form Card */
+    /* Executive Partner Form Card */
     .partner-form-card {
       background: var(--bg-card, #ffffff);
       border: 1px solid var(--border-strong, #e2e8f0);
-      border-radius: var(--radius-xl, 16px);
-      padding: 32px 30px;
-      box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.06), 0 4px 6px -2px rgba(15, 23, 42, 0.02);
-      transition: box-shadow 0.2s ease;
+      border-radius: 20px;
+      padding: 42px 46px;
+      box-shadow: 0 20px 45px -12px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+      transition: all 0.3s ease;
     }
+    @media (max-width: 768px) {
+      .partner-form-card {
+        padding: 28px 20px;
+        border-radius: 16px;
+      }
+    }
+
     .form-card-header {
-      margin-bottom: 20px;
+      text-align: center;
+      margin-bottom: 30px;
+      position: relative;
+      padding-bottom: 22px;
+      border-bottom: 1px solid var(--border, #e2e8f0);
     }
     .partner-tag {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      background: rgba(255, 92, 53, 0.1);
+      gap: 7px;
+      padding: 6px 14px;
+      background: rgba(255, 92, 53, 0.08);
       color: var(--primary, #ff5c35);
+      border: 1px solid rgba(255, 92, 53, 0.2);
       border-radius: 9999px;
-      font-size: 0.75rem;
+      font-size: 0.78rem;
       font-weight: 700;
-      letter-spacing: 0.03em;
+      letter-spacing: 0.04em;
       text-transform: uppercase;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
     .form-card-title {
       font-family: 'Sora', sans-serif;
-      font-size: 1.6rem;
+      font-size: clamp(1.6rem, 3vw, 2.1rem);
       font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: 6px;
+      color: var(--text-primary, #0f172a);
+      margin-bottom: 8px;
       line-height: 1.25;
     }
     .form-card-title span {
@@ -177,230 +181,241 @@
       -webkit-text-fill-color: transparent;
     }
     .form-card-subtitle {
-      color: var(--text-secondary);
-      font-size: 0.84rem;
-      line-height: 1.45;
+      color: var(--text-secondary, #64748b);
+      font-size: 0.92rem;
+      max-width: 620px;
+      margin: 0 auto;
+      line-height: 1.5;
     }
 
+    /* Form Section Dividers */
+    .form-section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-primary, #1e293b);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 10px 0 6px;
+      margin-top: 14px;
+      margin-bottom: 14px;
+      border-bottom: 1px dashed var(--border, #e2e8f0);
+      grid-column: 1 / -1;
+    }
+    .form-section-header:first-of-type {
+      margin-top: 0;
+    }
+    .form-section-header i {
+      color: var(--primary, #ff5c35);
+      font-size: 0.95rem;
+    }
+
+    /* Grid Layout */
     .form-grid-compact {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px 14px;
+      gap: 16px 20px;
     }
     @media (max-width: 640px) {
       .form-grid-compact {
         grid-template-columns: 1fr;
-      }
-      .partner-form-card {
-        padding: 24px 18px;
+        gap: 14px;
       }
     }
     .form-grid-compact .form-group {
       margin-bottom: 0;
     }
     .form-grid-compact .form-group label {
-      font-size: 0.78rem;
+      font-size: 0.82rem;
       font-weight: 600;
-      margin-bottom: 4px;
-      color: var(--text-primary);
-      display: block;
+      margin-bottom: 6px;
+      color: var(--text-primary, #1e293b);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .form-grid-compact .form-group label .req {
+      color: #ef4444;
+      font-weight: 700;
     }
     .form-grid-compact .form-control {
-      padding: 9px 12px;
-      font-size: 0.86rem;
-      border-radius: 8px;
-      border: 1px solid var(--border-strong, #cbd5e1);
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 0.88rem;
+      border-radius: 9px;
+      border: 1.5px solid var(--border-strong, #cbd5e1);
       transition: all 0.2s ease;
-      background: #fff;
+      background: #f8fafc;
+      color: var(--text-primary, #0f172a);
+      font-family: inherit;
     }
     .form-grid-compact .form-control:focus {
       border-color: var(--primary, #ff5c35);
-      box-shadow: 0 0 0 3px rgba(255, 92, 53, 0.12);
+      background: #ffffff;
+      box-shadow: 0 0 0 3.5px rgba(255, 92, 53, 0.14);
       outline: none;
     }
+    .form-grid-compact .form-control::placeholder {
+      color: #94a3b8;
+      font-size: 0.84rem;
+    }
     .form-grid-compact small {
-      font-size: 0.7rem !important;
-      margin-top: 2px !important;
+      font-size: 0.73rem !important;
+      margin-top: 4px !important;
+      color: var(--text-muted, #64748b) !important;
+      display: block;
+      line-height: 1.35;
     }
     .form-grid-compact .full-width {
       grid-column: 1 / -1;
     }
-    .submit-btn-wrap {
-      margin-top: 6px;
+
+    /* Phone Input Component */
+    .phone-input-group {
+      display: flex;
+      align-items: center;
+      border: 1.5px solid var(--border-strong, #cbd5e1);
+      border-radius: 9px;
+      background: #f8fafc;
+      overflow: hidden;
+      transition: all 0.2s ease;
     }
+    .phone-input-group:focus-within {
+      border-color: var(--primary, #ff5c35);
+      background: #ffffff;
+      box-shadow: 0 0 0 3.5px rgba(255, 92, 53, 0.14);
+    }
+    .phone-input-group select {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 10px;
+      background: #f1f5f9;
+      border: none;
+      border-right: 1.5px solid #cbd5e1;
+      font-weight: 700;
+      color: #1e293b;
+      font-size: 0.86rem;
+      outline: none;
+      cursor: pointer;
+    }
+    .phone-input-group input {
+      border: none !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      padding: 10px 14px !important;
+      width: 100% !important;
+      background: transparent !important;
+      font-size: 0.88rem !important;
+    }
+
+    /* Submit Section */
+    .submit-btn-wrap {
+      margin-top: 14px;
+      text-align: center;
+    }
+    .partner-submit-btn {
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 32px;
+      font-weight: 700;
+      font-size: 0.98rem;
+      border-radius: 10px;
+      background: var(--gradient-primary, linear-gradient(135deg, #ff5c35 0%, #ff7849 100%));
+      color: #ffffff;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 10px 24px -4px rgba(255, 92, 53, 0.35);
+      transition: all 0.25s ease;
+    }
+    .partner-submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 28px -4px rgba(255, 92, 53, 0.45);
+    }
+    .partner-submit-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Trust Footer Badges */
     .trust-footer-badge {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 14px;
+      gap: 20px;
       flex-wrap: wrap;
-      margin-top: 14px;
-      font-size: 0.74rem;
+      margin-top: 18px;
+      font-size: 0.78rem;
       color: var(--text-muted, #64748b);
       text-align: center;
     }
-
-    /* Right: Professional Showcase & Image Card */
-    .partner-showcase-card {
-      background: var(--bg-card, #ffffff);
-      border: 1px solid var(--border-strong, #e2e8f0);
-      border-radius: var(--radius-xl, 16px);
-      overflow: hidden;
-      box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.06);
-      display: flex;
-      flex-direction: column;
-    }
-    .showcase-image-wrapper {
-      position: relative;
-      width: 100%;
-      height: 290px;
-      overflow: hidden;
-      background: #0f172a;
-    }
-    @media (max-width: 640px) {
-      .showcase-image-wrapper {
-        height: 220px;
-      }
-    }
-    .partner-banner-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      transition: transform 0.4s ease;
-    }
-    .showcase-image-wrapper:hover .partner-banner-img {
-      transform: scale(1.03);
-    }
-    .showcase-badge {
-      position: absolute;
-      bottom: 16px;
-      left: 16px;
-      background: rgba(15, 23, 42, 0.82);
-      backdrop-filter: blur(8px);
-      color: #fff;
-      padding: 6px 14px;
-      border-radius: 9999px;
-      font-size: 0.75rem;
-      font-weight: 700;
+    .trust-footer-badge span {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      font-weight: 500;
     }
-    .showcase-badge i {
-      color: #f59e0b;
+    .trust-footer-badge i {
+      color: var(--primary, #ff5c35);
+      font-size: 0.85rem;
     }
-    .showcase-content {
-      padding: 22px 24px;
-      flex: 1;
+
+    /* Executive Testimonial Strip */
+    .partner-testimonial-bar {
+      margin-top: 30px;
+      padding: 16px 20px;
+      background: linear-gradient(135deg, rgba(255, 92, 53, 0.04) 0%, rgba(255, 140, 66, 0.08) 100%);
+      border: 1px solid rgba(255, 92, 53, 0.16);
+      border-radius: 12px;
       display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
     }
-    .showcase-title {
-      font-family: 'Sora', sans-serif;
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: 6px;
-      line-height: 1.3;
-    }
-    .showcase-desc {
-      color: var(--text-secondary);
-      font-size: 0.82rem;
-      line-height: 1.45;
-      margin-bottom: 16px;
-    }
-    .partner-perks-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 18px;
-    }
-    @media (max-width: 480px) {
-      .partner-perks-grid {
-        grid-template-columns: 1fr;
+    @media (max-width: 640px) {
+      .partner-testimonial-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
       }
     }
-    .perk-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      padding: 9px 11px;
-      background: var(--bg-surface, #f8fafc);
-      border: 1px solid var(--border, #e2e8f0);
-      border-radius: 10px;
+    .testimonial-bar-content {
+      flex: 1;
     }
-    .perk-icon {
-      width: 30px;
-      height: 30px;
-      border-radius: 8px;
-      background: rgba(255, 92, 53, 0.1);
-      color: var(--primary, #ff5c35);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .testimonial-bar-content p {
       font-size: 0.82rem;
-      flex-shrink: 0;
-    }
-    .perk-item strong {
-      display: block;
-      font-size: 0.78rem;
-      color: var(--text-primary);
-      line-height: 1.2;
-    }
-    .perk-item span {
-      display: block;
-      font-size: 0.69rem;
-      color: var(--text-secondary);
-      margin-top: 2px;
-      line-height: 1.25;
-    }
-    .partner-testimonial-box {
-      background: linear-gradient(135deg, rgba(255, 92, 53, 0.04) 0%, rgba(255, 140, 66, 0.08) 100%);
-      border: 1px solid rgba(255, 92, 53, 0.2);
-      border-radius: 12px;
-      padding: 12px 14px;
-      position: relative;
-    }
-    .quote-icon {
-      color: var(--primary, #ff5c35);
-      opacity: 0.4;
-      font-size: 0.95rem;
-      margin-bottom: 4px;
-      display: block;
-    }
-    .partner-testimonial-box p {
-      font-size: 0.78rem;
-      color: var(--text-secondary);
+      color: var(--text-secondary, #475569);
       font-style: italic;
-      line-height: 1.4;
+      line-height: 1.45;
       margin-bottom: 8px;
     }
-    .testimonial-author {
+    .testimonial-bar-author {
       display: flex;
       align-items: center;
       gap: 10px;
     }
-    .testimonial-author img {
+    .testimonial-bar-author img {
       width: 32px;
       height: 32px;
       border-radius: 50%;
       object-fit: cover;
       border: 1.5px solid var(--primary, #ff5c35);
     }
-    .testimonial-author strong {
-      display: block;
-      font-size: 0.76rem;
-      color: var(--text-primary);
-      line-height: 1.2;
+    .testimonial-bar-author strong {
+      font-size: 0.78rem;
+      color: var(--text-primary, #0f172a);
+      display: inline-block;
+      margin-right: 6px;
     }
-    .testimonial-author span {
-      display: block;
-      font-size: 0.67rem;
-      color: var(--text-muted);
+    .testimonial-bar-author span {
+      font-size: 0.72rem;
+      color: var(--text-muted, #64748b);
     }
     
     .cta-banner {
@@ -540,60 +555,28 @@
 <!-- ════════════════ INQUIRY FORM ════════════════ -->
 <section class="form-section" id="partner-form">
   <div class="partnership-layout-container">
-    <!-- LEFT: Compact & Professional Partnership Request Form Card -->
     <div class="partner-form-card">
       <div class="form-card-header">
-        <span class="partner-tag"><i class="fa-solid fa-handshake"></i> Homzo Partner Onboarding</span>
-        <h2 class="form-card-title">Partnership <span>Request</span></h2>
-        <p class="form-card-subtitle">List your property with Homzo & maximize occupancy with corporate & leisure guests.</p>
+        <span class="partner-tag"><i class="fa-solid fa-hotel"></i> Homzo Partner Onboarding</span>
+        <h2 class="form-card-title">Partnership <span>Application</span></h2>
+        <p class="form-card-subtitle">List your property with Homzo & maximize occupancy with verified corporate and leisure guests across India.</p>
       </div>
 
       <form id="partnerForm" onsubmit="event.preventDefault();" novalidate>
         <div class="form-grid-compact">
-          <div class="form-group">
-            <label>Property Name <span style="color:#ef4444; font-weight:bold;">*</span></label>
-            <input type="text" class="form-control" placeholder="e.g. Homzo Grand Villa" id="ptPropName" required minlength="3">
-            <small style="color:var(--text-muted); font-size:0.7rem; margin-top:2px; display:block;">Min 3 valid characters</small>
+          <!-- SECTION 1: Property Information -->
+          <div class="form-section-header">
+            <i class="fa-solid fa-building-circle-check"></i> Property Information
           </div>
+
           <div class="form-group">
-            <label>Owner / Manager Name <span style="color:#ef4444; font-weight:bold;">*</span></label>
-            <input type="text" class="form-control" placeholder="Enter full name" id="ptOwnerName" required minlength="3">
-            <small style="color:var(--text-muted); font-size:0.7rem; margin-top:2px; display:block;">Legal property owner/manager</small>
+            <label for="ptPropName">Property Name <span class="req">*</span></label>
+            <input type="text" class="form-control" placeholder="e.g. Grand Vista Villa & Suites" id="ptPropName" required minlength="3">
+            <small>Official commercial name of the hotel/stay</small>
           </div>
+
           <div class="form-group">
-            <label>Mobile Number <span style="color:#ef4444; font-weight:bold;">*</span></label>
-            <div class="phone-input-group" style="display:flex; align-items:center; border:1px solid var(--border-strong, #cbd5e1); border-radius:8px; background:#fff; overflow:hidden; transition:0.2s;">
-              <select id="ptCountryCode" style="display:inline-flex; align-items:center; padding:9px 8px; background:#f1f5f9; border:none; border-right:1px solid #cbd5e1; font-weight:700; color:#1e293b; font-size:0.86rem; outline:none; cursor:pointer;">
-                <option value="+91" selected>🇮🇳 +91 (India)</option>
-                <option value="+1">🇺🇸 +1 (USA)</option>
-                <option value="+44">🇬🇧 +44 (UK)</option>
-                <option value="+971">🇦🇪 +971 (UAE)</option>
-                <option value="+1-CA">🇨🇦 +1 (Canada)</option>
-                <option value="+61">🇦🇺 +61 (Australia)</option>
-                <option value="+65">🇸🇬 +65 (Singapore)</option>
-                <option value="+49">🇩🇪 +49 (Germany)</option>
-                <option value="+33">🇫🇷 +33 (France)</option>
-                <option value="+966">🇸🇦 +966 (Saudi Arabia)</option>
-                <option value="+974">🇶🇦 +974 (Qatar)</option>
-                <option value="+81">🇯🇵 +81 (Japan)</option>
-                <option value="+86">🇨🇳 +86 (China)</option>
-                <option value="+7">🇷🇺 +7 (Russia)</option>
-                <option value="+880">🇧🇩 +880 (Bangladesh)</option>
-                <option value="+977">🇳🇵 +977 (Nepal)</option>
-                <option value="+94">🇱🇰 +94 (Sri Lanka)</option>
-                <option value="+0">🌍 Other (+...)</option>
-              </select>
-              <input type="tel" class="form-control" placeholder="e.g. 9876543210" id="ptPhone" required maxlength="10" style="border:none; box-shadow:none; border-radius:0; padding:9px 12px; width:100%; font-size:0.86rem;" inputmode="numeric">
-            </div>
-            <small id="ptPhoneHint" style="color:var(--text-muted); font-size:0.7rem; margin-top:2px; display:block;">10-digit Indian number starting with 6-9</small>
-          </div>
-          <div class="form-group">
-            <label>Email Address <span style="color:#ef4444; font-weight:bold;">*</span></label>
-            <input type="email" class="form-control" placeholder="e.g. owner@example.com" id="ptEmail" required>
-            <small style="color:var(--text-muted); font-size:0.7rem; margin-top:2px; display:block;">For verification & reports</small>
-          </div>
-          <div class="form-group">
-            <label>Property Type <span style="color:#ef4444; font-weight:bold;">*</span></label>
+            <label for="ptType">Property Type <span class="req">*</span></label>
             <select class="form-control" id="ptType" required>
               <option value="">Select Property Type</option>
               <option>Hotel</option>
@@ -604,14 +587,22 @@
               <option>Resort</option>
               <option>Other</option>
             </select>
+            <small>Select accommodation category</small>
           </div>
+
           <div class="form-group">
-            <label>Number of Rooms / Units <span style="color:#ef4444; font-weight:bold;">*</span></label>
+            <label for="ptRooms">Number of Rooms / Units <span class="req">*</span></label>
             <input type="number" class="form-control" min="5" max="50000" step="1" placeholder="e.g. 15 (Min 5 rooms)" id="ptRooms" required onkeydown="if(['e', 'E', '+', '-', '.'].includes(event.key)) event.preventDefault();" oninput="if(this.value < 0) this.value = Math.abs(this.value);">
-            <small style="color:var(--text-muted); font-size:0.7rem; margin-top:2px; display:block;">Range: 5 to 5,000+ rooms</small>
+            <small>Minimum 5 rooms required for partner onboarding</small>
           </div>
+
+          <!-- SECTION 2: Location & Address -->
+          <div class="form-section-header">
+            <i class="fa-solid fa-location-dot"></i> Location & Address
+          </div>
+
           <div class="form-group">
-            <label>State <span style="color:#ef4444; font-weight:bold;">*</span></label>
+            <label for="ptState">State <span class="req">*</span></label>
             <select class="form-control" id="ptState" required>
               <option value="">Select State</option>
               <option value="Maharashtra">Maharashtra</option>
@@ -635,85 +626,98 @@
               <option value="Assam">Assam</option>
               <option value="Other">Other State</option>
             </select>
+            <small>Select state to populate verified cities</small>
           </div>
+
           <div class="form-group">
-            <label>City <span style="color:#ef4444; font-weight:bold;">*</span></label>
+            <label for="ptCity">City <span class="req">*</span></label>
             <select class="form-control" id="ptCity" required disabled>
               <option value="">Select State First</option>
             </select>
             <input type="text" class="form-control" id="ptCustomCity" placeholder="Enter city name" style="display:none; margin-top:6px;">
-            <small style="color:var(--text-muted); font-size:0.7rem; margin-top:2px; display:block;">Select state to load verified cities</small>
+            <small>Select or type city name</small>
           </div>
+
           <div class="form-group full-width">
-            <label>Property Address <span style="color:#ef4444; font-weight:bold;">*</span></label>
-            <input type="text" class="form-control" placeholder="e.g. Plot No. 12, MG Road, Near City Mall, Pincode 400001" id="ptAddress" required minlength="15">
-            <small style="color:var(--text-muted); font-size:0.7rem; margin-top:2px; display:block;">Physical address with plot/building, street/area, landmark & pincode (min 15 chars; junk text rejected)</small>
+            <label for="ptAddress">Property Address <span class="req">*</span></label>
+            <input type="text" class="form-control" placeholder="e.g. Plot No. 12, MG Road, Near City Center Mall, Pincode 400001" id="ptAddress" required minlength="15">
+            <small>Complete physical address with building/street, area, landmark and 6-digit pincode</small>
           </div>
+
+          <!-- SECTION 3: Primary Contact & Ownership -->
+          <div class="form-section-header">
+            <i class="fa-solid fa-user-tie"></i> Contact & Ownership Details
+          </div>
+
+          <div class="form-group">
+            <label for="ptOwnerName">Owner / Manager Name <span class="req">*</span></label>
+            <input type="text" class="form-control" placeholder="Enter full legal name" id="ptOwnerName" required minlength="3">
+            <small>Authorized property owner or general manager</small>
+          </div>
+
+          <div class="form-group">
+            <label for="ptPhone">Mobile Number <span class="req">*</span></label>
+            <div class="phone-input-group">
+              <select id="ptCountryCode">
+                <option value="+91" selected>🇮🇳 +91 (India)</option>
+                <option value="+1">🇺🇸 +1 (USA)</option>
+                <option value="+44">🇬🇧 +44 (UK)</option>
+                <option value="+971">🇦🇪 +971 (UAE)</option>
+                <option value="+1-CA">🇨🇦 +1 (Canada)</option>
+                <option value="+61">🇦🇺 +61 (Australia)</option>
+                <option value="+65">🇸🇬 +65 (Singapore)</option>
+                <option value="+49">🇩🇪 +49 (Germany)</option>
+                <option value="+33">🇫🇷 +33 (France)</option>
+                <option value="+966">🇸🇦 +966 (Saudi Arabia)</option>
+                <option value="+974">🇶🇦 +974 (Qatar)</option>
+                <option value="+81">🇯🇵 +81 (Japan)</option>
+                <option value="+86">🇨🇳 +86 (China)</option>
+                <option value="+7">🇷🇺 +7 (Russia)</option>
+                <option value="+880">🇧🇩 +880 (Bangladesh)</option>
+                <option value="+977">🇳🇵 +977 (Nepal)</option>
+                <option value="+94">🇱🇰 +94 (Sri Lanka)</option>
+                <option value="+0">🌍 Other (+...)</option>
+              </select>
+              <input type="tel" class="form-control" placeholder="e.g. 9876543210" id="ptPhone" required maxlength="10" inputmode="numeric">
+            </div>
+            <small id="ptPhoneHint">10-digit Indian number starting with 6, 7, 8 or 9</small>
+          </div>
+
           <div class="form-group full-width">
-            <label>Message / Details (Optional)</label>
-            <textarea class="form-control" rows="2" placeholder="Tell us more about property amenities, current occupancy, or questions..." id="ptMessage" style="resize:vertical;"></textarea>
+            <label for="ptEmail">Email Address <span class="req">*</span></label>
+            <input type="email" class="form-control" placeholder="e.g. partner@homzo.co.in" id="ptEmail" required>
+            <small>Official email for partnership agreement, verification, and monthly reports</small>
           </div>
+
+          <!-- SECTION 4: Additional Notes -->
+          <div class="form-section-header">
+            <i class="fa-solid fa-comment-dots"></i> Additional Information (Optional)
+          </div>
+
+          <div class="form-group full-width">
+            <label for="ptMessage">Message / Details</label>
+            <textarea class="form-control" rows="3" placeholder="Tell us more about property amenities, current occupancy, or questions..." id="ptMessage" style="resize:vertical;"></textarea>
+            <small>Include any special features like swimming pool, banquet hall, corporate meeting rooms, etc.</small>
+          </div>
+
           <div class="full-width submit-btn-wrap">
-            <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:12px 24px; font-weight:700; font-size:0.92rem; border-radius:8px;">
-              <i class="fa-solid fa-paper-plane"></i> Submit Partnership Request
+            <button type="submit" class="partner-submit-btn">
+              <i class="fa-solid fa-paper-plane"></i> Submit Partnership Application
             </button>
             <div class="trust-footer-badge">
-              <span><i class="fa-solid fa-lock" style="color:var(--primary);"></i> 256-Bit Encrypted</span>
-              <span><i class="fa-solid fa-bolt" style="color:var(--primary);"></i> Fast 24h Callback</span>
-              <span><i class="fa-solid fa-shield-check" style="color:var(--primary);"></i> Zero Onboarding Fee</span>
+              <span><i class="fa-solid fa-shield-halved"></i> 256-Bit SSL Encrypted</span>
+              <span><i class="fa-solid fa-bolt"></i> Fast 24h Review</span>
+              <span><i class="fa-solid fa-circle-check"></i> Zero Onboarding Fee</span>
+              <span><i class="fa-solid fa-headset"></i> Dedicated Partner Support</span>
             </div>
           </div>
         </div>
       </form>
-    </div>
 
-    <!-- RIGHT: Homzo Partnership Showcase & Trust Card -->
-    <div class="partner-showcase-card">
-      <div class="showcase-image-wrapper">
-        <img src="homzo_partner_banner.jpg" alt="Homzo Hotel Partnership" class="partner-banner-img" loading="lazy">
-        <div class="showcase-badge"><i class="fa-solid fa-certificate"></i> Verified Partner Network</div>
-      </div>
-      <div class="showcase-content">
-        <div>
-          <h3 class="showcase-title">Why Top Hoteliers Partner With Homzo</h3>
-          <p class="showcase-desc">We connect premium verified accommodations with corporate travelers, verified students, families, and international tourists across India.</p>
-
-          <div class="partner-perks-grid">
-            <div class="perk-item">
-              <div class="perk-icon"><i class="fa-solid fa-chart-line"></i></div>
-              <div>
-                <strong>35%+ Higher Revenue</strong>
-                <span>Dynamic algorithmic pricing to maximize REVPAR.</span>
-              </div>
-            </div>
-            <div class="perk-item">
-              <div class="perk-icon"><i class="fa-solid fa-wallet"></i></div>
-              <div>
-                <strong>Prompt Weekly Payouts</strong>
-                <span>Direct bank reconciliation with zero hidden cuts.</span>
-              </div>
-            </div>
-            <div class="perk-item">
-              <div class="perk-icon"><i class="fa-solid fa-building-shield"></i></div>
-              <div>
-                <strong>Zero Hidden Charges</strong>
-                <span>Completely free property inspection & onboarding.</span>
-              </div>
-            </div>
-            <div class="perk-item">
-              <div class="perk-icon"><i class="fa-solid fa-headset"></i></div>
-              <div>
-                <strong>Dedicated Manager</strong>
-                <span>Personal support for reservations & guest escalation.</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="partner-testimonial-box">
-          <i class="fa-solid fa-quote-left quote-icon"></i>
-          <p>"Partnering with Homzo transformed our occupancy from 45% to over 88% within 90 days. Their corporate network and transparent weekly payouts are unbeatable."</p>
-          <div class="testimonial-author">
+      <div class="partner-testimonial-bar">
+        <div class="testimonial-bar-content">
+          <p><i class="fa-solid fa-quote-left quote-icon" style="color:var(--primary); margin-right:6px;"></i>"Partnering with Homzo transformed our occupancy from 45% to over 88% within 90 days. Their corporate network, automated dashboard, and transparent weekly payouts are second to none."</p>
+          <div class="testimonial-bar-author">
             <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80" alt="Partner Testimonial">
             <div>
               <strong>Rajesh Singhania</strong>
