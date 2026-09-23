@@ -3729,17 +3729,50 @@ app.get('/api/inquiries', (req, res) => {
 
 app.delete('/api/inquiries/:id', (req, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const rawId = req.params.id;
     const inquiriesData = readExcelDb(inquiriesDbPath);
-    const idx = inquiriesData.findIndex(i => parseInt(i.ID) === id);
+    const idx = inquiriesData.findIndex(i => String(i.ID) === String(rawId) || (parseInt(i.ID, 10) === parseInt(rawId, 10) && !isNaN(parseInt(rawId, 10))));
     if (idx === -1) {
       return res.status(404).json({ error: 'Inquiry not found.' });
     }
+    const deletedInq = inquiriesData[idx];
     inquiriesData.splice(idx, 1);
     writeExcelDb(inquiriesDbPath, 'Inquiries', inquiriesData);
+    logAction(req.user ? req.user.email : 'admin@homzo.in', 'admin', 'delete_inquiry', `Deleted inquiry ID ${rawId} from ${deletedInq ? deletedInq.Name : 'unknown'}`, req);
     res.json({ success: true, message: 'Inquiry deleted successfully.' });
   } catch (e) {
     res.status(500).json({ error: 'Failed to delete inquiry.' });
+  }
+});
+
+app.post('/api/inquiries/reply-email', async (req, res) => {
+  try {
+    const { to, subject, message, recipientName, inquiryId } = req.body;
+    if (!to || !subject || !message) {
+      return res.status(400).json({ error: 'Recipient email, subject, and message content are required.' });
+    }
+
+    const htmlContent = `
+      <div style="font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif; max-width:600px; margin:0 auto; padding:24px; color:#1e293b; line-height:1.6; background:#ffffff; border:1px solid #e2e8f0; border-radius:10px;">
+        <div style="text-align:center; padding-bottom:20px; border-bottom:1px solid #f1f5f9;">
+          <h2 style="color:#d4af37; margin:0; font-size:22px; letter-spacing:1px;">HOMZO HOSPITALITY</h2>
+          <span style="font-size:12px; color:#64748b; text-transform:uppercase; letter-spacing:1.5px;">Official Response</span>
+        </div>
+        <div style="padding:24px 8px; font-size:15px; color:#334155; white-space:pre-wrap;">${message.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>')}</div>
+        <div style="margin-top:20px; padding-top:16px; border-top:1px solid #f1f5f9; font-size:12px; color:#94a3b8; text-align:center;">
+          <p style="margin:4px 0;">HOMZO Hospitality Pvt. Ltd. | Premier Luxury Stay Networks</p>
+          <p style="margin:4px 0;">Visit us at <a href="https://homzo.in" style="color:#d4af37; text-decoration:none;">homzo.in</a> | Support: <a href="mailto:support@homzo.in" style="color:#d4af37; text-decoration:none;">support@homzo.in</a></p>
+        </div>
+      </div>
+    `;
+
+    await sendMailHelper(to, subject, message, htmlContent);
+    logAction(req.user ? req.user.email : 'admin@homzo.in', 'admin', 'reply_inquiry_email', `Sent email to ${to} regarding inquiry ${inquiryId || ''}: "${subject}"`, req);
+
+    res.json({ success: true, message: 'Email sent successfully via HOMZO mail gateway!' });
+  } catch (err) {
+    console.error('Error replying to inquiry via email:', err);
+    res.status(500).json({ error: 'Failed to send email: ' + err.message });
   }
 });
 

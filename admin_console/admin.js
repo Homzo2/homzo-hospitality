@@ -824,9 +824,34 @@ async function fetchInquiriesFromAPI() {
 
 function extractPhoneFromMessage(text) {
   if (!text) return '';
-  const match = text.match(/(?:Phone|Contact|Mobile|Tel)[:\s]*([+0-9\s-]{10,15})/i) || text.match(/\b([6-9]\d{9})\b/);
-  return match ? match[1].replace(/[^0-9+]/g, '') : '';
+  const match = text.match(/(?:Phone|Contact|Mobile|Tel)[:\s]*([+0-9\s-]{10,16})/i) || text.match(/\b([6-9]\d{9})\b/);
+  return match ? match[1].replace(/[^0-9+]/g, '').trim() : '';
 }
+
+function normalizeWhatsAppPhone(phoneStr) {
+  if (!phoneStr) return '';
+  let cleaned = phoneStr.replace(/[^0-9]/g, '');
+  if (cleaned.startsWith('0') && cleaned.length === 11) cleaned = cleaned.substring(1);
+  if (cleaned.length === 10) cleaned = '91' + cleaned;
+  if (/^91?0+$/.test(cleaned) || cleaned.length < 10) return '';
+  return cleaned;
+}
+
+window.openWhatsAppForInquiry = function(id) {
+  const inq = inquiriesData.find(x => String(x.id) === String(id));
+  if (!inq) {
+    showToast('Inquiry record not found.', 'error');
+    return;
+  }
+  const phone = extractPhoneFromMessage(inq.message);
+  const waPhone = normalizeWhatsAppPhone(phone);
+  if (!waPhone) {
+    showToast(`No valid mobile number available for "${inq.name}".`, 'info');
+    return;
+  }
+  const text = encodeURIComponent(`Hello ${inq.name}, contacting you from HOMZO Hospitality regarding your inquiry.`);
+  window.open(`https://wa.me/${waPhone}?text=${text}`, '_blank');
+};
 
 async function renderInquiries(search = '') {
   if (inquiriesData.length === 0) await fetchInquiriesFromAPI();
@@ -850,42 +875,42 @@ async function renderInquiries(search = '') {
 
   tbody.innerHTML = data.map(i => {
     const phone = extractPhoneFromMessage(i.message);
-    const cleanPhone = phone.replace(/[^0-9]/g, '');
     const isPartner = (i.type || '').toLowerCase().includes('partner');
+    const safeMsg = (i.message || '').replace(/"/g, '&quot;');
+    const safeName = (i.name || '').replace(/"/g, '&quot;');
 
     return `
     <tr>
-      <td style="color:var(--text-muted); white-space:nowrap;">${new Date(i.created_at).toLocaleDateString('en-GB')}</td>
+      <td style="color:var(--text-muted); white-space:nowrap;">${i.created_at ? new Date(i.created_at).toLocaleDateString('en-GB') : '-'}</td>
       <td>
-        <strong style="color:var(--text-primary); cursor:pointer;" onclick="viewInquiry(${i.id})">${i.name}</strong>
+        <strong style="color:var(--text-primary); cursor:pointer;" title="Click to view details" onclick="viewInquiry('${i.id}')">${i.name}</strong>
       </td>
       <td>
-        <div><a href="mailto:${i.email}" style="color:var(--info); text-decoration:none;">${i.email}</a></div>
+        <div><a href="javascript:void(0)" onclick="openInquiryEmailModal('${i.id}')" style="color:var(--info); text-decoration:none;" title="Click to compose email">${i.email}</a></div>
         ${phone ? `<div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;"><i class="fa-solid fa-phone" style="font-size:0.7rem;"></i> ${phone}</div>` : ''}
       </td>
       <td>
-        <span class="badge badge-${isPartner ? 'warning' : 'info'}">${i.type}</span>
+        <span class="badge badge-${isPartner ? 'warning' : 'info'}">${i.type || 'General'}</span>
       </td>
-      <td style="max-width:260px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:pointer;" title="${(i.message || '').replace(/"/g, '&quot;')}" onclick="viewInquiry(${i.id})">
-        ${i.message}
+      <td style="max-width:260px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:pointer;" title="${safeMsg}" onclick="viewInquiry('${i.id}')">
+        ${i.message || ''}
       </td>
       <td>
         <div class="action-btns" style="justify-content:center;">
-          <button class="act-btn" title="View Full Details" onclick="viewInquiry(${i.id})">
+          <button type="button" class="act-btn" title="View Full Details" onclick="viewInquiry('${i.id}')">
             <i class="fa-solid fa-eye"></i>
           </button>
-          ${cleanPhone ? `
-          <a href="https://wa.me/${cleanPhone.startsWith('91') ? cleanPhone : '91' + cleanPhone}?text=${encodeURIComponent('Hello ' + i.name + ', regarding your Homzo inquiry...')}" target="_blank" class="act-btn" style="color:#22c55e; border-color:rgba(34,197,94,0.3);" title="Chat on WhatsApp">
+          <button type="button" class="act-btn" style="color:#22c55e; border-color:rgba(34,197,94,0.3);" title="Chat on WhatsApp" onclick="openWhatsAppForInquiry('${i.id}')">
             <i class="fa-brands fa-whatsapp"></i>
-          </a>` : ''}
-          <a href="mailto:${i.email}?subject=${encodeURIComponent('HOMZO Inquiry - ' + (i.type || 'Request'))}" class="act-btn" style="color:var(--info); border-color:rgba(59,130,246,0.3);" title="Send Email">
+          </button>
+          <button type="button" class="act-btn" style="color:var(--info); border-color:rgba(59,130,246,0.3);" title="Send Email / Reply" onclick="openInquiryEmailModal('${i.id}')">
             <i class="fa-solid fa-envelope"></i>
-          </a>
+          </button>
           ${isPartner ? `
-          <button class="act-btn" style="color:var(--primary); border-color:rgba(212,175,55,0.4);" title="Convert to Partner Account" onclick="convertInquiryToPartner(${i.id})">
+          <button type="button" class="act-btn" style="color:var(--primary); border-color:rgba(212,175,55,0.4);" title="Convert to Partner Account" onclick="convertInquiryToPartner('${i.id}')">
             <i class="fa-solid fa-user-plus"></i>
           </button>` : ''}
-          <button class="act-btn danger" title="Delete Inquiry" onclick="deleteInquiry(${i.id})">
+          <button type="button" class="act-btn danger" title="Delete Inquiry" onclick="deleteInquiry('${i.id}')">
             <i class="fa-solid fa-trash"></i>
           </button>
         </div>
@@ -896,66 +921,212 @@ async function renderInquiries(search = '') {
 }
 
 window.viewInquiry = function(id) {
-  const inq = inquiriesData.find(x => x.id === id || String(x.id) === String(id));
-  if (!inq) return;
+  const inq = inquiriesData.find(x => String(x.id) === String(id));
+  if (!inq) {
+    showToast('Inquiry record not found.', 'error');
+    return;
+  }
 
   const phone = extractPhoneFromMessage(inq.message);
-  const cleanPhone = phone.replace(/[^0-9]/g, '');
+  const waPhone = normalizeWhatsAppPhone(phone);
   const isPartner = (inq.type || '').toLowerCase().includes('partner');
 
-  document.getElementById('inqModalId').value = inq.id;
-  document.getElementById('inqModalName').textContent = inq.name;
-  document.getElementById('inqModalType').textContent = inq.type;
-  document.getElementById('inqModalEmail').textContent = inq.email;
-  document.getElementById('inqModalPhone').textContent = phone || 'Not specified';
-  document.getElementById('inqModalDate').textContent = new Date(inq.created_at).toLocaleString('en-GB');
-  document.getElementById('inqModalMessage').textContent = inq.message;
+  const idEl = document.getElementById('inqModalId');
+  if (idEl) idEl.value = inq.id;
+  const nameEl = document.getElementById('inqModalName');
+  if (nameEl) nameEl.textContent = inq.name || '-';
+  const typeEl = document.getElementById('inqModalType');
+  if (typeEl) typeEl.textContent = inq.type || 'General';
+  const emailEl = document.getElementById('inqModalEmail');
+  if (emailEl) emailEl.textContent = inq.email || '-';
+  const phoneEl = document.getElementById('inqModalPhone');
+  if (phoneEl) phoneEl.textContent = phone || 'Not specified';
+  const dateEl = document.getElementById('inqModalDate');
+  if (dateEl) dateEl.textContent = inq.created_at ? new Date(inq.created_at).toLocaleString('en-GB') : '-';
+  const msgEl = document.getElementById('inqModalMessage');
+  if (msgEl) msgEl.textContent = inq.message || '-';
 
   // WhatsApp Button
   const waBtn = document.getElementById('inqModalWhatsappBtn');
-  if (cleanPhone) {
-    waBtn.style.display = 'inline-flex';
-    waBtn.href = `https://wa.me/${cleanPhone.startsWith('91') ? cleanPhone : '91' + cleanPhone}?text=${encodeURIComponent('Hello ' + inq.name + ', contacting you from Homzo regarding your inquiry.')}`;
-  } else {
-    waBtn.style.display = 'none';
+  if (waBtn) {
+    if (waPhone) {
+      waBtn.style.display = 'inline-flex';
+      waBtn.onclick = (e) => {
+        e.preventDefault();
+        openWhatsAppForInquiry(inq.id);
+      };
+    } else {
+      waBtn.style.display = 'none';
+    }
   }
 
   // Email Button
   const emBtn = document.getElementById('inqModalEmailBtn');
-  emBtn.href = `mailto:${inq.email}?subject=${encodeURIComponent('HOMZO Inquiry Response - ' + (inq.type || 'Request'))}`;
+  if (emBtn) {
+    emBtn.onclick = (e) => {
+      e.preventDefault();
+      closeModal('inquiryDetailModal');
+      openInquiryEmailModal(inq.id);
+    };
+  }
 
   // Call Button
   const callBtn = document.getElementById('inqModalCallBtn');
-  if (cleanPhone) {
-    callBtn.style.display = 'inline-flex';
-    callBtn.href = `tel:${cleanPhone}`;
-  } else {
-    callBtn.style.display = 'none';
+  if (callBtn) {
+    if (waPhone) {
+      callBtn.style.display = 'inline-flex';
+      callBtn.href = `tel:+${waPhone}`;
+    } else {
+      callBtn.style.display = 'none';
+    }
   }
 
   // Partner Action Card
   const partnerAction = document.getElementById('inqModalPartnerAction');
-  if (isPartner) {
-    partnerAction.style.display = 'flex';
-    document.getElementById('inqModalConvertBtn').onclick = () => {
-      closeModal('inquiryDetailModal');
-      convertInquiryToPartner(inq.id);
-    };
-  } else {
-    partnerAction.style.display = 'none';
+  if (partnerAction) {
+    if (isPartner) {
+      partnerAction.style.display = 'flex';
+      const convBtn = document.getElementById('inqModalConvertBtn');
+      if (convBtn) {
+        convBtn.onclick = () => {
+          closeModal('inquiryDetailModal');
+          convertInquiryToPartner(inq.id);
+        };
+      }
+    } else {
+      partnerAction.style.display = 'none';
+    }
   }
 
-  // Delete
-  document.getElementById('inqModalDeleteBtn').onclick = () => {
-    deleteInquiry(inq.id);
-  };
+  // Delete Button
+  const delBtn = document.getElementById('inqModalDeleteBtn');
+  if (delBtn) {
+    delBtn.onclick = () => {
+      deleteInquiry(inq.id);
+    };
+  }
 
   openModal('inquiryDetailModal');
 };
 
+window.openInquiryEmailModal = function(id) {
+  const inq = inquiriesData.find(x => String(x.id) === String(id));
+  if (!inq) {
+    showToast('Inquiry record not found.', 'error');
+    return;
+  }
+
+  const modal = document.getElementById('inquiryEmailModal');
+  if (!modal) return;
+
+  const toInput = document.getElementById('inqEmailModalTo');
+  const subjInput = document.getElementById('inqEmailModalSubject');
+  const bodyInput = document.getElementById('inqEmailModalBody');
+  const templateSelect = document.getElementById('inqEmailTemplateSelect');
+
+  if (toInput) toInput.value = `${inq.name} <${inq.email}>`;
+  if (subjInput) subjInput.value = `HOMZO Hospitality Response: Regarding your ${inq.type || 'Inquiry'}`;
+
+  const setTemplateBody = (tmpl) => {
+    if (!bodyInput) return;
+    if (tmpl === 'partner_onboarding') {
+      bodyInput.value = `Dear ${inq.name},\n\nThank you for your interest in partnering with HOMZO Hospitality!\n\nWe have reviewed your property inquiry and would love to discuss welcoming your property to our luxury network. A member of our partner acquisitions team will be in touch shortly with detailed commercial terms and onboarding steps.\n\nIn the meantime, feel free to reply directly to this email or reach us at partner@homzo.in.\n\nWarm regards,\nHOMZO Partner Operations Team\nhttps://homzo.in`;
+    } else if (tmpl === 'property_details') {
+      bodyInput.value = `Dear ${inq.name},\n\nThank you for reaching out to HOMZO Hospitality.\n\nTo assist you further with your property inquiry, could you please provide us with:\n1. Exact address and location coordinates\n2. Photos or video walkthrough\n3. Number of rooms & available amenities\n\nLooking forward to your reply.\n\nWarm regards,\nHOMZO Guest & Partner Support\nhttps://homzo.in`;
+    } else if (tmpl === 'custom') {
+      bodyInput.value = `Dear ${inq.name},\n\n\n\nWarm regards,\nHOMZO Support Team\nhttps://homzo.in`;
+    } else {
+      bodyInput.value = `Dear ${inq.name},\n\nThank you for contacting HOMZO Hospitality regarding "${inq.type || 'Inquiry'}".\n\nWe have received your message and our team is currently reviewing your details. We will get back to you as soon as possible.\n\nIf you have any urgent queries, feel free to reply directly or contact us at support@homzo.in.\n\nWarm regards,\nHOMZO Hospitality Team\nhttps://homzo.in`;
+    }
+  };
+
+  const isPartner = (inq.type || '').toLowerCase().includes('partner');
+  if (templateSelect) {
+    templateSelect.value = isPartner ? 'partner_onboarding' : 'acknowledgement';
+    setTemplateBody(templateSelect.value);
+    templateSelect.onchange = () => setTemplateBody(templateSelect.value);
+  }
+
+  // Copy email button
+  const copyBtn = document.getElementById('inqEmailCopyBtn');
+  if (copyBtn) {
+    copyBtn.onclick = () => {
+      navigator.clipboard.writeText(inq.email).then(() => {
+        showToast(`Copied ${inq.email} to clipboard!`, 'success');
+      }).catch(() => {
+        showToast(`Email: ${inq.email}`, 'info');
+      });
+    };
+  }
+
+  // Open in Gmail button
+  const gmailBtn = document.getElementById('inqEmailGmailBtn');
+  if (gmailBtn) {
+    gmailBtn.onclick = () => {
+      const gUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(inq.email)}&su=${encodeURIComponent(subjInput ? subjInput.value : '')}&body=${encodeURIComponent(bodyInput ? bodyInput.value : '')}`;
+      window.open(gUrl, '_blank');
+    };
+  }
+
+  // Send via HOMZO button
+  const sendBtn = document.getElementById('inqEmailSendBtn');
+  if (sendBtn) {
+    sendBtn.onclick = async () => {
+      const subject = subjInput ? subjInput.value.trim() : '';
+      const message = bodyInput ? bodyInput.value.trim() : '';
+      if (!subject || !message) {
+        showToast('Please enter both subject and message.', 'error');
+        return;
+      }
+
+      const origText = sendBtn.innerHTML;
+      sendBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
+      sendBtn.disabled = true;
+
+      try {
+        const res = await fetch('/api/inquiries/reply-email', {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify({
+            inquiryId: inq.id,
+            to: inq.email,
+            recipientName: inq.name,
+            subject,
+            message
+          })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          showToast(`Email sent successfully to ${inq.email}!`, 'success');
+          closeModal('inquiryEmailModal');
+        } else {
+          showToast(data.error || 'Failed to send email. Opening in Gmail...', 'error');
+          setTimeout(() => {
+            const gUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(inq.email)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
+            window.open(gUrl, '_blank');
+          }, 1200);
+        }
+      } catch (err) {
+        showToast('Failed to reach backend email service. Opening Gmail...', 'error');
+        const gUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(inq.email)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
+        window.open(gUrl, '_blank');
+      } finally {
+        sendBtn.innerHTML = origText;
+        sendBtn.disabled = false;
+      }
+    };
+  }
+
+  openModal('inquiryEmailModal');
+};
+
 window.convertInquiryToPartner = function(id) {
-  const inq = inquiriesData.find(x => x.id === id || String(x.id) === String(id));
-  if (!inq) return;
+  const inq = inquiriesData.find(x => String(x.id) === String(id));
+  if (!inq) {
+    showToast('Inquiry record not found.', 'error');
+    return;
+  }
 
   const phone = extractPhoneFromMessage(inq.message);
 
@@ -968,8 +1139,8 @@ window.convertInquiryToPartner = function(id) {
   const phoneInput = document.getElementById('apPartnerPhone');
   const passInput = document.getElementById('apPartnerPassword');
 
-  if (nameInput) nameInput.value = inq.name;
-  if (emailInput) emailInput.value = inq.email;
+  if (nameInput) nameInput.value = inq.name || '';
+  if (emailInput) emailInput.value = inq.email || '';
   if (phoneInput) phoneInput.value = phone || '';
   if (passInput) passInput.value = 'Partner@' + Math.floor(1000 + Math.random() * 9000);
 
@@ -985,7 +1156,7 @@ window.deleteInquiry = async function(id) {
       headers: getHeaders()
     });
     if (res.ok) {
-      inquiriesData = inquiriesData.filter(x => x.id !== id && String(x.id) !== String(id));
+      inquiriesData = inquiriesData.filter(x => String(x.id) !== String(id));
       closeModal('inquiryDetailModal');
       renderInquiries();
       showToast('Inquiry deleted successfully.', 'success');
