@@ -462,7 +462,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'Homzo_Jwt_Sec_Token_2026_!!';
 console.log(`[SMTP CONFIG DIAGNOSTIC] Host: "${process.env.SMTP_HOST}", Port: "${process.env.SMTP_PORT}", User: "${process.env.SMTP_USER}", Pass Length: ${process.env.SMTP_PASS ? process.env.SMTP_PASS.length : 0}`);
 const smtpPort = parseInt(process.env.SMTP_PORT) || 465;
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.zoho.in',
+  host: process.env.SMTP_HOST || 'smtppro.zoho.in',
   port: smtpPort,
   secure: smtpPort === 465,
   auth: {
@@ -660,21 +660,34 @@ async function sendWhatsAppHelper(to, message) {
   return true;
 }
 
-// Email Sender helper supporting Resend (Free 3,000 emails/month), Google Apps Script, SMTP & Simulation
-async function sendMailHelper(to, subject, text, html) {
+// Email Sender helper supporting Zoho Official SMTP, Resend, Google Apps Script & Simulation
+async function sendMailHelper(to, subject, text, html, customFrom) {
   recordNotification('email', to, `Subject: ${subject}\n\n${text}`);
+  const defaultFrom = process.env.SMTP_FROM || process.env.RESEND_FROM || '"HOMZO Support" <support@homzo.co.in>';
   const mailOptions = {
-    from: process.env.RESEND_FROM || process.env.SMTP_FROM || '"HOMZO Hospitality" <support@homzo.co.in>',
+    from: customFrom || defaultFrom,
     to,
     subject,
     text,
     html: html || text.replace(/\n/g, '<br>')
   };
 
-  // 1. Resend API Integration (resend.com - 3,000 Free Emails/Month)
+  // 1. Official Zoho Mail / Standard SMTP Transporter (Nodemailer) — Primary Channel
+  const hasConfig = process.env.SMTP_USER && process.env.SMTP_PASS && process.env.SMTP_USER !== 'your_email@gmail.com';
+  if (hasConfig) {
+    try {
+      const info = await transporter.sendMail(mailOptions);
+      console.log(`[ZOHO SMTP EMAIL SENT] Message ID: ${info.messageId} | From: ${mailOptions.from} -> To: ${to}`);
+      return true;
+    } catch (err) {
+      console.error(`[ZOHO SMTP ERROR] Failed to send email to ${to}:`, err.message);
+    }
+  }
+
+  // 2. Resend API Integration (Fallback)
   if (process.env.RESEND_API_KEY) {
     try {
-      const fromAddress = process.env.RESEND_FROM || 'Homzo <onboarding@resend.dev>';
+      const fromAddress = customFrom || process.env.RESEND_FROM || 'Homzo <onboarding@resend.dev>';
       const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
@@ -700,7 +713,7 @@ async function sendMailHelper(to, subject, text, html) {
     }
   }
 
-  // 2. Google Apps Script Web App Integration (Completely Free & Bypasses SMTP Port Blocks)
+  // 3. Google Apps Script Web App Integration
   if (process.env.GOOGLE_SCRIPT_URL) {
     try {
       const response = await fetch(process.env.GOOGLE_SCRIPT_URL, {
@@ -716,18 +729,6 @@ async function sendMailHelper(to, subject, text, html) {
       console.error(`[GOOGLE SCRIPT ERROR] Failed response:`, data);
     } catch (err) {
       console.error(`[GOOGLE SCRIPT EXCEPTION] Failed to send email via Google Script URL:`, err.message);
-    }
-  }
-
-  // 3. Standard SMTP Transporter (Nodemailer)
-  const hasConfig = process.env.SMTP_USER && process.env.SMTP_PASS && process.env.SMTP_USER !== 'your_email@gmail.com';
-  if (hasConfig) {
-    try {
-      const info = await transporter.sendMail(mailOptions);
-      console.log(`[SMTP EMAIL SENT] Message ID: ${info.messageId} to ${to}`);
-      return true;
-    } catch (err) {
-      console.error(`[SMTP ERROR] Failed to send email to ${to}:`, err.message);
     }
   }
 
@@ -3714,7 +3715,41 @@ app.post('/api/inquiries', (req, res) => {
 
   inquiriesData.push(newInquiry);
   writeExcelDb(inquiriesDbPath, 'Inquiries', inquiriesData);
-  res.status(201).json({ success: true, message: 'Inquiry saved successfully!' });
+
+  // Send automatic confirmation email to the Customer / Partner from support@homzo.co.in
+  const isPartnerInq = String(newInquiry.Type).toLowerCase().includes('partner');
+  const userSubject = isPartnerInq
+    ? `We've Received Your Property Partnership Request — HOMZO Hospitality (#INQ-${newId})`
+    : `We've Received Your Inquiry — HOMZO Support (#INQ-${newId})`;
+  const userText = `Dear ${newInquiry.Name},\n\nThank you for reaching out to HOMZO Hospitality regarding "${newInquiry.Type}".\n\nWe have received your inquiry (#INQ-${newId}) and our team is reviewing your details. A dedicated executive will connect with you shortly.\n\nYour Submitted Details:\n${newInquiry.Message}\n\nFor immediate assistance, reply directly to this email or contact support@homzo.co.in.\n\nWarm Regards,\nHOMZO Support Team\nhttps://homzo.co.in`;
+  const userHtml = `
+    <div style="font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif; max-width:600px; margin:0 auto; padding:24px; color:#1e293b; line-height:1.6; background:#ffffff; border:1px solid #e2e8f0; border-radius:10px;">
+      <div style="text-align:center; padding-bottom:18px; border-bottom:1px solid #f1f5f9;">
+        <h2 style="color:#d4af37; margin:0; font-size:22px; letter-spacing:1px;">HOMZO HOSPITALITY</h2>
+        <span style="font-size:12px; color:#64748b; text-transform:uppercase; letter-spacing:1.5px;">${isPartnerInq ? 'Partner Relations & Onboarding' : 'Official Guest & Customer Care'}</span>
+      </div>
+      <div style="padding:22px 8px; font-size:15px; color:#334155;">
+        <p style="margin-top:0;">Dear <strong>${newInquiry.Name}</strong>,</p>
+        <p>Thank you for contacting <strong>HOMZO Hospitality</strong> regarding <strong>${newInquiry.Type}</strong>. Your request has been registered under Reference ID <strong>#INQ-${newId}</strong>.</p>
+        <p>Our ${isPartnerInq ? 'Property Acquisitions Team' : 'Customer Support Team'} is reviewing your details and will get back to you shortly.</p>
+        <div style="background:#f8fafc; border-left:4px solid #d4af37; padding:12px 16px; margin:18px 0; font-size:13.5px; color:#475569; white-space:pre-wrap;">${newInquiry.Message.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+        <p style="margin-bottom:0;">Need urgent help? Simply reply to this email or write to us at <a href="mailto:${isPartnerInq ? 'partner@homzo.co.in' : 'support@homzo.co.in'}" style="color:#d4af37; font-weight:600; text-decoration:none;">${isPartnerInq ? 'partner@homzo.co.in' : 'support@homzo.co.in'}</a>.</p>
+      </div>
+      <div style="margin-top:20px; padding-top:16px; border-top:1px solid #f1f5f9; font-size:12px; color:#94a3b8; text-align:center;">
+        <p style="margin:4px 0;">HOMZO Hospitality Pvt. Ltd. | Premier Luxury Stay Networks</p>
+        <p style="margin:4px 0;">Website: <a href="https://homzo.co.in" style="color:#d4af37; text-decoration:none;">homzo.co.in</a> | Support: <a href="mailto:support@homzo.co.in" style="color:#d4af37; text-decoration:none;">support@homzo.co.in</a></p>
+      </div>
+    </div>
+  `;
+  sendMailHelper(newInquiry.Email, userSubject, userText, userHtml, '"HOMZO Support" <support@homzo.co.in>');
+
+  // Send internal alert email to HOMZO Support / Partner inbox
+  const adminTargetEmail = isPartnerInq ? 'partner@homzo.co.in' : 'support@homzo.co.in';
+  const adminSubject = `[NEW INQUIRY #INQ-${newId}] ${newInquiry.Type} from ${newInquiry.Name}`;
+  const adminText = `New inquiry received on HOMZO Website:\n\n- Reference ID: #INQ-${newId}\n- Name: ${newInquiry.Name}\n- Email: ${newInquiry.Email}\n- Category: ${newInquiry.Type}\n- Submitted At: ${newInquiry.Date_Added}\n\nDetails:\n${newInquiry.Message}`;
+  sendMailHelper(adminTargetEmail, adminSubject, adminText, null, '"HOMZO Website Alerts" <support@homzo.co.in>');
+
+  res.status(201).json({ success: true, message: 'Inquiry saved and confirmation email sent successfully!' });
 });
 
 app.get('/api/inquiries', (req, res) => {
@@ -4044,9 +4079,9 @@ app.post('/api/careers/send-otp', (req, res) => {
   const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes validity
   activeOtps.set(`${email.toLowerCase()}_${jobId}`, { otp, expiresAt });
   
-  console.log(`\n==================================================`);
-  console.log(`[MOCK OTP] Verification Code for ${email} (Job: ${jobId}): ${otp}`);
-  console.log(`==================================================\n`);
+  const otpSubject = `Verification Code for Your Application — HOMZO Careers`;
+  const otpText = `Dear Candidate,\n\nYour email verification code for your job application at HOMZO Hospitality is: ${otp}\n\nThis code is valid for 10 minutes.\n\nFor any queries, write to us at info@homzo.co.in.\n\nWarm Regards,\nHOMZO Careers Team\nhttps://homzo.co.in`;
+  sendMailHelper(email, otpSubject, otpText, null, '"HOMZO Careers" <support@homzo.co.in>');
   
   res.json({ success: true, message: 'Verification code sent successfully.' });
 });
@@ -4165,7 +4200,7 @@ app.post('/api/careers/apply', (req, res) => {
       
       notifications.push({
         ID: notifId + 1,
-        Recipient_Email: 'supporhomzo@gmail.com',
+        Recipient_Email: 'info@homzo.co.in',
         Title: `New Job Application: ${job.Title}`,
         Message: `Candidate ${fullName} has applied for ${job.Title}. Resume filename: ${req.file.filename}`,
         Status: 'unread',
@@ -4173,16 +4208,14 @@ app.post('/api/careers/apply', (req, res) => {
       });
       writeExcelDb(notificationsDbPath, 'Notifications', notifications);
       
-      // Print mock emails
-      console.log(`\n==================================================`);
-      console.log(`[EMAIL SENT TO APPLICANT: ${email}]`);
-      console.log(`Subject: Application Received - Homzo Hospitality`);
-      console.log(`Body:\nHello ${fullName},\n\nThank you for applying for the role of ${job.Title} at Homzo Hospitality.\nWe have received your resume and our recruitment team will review it. If your profile matches our requirements, we will reach out to schedule an interview.\n\nBest Regards,\nHR Team\nHomzo Hospitality`);
-      console.log(`==================================================`);
-      console.log(`[EMAIL SENT TO ADMIN: supporhomzo@gmail.com]`);
-      console.log(`Subject: New Application Received - ${job.Title}`);
-      console.log(`Body:\nHello Admin,\n\nA new job application has been submitted on the careers page.\n\n- Job Role: ${job.Title} (${jobId})\n- Candidate Name: ${fullName}\n- Email: ${email}\n- Phone: ${phone}\n- Resume File: ${req.file.filename}\n\nPlease check the admin panel for details.`);
-      console.log(`==================================================\n`);
+      // Send real emails to applicant and HR (info@homzo.co.in)
+      const applicantSubject = `Application Received: ${job.Title} — HOMZO Careers`;
+      const applicantBody = `Hello ${fullName},\n\nThank you for applying for the role of ${job.Title} at HOMZO Hospitality.\nWe have received your resume and our recruitment team will review it. If your profile matches our requirements, we will reach out to schedule an interview.\n\nFor any questions, you may reach our Careers Helpdesk at info@homzo.co.in.\n\nBest Regards,\nHR & Recruitment Team\nHOMZO Hospitality\nhttps://homzo.co.in`;
+      sendMailHelper(email, applicantSubject, applicantBody, null, '"HOMZO Careers" <support@homzo.co.in>');
+
+      const hrSubject = `New Job Application Received — ${job.Title} (${fullName})`;
+      const hrBody = `Hello HR Team,\n\nA new job application has been submitted on the HOMZO Careers page:\n\n- Job Role: ${job.Title} (${jobId})\n- Candidate Name: ${fullName}\n- Email: ${email}\n- Phone: ${phone}\n- City: ${currentCity || 'N/A'}\n- Experience: ${totalExperience || 'N/A'}\n- Resume File: ${req.file.filename}\n\nPlease check the Admin Console Careers section for full details.`;
+      sendMailHelper('info@homzo.co.in', hrSubject, hrBody, null, '"HOMZO Careers Portal" <support@homzo.co.in>');
       
       res.json({
         success: true,
