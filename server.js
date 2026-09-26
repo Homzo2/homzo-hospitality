@@ -460,9 +460,11 @@ const JWT_SECRET = process.env.JWT_SECRET || 'Homzo_Jwt_Sec_Token_2026_!!';
 
 // Initialize SMTP Transporter
 console.log(`[SMTP CONFIG DIAGNOSTIC] Host: "${process.env.SMTP_HOST}", Port: "${process.env.SMTP_PORT}", User: "${process.env.SMTP_USER}", Pass Length: ${process.env.SMTP_PASS ? process.env.SMTP_PASS.length : 0}`);
+const smtpPort = parseInt(process.env.SMTP_PORT) || 465;
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.mailtrap.io',
-  port: parseInt(process.env.SMTP_PORT) || 2525,
+  host: process.env.SMTP_HOST || 'smtp.zoho.in',
+  port: smtpPort,
+  secure: smtpPort === 465,
   auth: {
     user: (process.env.SMTP_USER || '').trim(),
     pass: (process.env.SMTP_PASS || '').trim()
@@ -662,7 +664,7 @@ async function sendWhatsAppHelper(to, message) {
 async function sendMailHelper(to, subject, text, html) {
   recordNotification('email', to, `Subject: ${subject}\n\n${text}`);
   const mailOptions = {
-    from: process.env.RESEND_FROM || process.env.SMTP_FROM || '"HOMZO Hospitality" <no-reply@homzo.in>',
+    from: process.env.RESEND_FROM || process.env.SMTP_FROM || '"HOMZO Hospitality" <support@homzo.co.in>',
     to,
     subject,
     text,
@@ -3761,7 +3763,7 @@ app.post('/api/inquiries/reply-email', async (req, res) => {
         <div style="padding:24px 8px; font-size:15px; color:#334155; white-space:pre-wrap;">${message.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>')}</div>
         <div style="margin-top:20px; padding-top:16px; border-top:1px solid #f1f5f9; font-size:12px; color:#94a3b8; text-align:center;">
           <p style="margin:4px 0;">HOMZO Hospitality Pvt. Ltd. | Premier Luxury Stay Networks</p>
-          <p style="margin:4px 0;">Visit us at <a href="https://homzo.in" style="color:#d4af37; text-decoration:none;">homzo.in</a> | Support: <a href="mailto:support@homzo.in" style="color:#d4af37; text-decoration:none;">support@homzo.in</a></p>
+          <p style="margin:4px 0;">Visit us at <a href="https://homzo.co.in" style="color:#d4af37; text-decoration:none;">homzo.co.in</a> | Support: <a href="mailto:support@homzo.co.in" style="color:#d4af37; text-decoration:none;">support@homzo.co.in</a></p>
         </div>
       </div>
     `;

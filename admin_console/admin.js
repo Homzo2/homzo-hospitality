@@ -1030,13 +1030,13 @@ window.openInquiryEmailModal = function(id) {
   const setTemplateBody = (tmpl) => {
     if (!bodyInput) return;
     if (tmpl === 'partner_onboarding') {
-      bodyInput.value = `Dear ${inq.name},\n\nThank you for your interest in partnering with HOMZO Hospitality!\n\nWe have reviewed your property inquiry and would love to discuss welcoming your property to our luxury network. A member of our partner acquisitions team will be in touch shortly with detailed commercial terms and onboarding steps.\n\nIn the meantime, feel free to reply directly to this email or reach us at partner@homzo.in.\n\nWarm regards,\nHOMZO Partner Operations Team\nhttps://homzo.in`;
+      bodyInput.value = `Dear ${inq.name},\n\nThank you for your interest in partnering with HOMZO Hospitality!\n\nWe have reviewed your property inquiry and would love to discuss welcoming your property to our luxury network. A member of our partner acquisitions team will be in touch shortly with detailed commercial terms and onboarding steps.\n\nIn the meantime, feel free to reply directly to this email or reach us at partner@homzo.co.in.\n\nWarm regards,\nHOMZO Partner Operations Team\nhttps://homzo.co.in`;
     } else if (tmpl === 'property_details') {
-      bodyInput.value = `Dear ${inq.name},\n\nThank you for reaching out to HOMZO Hospitality.\n\nTo assist you further with your property inquiry, could you please provide us with:\n1. Exact address and location coordinates\n2. Photos or video walkthrough\n3. Number of rooms & available amenities\n\nLooking forward to your reply.\n\nWarm regards,\nHOMZO Guest & Partner Support\nhttps://homzo.in`;
+      bodyInput.value = `Dear ${inq.name},\n\nThank you for reaching out to HOMZO Hospitality.\n\nTo assist you further with your property inquiry, could you please provide us with:\n1. Exact address and location coordinates\n2. Photos or video walkthrough\n3. Number of rooms & available amenities\n\nLooking forward to your reply.\n\nWarm regards,\nHOMZO Guest & Partner Support\nhttps://homzo.co.in`;
     } else if (tmpl === 'custom') {
-      bodyInput.value = `Dear ${inq.name},\n\n\n\nWarm regards,\nHOMZO Support Team\nhttps://homzo.in`;
+      bodyInput.value = `Dear ${inq.name},\n\n\n\nWarm regards,\nHOMZO Support Team\nhttps://homzo.co.in`;
     } else {
-      bodyInput.value = `Dear ${inq.name},\n\nThank you for contacting HOMZO Hospitality regarding "${inq.type || 'Inquiry'}".\n\nWe have received your message and our team is currently reviewing your details. We will get back to you as soon as possible.\n\nIf you have any urgent queries, feel free to reply directly or contact us at support@homzo.in.\n\nWarm regards,\nHOMZO Hospitality Team\nhttps://homzo.in`;
+      bodyInput.value = `Dear ${inq.name},\n\nThank you for contacting HOMZO Hospitality regarding "${inq.type || 'Inquiry'}".\n\nWe have received your message and our team is currently reviewing your details. We will get back to you as soon as possible.\n\nIf you have any urgent queries, feel free to reply directly or contact us at support@homzo.co.in.\n\nWarm regards,\nHOMZO Hospitality Team\nhttps://homzo.co.in`;
     }
   };
 
