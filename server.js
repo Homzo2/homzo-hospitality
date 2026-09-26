@@ -660,10 +660,11 @@ async function sendWhatsAppHelper(to, message) {
   return true;
 }
 
-// Email Sender helper supporting Zoho Official SMTP, Resend, Google Apps Script & Simulation
+// Email Sender helper supporting Resend Official Verified Domain (@homzo.co.in - 3,000 Free/Month), Zoho SMTP & Simulation
 async function sendMailHelper(to, subject, text, html, customFrom) {
   recordNotification('email', to, `Subject: ${subject}\n\n${text}`);
-  const defaultFrom = process.env.SMTP_FROM || process.env.RESEND_FROM || '"HOMZO Support" <support@homzo.co.in>';
+  const defaultFrom = process.env.RESEND_FROM || process.env.SMTP_FROM || 'HOMZO Support <support@homzo.co.in>';
+  const cleanFrom = (customFrom || defaultFrom).replace(/"/g, '');
   const mailOptions = {
     from: customFrom || defaultFrom,
     to,
@@ -672,22 +673,9 @@ async function sendMailHelper(to, subject, text, html, customFrom) {
     html: html || text.replace(/\n/g, '<br>')
   };
 
-  // 1. Official Zoho Mail / Standard SMTP Transporter (Nodemailer) — Primary Channel
-  const hasConfig = process.env.SMTP_USER && process.env.SMTP_PASS && process.env.SMTP_USER !== 'your_email@gmail.com';
-  if (hasConfig) {
-    try {
-      const info = await transporter.sendMail(mailOptions);
-      console.log(`[ZOHO SMTP EMAIL SENT] Message ID: ${info.messageId} | From: ${mailOptions.from} -> To: ${to}`);
-      return true;
-    } catch (err) {
-      console.error(`[ZOHO SMTP ERROR] Failed to send email to ${to}:`, err.message);
-    }
-  }
-
-  // 2. Resend API Integration (Fallback)
+  // 1. Resend Verified Domain (@homzo.co.in — 100% Free, No Zoho Upgrade Needed)
   if (process.env.RESEND_API_KEY) {
     try {
-      const fromAddress = customFrom || process.env.RESEND_FROM || 'Homzo <onboarding@resend.dev>';
       const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
@@ -695,7 +683,7 @@ async function sendMailHelper(to, subject, text, html, customFrom) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          from: fromAddress,
+          from: cleanFrom,
           to: [to],
           subject: subject,
           text: text,
@@ -704,12 +692,24 @@ async function sendMailHelper(to, subject, text, html, customFrom) {
       });
       const data = await res.json();
       if (res.ok && data.id) {
-        console.log(`[RESEND EMAIL SENT] Message ID: ${data.id} To: ${to}`);
+        console.log(`[RESEND EMAIL SENT] Message ID: ${data.id} | From: ${cleanFrom} -> To: ${to}`);
         return true;
       }
       console.error(`[RESEND ERROR] Failed response:`, data);
     } catch (err) {
       console.error(`[RESEND EXCEPTION] Failed to send email via Resend:`, err.message);
+    }
+  }
+
+  // 2. Standard SMTP Transporter (Nodemailer Fallback)
+  const hasConfig = process.env.SMTP_USER && process.env.SMTP_PASS && process.env.SMTP_USER !== 'your_email@gmail.com';
+  if (hasConfig) {
+    try {
+      const info = await transporter.sendMail(mailOptions);
+      console.log(`[ZOHO SMTP EMAIL SENT] Message ID: ${info.messageId} | From: ${mailOptions.from} -> To: ${to}`);
+      return true;
+    } catch (err) {
+      console.error(`[ZOHO SMTP ERROR] Failed to send email to ${to}:`, err.message);
     }
   }
 
@@ -4081,7 +4081,7 @@ app.post('/api/careers/send-otp', (req, res) => {
   
   const otpSubject = `Verification Code for Your Application — HOMZO Careers`;
   const otpText = `Dear Candidate,\n\nYour email verification code for your job application at HOMZO Hospitality is: ${otp}\n\nThis code is valid for 10 minutes.\n\nFor any queries, write to us at info@homzo.co.in.\n\nWarm Regards,\nHOMZO Careers Team\nhttps://homzo.co.in`;
-  sendMailHelper(email, otpSubject, otpText, null, '"HOMZO Careers" <support@homzo.co.in>');
+  sendMailHelper(email, otpSubject, otpText, null, 'HOMZO Careers <info@homzo.co.in>');
   
   res.json({ success: true, message: 'Verification code sent successfully.' });
 });
@@ -4211,11 +4211,11 @@ app.post('/api/careers/apply', (req, res) => {
       // Send real emails to applicant and HR (info@homzo.co.in)
       const applicantSubject = `Application Received: ${job.Title} — HOMZO Careers`;
       const applicantBody = `Hello ${fullName},\n\nThank you for applying for the role of ${job.Title} at HOMZO Hospitality.\nWe have received your resume and our recruitment team will review it. If your profile matches our requirements, we will reach out to schedule an interview.\n\nFor any questions, you may reach our Careers Helpdesk at info@homzo.co.in.\n\nBest Regards,\nHR & Recruitment Team\nHOMZO Hospitality\nhttps://homzo.co.in`;
-      sendMailHelper(email, applicantSubject, applicantBody, null, '"HOMZO Careers" <support@homzo.co.in>');
+      sendMailHelper(email, applicantSubject, applicantBody, null, 'HOMZO Careers <info@homzo.co.in>');
 
       const hrSubject = `New Job Application Received — ${job.Title} (${fullName})`;
       const hrBody = `Hello HR Team,\n\nA new job application has been submitted on the HOMZO Careers page:\n\n- Job Role: ${job.Title} (${jobId})\n- Candidate Name: ${fullName}\n- Email: ${email}\n- Phone: ${phone}\n- City: ${currentCity || 'N/A'}\n- Experience: ${totalExperience || 'N/A'}\n- Resume File: ${req.file.filename}\n\nPlease check the Admin Console Careers section for full details.`;
-      sendMailHelper('info@homzo.co.in', hrSubject, hrBody, null, '"HOMZO Careers Portal" <support@homzo.co.in>');
+      sendMailHelper('info@homzo.co.in', hrSubject, hrBody, null, 'HOMZO Careers Portal <info@homzo.co.in>');
       
       res.json({
         success: true,
