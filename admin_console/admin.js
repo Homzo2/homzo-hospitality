@@ -117,7 +117,14 @@ async function checkAdminSession() {
       
       if (res.ok) {
         const sessionResp = await res.json();
-        const data = userJson ? JSON.parse(userJson) : (sessionResp.user || sessionResp);
+        const storedData = userJson ? JSON.parse(userJson) : {};
+        const data = { ...storedData, ...(sessionResp.user || sessionResp) };
+        const emLower = String(data.email || '').toLowerCase().trim();
+        if (data.role === 'super_admin' || String(data.role || '').toLowerCase() === 'ceo' || emLower.endsWith('@homzo.in') || emLower === 'rishabh@homzo.co.in' || data.name === 'Super Admin / CEO') {
+          data.name = 'Rishabh Kumar Modanwal';
+          data.email = 'rishabh@homzo.co.in';
+          data.role = 'super_admin';
+        }
         window.currentUser = data;
         sessionToken = token;
         localStorage.setItem('homzo_admin_token', token);

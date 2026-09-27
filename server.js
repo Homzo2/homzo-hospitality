@@ -1591,7 +1591,14 @@ app.post('/api/auth/change-password', authenticateToken, (req, res) => {
 });
 
 app.get('/api/auth/session', authenticateToken, (req, res) => {
-  res.json({ user: req.user });
+  const userObj = { ...req.user };
+  const em = String(userObj.email || '').toLowerCase().trim();
+  if (userObj.role === 'super_admin' || String(userObj.role || '').toLowerCase() === 'ceo' || em.endsWith('@homzo.in') || em === 'rishabh@homzo.co.in') {
+    userObj.name = 'Rishabh Kumar Modanwal';
+    userObj.email = 'rishabh@homzo.co.in';
+    userObj.role = 'super_admin';
+  }
+  res.json({ user: userObj });
 });
 
 // ─── SUPER ADMIN EXCLUSIVE ENDPOINTS ───
@@ -1798,14 +1805,28 @@ app.post('/api/super/partners/:id/impersonate', authenticateToken, requireRole('
   res.json({ token, role: 'partner', name: partner.Name, email: partner.Email, assignedProperties: assigned });
 });
 
+// Helper to identify fake/legacy users and audit logs
+function isLegacyOrFakeEmail(emailStr) {
+  const em = String(emailStr || '').toLowerCase().trim();
+  if (!em) return false;
+  if (em.endsWith('@homzo.in')) return true; // catches admin@homzo.in, rishabh@homzo.in, ceo@homzo.in, coo@homzo.in, partner@homzo.in, etc.
+  if (em.includes('rkmodanwa')) return true; // catches rkmodanwal6@gmail.com & rkmodanwaol6@gmail.com
+  if (em.includes('selfboss')) return true;  // catches selfboss56@gmail.com
+  if (em.includes('@test.com')) return true;
+  return false;
+}
+
+function isLegacyOrFakeAuditLog(l) {
+  const em = String(l.Email || l.User || l.Admin || '').toLowerCase().trim();
+  if (isLegacyOrFakeEmail(em)) return true;
+  if (String(l.Role || '').toLowerCase() === 'unknown' && String(l.Action || '').toLowerCase() === 'login_failed') return true;
+  return false;
+}
+
 // Get all audit logs
 app.get('/api/super/audit-logs', authenticateToken, requireRole('super_admin'), (req, res) => {
   const rawLogs = readExcelDb(auditLogsDbPath);
-  const fakeEmails = ['admin@homzo.in', 'rkmodanwal6@gmail.com', 'partner@homzo.in', 'coo@homzo.in', 'cto@homzo.in', 'mumbai_mgr@homzo.in', 'delhi_mgr@homzo.in', 'ops@homzo.in', 'dev@homzo.in'];
-  const logs = rawLogs.filter(l => {
-    const em = String(l.Email || '').toLowerCase().trim();
-    return !fakeEmails.includes(em) && !em.includes('@test.com');
-  });
+  const logs = rawLogs.filter(l => !isLegacyOrFakeAuditLog(l));
   if (logs.length !== rawLogs.length) {
     writeExcelDb(auditLogsDbPath, 'AuditLogs', logs);
   }
@@ -5750,11 +5771,7 @@ app.post('/api/admin/notifications/broadcast', authenticateToken, requireRole('s
 app.get('/api/admin/audit-logs', authenticateToken, requireRole('super_admin'), (req, res) => {
   try {
     const rawLogs = readExcelDb(auditLogsDbPath);
-    const fakeEmails = ['admin@homzo.in', 'rkmodanwal6@gmail.com', 'partner@homzo.in', 'coo@homzo.in', 'cto@homzo.in', 'mumbai_mgr@homzo.in', 'delhi_mgr@homzo.in', 'ops@homzo.in', 'dev@homzo.in'];
-    const logs = rawLogs.filter(l => {
-      const em = String(l.Email || '').toLowerCase().trim();
-      return !fakeEmails.includes(em) && !em.includes('@test.com');
-    });
+    const logs = rawLogs.filter(l => !isLegacyOrFakeAuditLog(l));
     if (logs.length !== rawLogs.length) {
       writeExcelDb(auditLogsDbPath, 'AuditLogs', logs);
     }
@@ -5842,10 +5859,13 @@ if (!fs.existsSync(employeesDbPath)) {
 app.get('/api/super/employees', authenticateToken, requireRole('super_admin'), (req, res) => {
   try {
     const rawEmployees = readExcelDb(employeesDbPath);
-    const fakeEmpEmails = ['admin@homzo.in', 'mumbai_mgr@homzo.in', 'delhi_mgr@homzo.in', 'ops@homzo.in', 'dev@homzo.in', 'coo@homzo.in', 'cto@homzo.in'];
-    const employees = rawEmployees.filter(e => !fakeEmpEmails.includes(String(e.Email || '').toLowerCase().trim()));
-    if (!employees.some(e => String(e.Email || '').toLowerCase() === 'rishabh@homzo.co.in')) {
+    const employees = rawEmployees.filter(e => !isLegacyOrFakeEmail(e.Email));
+    const ceoEmp = employees.find(e => String(e.Email || '').toLowerCase().trim() === 'rishabh@homzo.co.in');
+    if (!ceoEmp) {
       employees.unshift({ ID: 1, EmployeeID: 'EMP-2026-0001', Name: 'Rishabh Kumar Modanwal', Email: 'rishabh@homzo.co.in', Role: 'CEO / Super Admin', Cities: 'Global', Status: 'active', Documents: '[]' });
+    } else {
+      ceoEmp.Name = 'Rishabh Kumar Modanwal';
+      ceoEmp.Role = 'CEO / Super Admin';
     }
     if (employees.length !== rawEmployees.length) {
       writeExcelDb(employeesDbPath, 'Employees', employees);
@@ -6354,20 +6374,9 @@ async function seedSystemDefaults() {
 
   // Seed ONLY Official Master Super Admin (rishabh@homzo.co.in) & Purge Fake Users
   try {
-    const fakeUserEmails = [
-      'admin@homzo.in',
-      'coo@homzo.in',
-      'cto@homzo.in',
-      'mumbai_mgr@homzo.in',
-      'delhi_mgr@homzo.in',
-      'ops@homzo.in',
-      'dev@homzo.in',
-      'partner@homzo.in',
-      'rkmodanwal6@gmail.com'
-    ];
     let usersData = readExcelDb(usersDbPath);
     const initialUserCount = usersData.length;
-    usersData = usersData.filter(u => !fakeUserEmails.includes((u.Email || '').toLowerCase().trim()));
+    usersData = usersData.filter(u => !isLegacyOrFakeEmail(u.Email));
     let usersModified = usersData.length !== initialUserCount;
 
     const existingCeo = usersData.find(u => (u.Email || '').toLowerCase().trim() === 'rishabh@homzo.co.in');
@@ -6386,7 +6395,8 @@ async function seedSystemDefaults() {
       });
       usersModified = true;
     } else {
-      if (String(existingCeo.Role_ID) !== '1' || existingCeo.Status !== 'Active') {
+      if (String(existingCeo.Role_ID) !== '1' || existingCeo.Status !== 'Active' || existingCeo.Name !== 'Rishabh Kumar Modanwal') {
+        existingCeo.Name = 'Rishabh Kumar Modanwal';
         existingCeo.Role_ID = 1;
         existingCeo.Status = 'Active';
         usersModified = true;
@@ -6402,12 +6412,13 @@ async function seedSystemDefaults() {
       console.log('Synchronized Official Master Super Admin (rishabh@homzo.co.in) & purged fake users');
     }
 
-    // Also sync Employees table
+    // Also sync Employees table (removes rishabh@homzo.in and all @homzo.in)
     let employeesData = readExcelDb(employeesDbPath);
     const initialEmpCount = employeesData.length;
-    employeesData = employeesData.filter(e => !fakeUserEmails.includes((e.Email || '').toLowerCase().trim()));
+    employeesData = employeesData.filter(e => !isLegacyOrFakeEmail(e.Email));
     let empModified = employeesData.length !== initialEmpCount;
-    if (!employeesData.some(e => (e.Email || '').toLowerCase().trim() === 'rishabh@homzo.co.in')) {
+    const existingCeoEmp = employeesData.find(e => (e.Email || '').toLowerCase().trim() === 'rishabh@homzo.co.in');
+    if (!existingCeoEmp) {
       employeesData.unshift({
         ID: 1,
         EmployeeID: 'EMP-2026-0001',
@@ -6420,25 +6431,27 @@ async function seedSystemDefaults() {
         Date_Added: new Date().toISOString()
       });
       empModified = true;
+    } else if (existingCeoEmp.Name !== 'Rishabh Kumar Modanwal' || existingCeoEmp.Role !== 'CEO / Super Admin') {
+      existingCeoEmp.Name = 'Rishabh Kumar Modanwal';
+      existingCeoEmp.Role = 'CEO / Super Admin';
+      empModified = true;
     }
     if (empModified) {
       writeExcelDb(employeesDbPath, 'Employees', employeesData);
+      console.log('Purged legacy @homzo.in employees from Staff Directory');
     }
 
-    // Purge Default Partner (partner@homzo.in)
+    // Purge Default Partner & fake partners (partner@homzo.in, rkmodanwaol6@gmail.com, etc.)
     let partnersData = readExcelDb(partnersDbPath);
-    const cleanPartners = partnersData.filter(p => (p.Email || '').toLowerCase().trim() !== 'partner@homzo.in' && p.Name !== 'Default Partner');
+    const cleanPartners = partnersData.filter(p => !isLegacyOrFakeEmail(p.Email) && p.Name !== 'Default Partner');
     if (cleanPartners.length !== partnersData.length) {
       writeExcelDb(partnersDbPath, 'Partners', cleanPartners);
-      console.log('Removed fake Default Partner (partner@homzo.in)');
+      console.log('Removed fake Default Partner & legacy partner records');
     }
 
-    // Purge fake Audit Logs
+    // Purge fake Audit Logs (rkmodanwaol6@gmail.com, selfboss56@gmail.com, ceo@homzo.in, @homzo.in, etc.)
     let auditLogsData = readExcelDb(auditLogsDbPath);
-    const cleanAudit = auditLogsData.filter(l => {
-      const em = (l.Email || l.User || l.Admin || '').toLowerCase().trim();
-      return !fakeUserEmails.includes(em);
-    });
+    const cleanAudit = auditLogsData.filter(l => !isLegacyOrFakeAuditLog(l));
     if (cleanAudit.length !== auditLogsData.length) {
       writeExcelDb(auditLogsDbPath, 'AuditLogs', cleanAudit);
       console.log('Removed fake user entries from AuditLogs');
@@ -6472,7 +6485,7 @@ function checkUserPermission(req, moduleId, action) {
   const roleHeader = req.headers['x-simulated-role'];
   const cityHeader = req.headers['x-simulated-city'];
   
-  let userEmail = req.user ? req.user.email : 'admin@homzo.in';
+  let userEmail = (req.user && req.user.email) ? req.user.email.toLowerCase().trim() : 'rishabh@homzo.co.in';
   
   if (roleHeader) {
     if (roleHeader === 'super_admin') {
@@ -6526,7 +6539,7 @@ function checkUserPermission(req, moduleId, action) {
     return { allowed, scope, city: cityLimit };
   }
   
-  if (userEmail === 'admin@homzo.in') {
+  if (userEmail === 'rishabh@homzo.co.in' || userEmail === 'admin@homzo.in' || (req.user && req.user.role === 'super_admin')) {
     return { allowed: true, scope: 'Global', city: '' };
   }
   
@@ -6575,7 +6588,9 @@ function requireCEO(req, res, next) {
     return next();
   }
   
-  if (!req.user || (req.user.email !== 'admin@homzo.in' && String(req.user.role || '').toLowerCase() !== 'ceo')) {
+  const em = (req.user && req.user.email) ? req.user.email.toLowerCase().trim() : '';
+  const rl = (req.user && req.user.role) ? String(req.user.role).toLowerCase().trim() : '';
+  if (!req.user || (em !== 'rishabh@homzo.co.in' && em !== 'admin@homzo.in' && rl !== 'ceo' && rl !== 'super_admin')) {
     return res.status(403).json({ error: 'Access Denied: Only CEO accounts can access this module.' });
   }
   next();
@@ -6611,7 +6626,7 @@ app.post('/api/roles', authenticateToken, requireCEO, (req, res) => {
       Description: description || '',
       Console_Type: console_type,
       Is_System_Default: 'false',
-      Created_By: req.user ? req.user.email : 'admin@homzo.in',
+      Created_By: req.user ? req.user.email : 'rishabh@homzo.co.in',
       Created_At: new Date().toISOString()
     };
     
@@ -6665,7 +6680,11 @@ app.get('/api/roles/:id/permissions', authenticateToken, requireCEO, (req, res) 
 
 app.get('/api/users', authenticateToken, requireCEO, (req, res) => {
   try {
-    const users = readExcelDb(usersDbPath);
+    const rawUsers = readExcelDb(usersDbPath);
+    const users = rawUsers.filter(u => !isLegacyOrFakeEmail(u.Email));
+    if (users.length !== rawUsers.length) {
+      writeExcelDb(usersDbPath, 'Users', users);
+    }
     const roles = readExcelDb(rolesDbPath);
     
     const populated = users.map(u => {
@@ -6680,8 +6699,8 @@ app.get('/api/users', authenticateToken, requireCEO, (req, res) => {
         status: u.Status,
         created_by: u.Created_By,
         last_login: u.Last_Login || 'Never',
-        role_name: role ? role.Name : 'Unknown',
-        console_type: role ? role.Console_Type : 'Management'
+        role_name: role ? role.Name : 'CEO / Super Admin',
+        console_type: role ? role.Console_Type : 'Admin'
       };
     });
     res.json(populated);
