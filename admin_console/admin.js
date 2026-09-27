@@ -154,6 +154,13 @@ async function checkAdminSession() {
         if (nameEl) nameEl.textContent = data.name || 'Rishabh Kumar Modanwal';
         const roleEl = document.querySelector('.sidebar-admin-info span');
         if (roleEl) roleEl.textContent = data.role === 'super_admin' ? 'CEO / Super Admin' : data.role;
+
+        const setNameInput = document.getElementById('settingsAdminName');
+        const setEmailInput = document.getElementById('settingsAdminEmail');
+        const setPhoneInput = document.getElementById('settingsAdminPhone');
+        if (setNameInput) setNameInput.value = data.name || 'Rishabh Kumar Modanwal';
+        if (setEmailInput) setEmailInput.value = data.email || 'rishabh@homzo.co.in';
+        if (setPhoneInput) setPhoneInput.value = data.phone || '+91 78870 90020';
         
         const perms = rolePermissionsMapping[mcRole.toLowerCase()] || rolePermissionsMapping['general admin'];
         const allowed = perms ? perms.sidebar : ['dashboard'];
@@ -175,6 +182,80 @@ async function checkAdminSession() {
     }
   }
 }
+
+window.saveAdminProfileSettings = async function() {
+  const name = document.getElementById('settingsAdminName')?.value.trim();
+  const email = document.getElementById('settingsAdminEmail')?.value.trim();
+  const phone = document.getElementById('settingsAdminPhone')?.value.trim();
+  if (!name || !email) {
+    showToast('Admin Name and Email are required.', 'error');
+    return;
+  }
+  try {
+    const res = await fetch('/api/auth/profile', {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify({ name, email, phone })
+    });
+    const out = await res.json();
+    if (res.ok) {
+      if (window.currentUser) {
+        window.currentUser.name = name;
+        window.currentUser.email = email;
+        window.currentUser.phone = phone;
+        localStorage.setItem('homzo_admin_user', JSON.stringify(window.currentUser));
+      }
+      const avatarEl = document.querySelector('.admin-avatar');
+      if (avatarEl) avatarEl.textContent = name.charAt(0).toUpperCase();
+      const nameEl = document.querySelector('.sidebar-admin-info strong');
+      if (nameEl) nameEl.textContent = name;
+      showToast('Profile settings saved successfully!', 'success');
+    } else {
+      showToast(out.error || 'Failed to update profile.', 'error');
+    }
+  } catch (err) {
+    showToast('Network error while saving profile.', 'error');
+  }
+};
+
+window.updateAdminPasswordSettings = async function() {
+  const currentPassword = document.getElementById('settingsCurrPass')?.value;
+  const newPassword = document.getElementById('settingsNewPass')?.value;
+  const confirmPassword = document.getElementById('settingsConfPass')?.value;
+  if (!currentPassword || !newPassword || !confirmPassword) {
+    showToast('Please fill in all password fields.', 'error');
+    return;
+  }
+  if (newPassword !== confirmPassword) {
+    showToast('New password and Confirm password do not match.', 'error');
+    return;
+  }
+  if (newPassword.length < 6) {
+    showToast('New password must be at least 6 characters.', 'error');
+    return;
+  }
+  try {
+    const res = await fetch('/api/auth/change-password', {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ currentPassword, newPassword })
+    });
+    const out = await res.json();
+    if (res.ok) {
+      if (out.maskedCredential) {
+        setAdminAuthCookies(sessionToken, window.currentUser?.email || 'rishabh@homzo.co.in', out.maskedCredential);
+      }
+      document.getElementById('settingsCurrPass').value = '';
+      document.getElementById('settingsNewPass').value = '';
+      document.getElementById('settingsConfPass').value = '';
+      showToast('Password updated & saved in encrypted cookie (####)!', 'success');
+    } else {
+      showToast(out.error || 'Failed to update password.', 'error');
+    }
+  } catch (err) {
+    showToast('Network error while updating password.', 'error');
+  }
+};
 document.addEventListener('DOMContentLoaded', checkAdminSession);
 
 function getHeaders() {

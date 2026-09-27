@@ -1566,37 +1566,107 @@ app.post('/api/auth/change-password', authenticateToken, (req, res) => {
   if (!currentPassword || !newPassword) {
     return res.status(400).json({ error: 'Current password and new password are required.' });
   }
-  
-  if (req.user.role === 'super_admin') {
-    return res.status(400).json({ error: 'Super Admin password cannot be changed via this endpoint.' });
+  if (newPassword.length < 6) {
+    return res.status(400).json({ error: 'New password must be at least 6 characters.' });
   }
-  
-  const partners = readExcelDb(partnersDbPath);
-  const partnerIndex = partners.findIndex(p => parseInt(p.ID) === req.user.partnerId);
-  
-  if (partnerIndex === -1) {
-    return res.status(404).json({ error: 'Partner not found.' });
-  }
-  
+
   const currentHashed = hashPassword(currentPassword);
+  const newHashed = hashPassword(newPassword);
+  const emailLower = String(req.user.email || 'rishabh@homzo.co.in').toLowerCase().trim();
+
+  // Check Users table (Super Admin / Staff)
+  const users = readExcelDb(usersDbPath);
+  let userIdx = users.findIndex(u => String(u.Email || '').toLowerCase().trim() === emailLower);
+  if (userIdx === -1 && req.user.role === 'super_admin') {
+    userIdx = users.findIndex(u => String(u.Email || '').toLowerCase().trim() === 'rishabh@homzo.co.in');
+  }
+
+  if (userIdx !== -1) {
+    const storedPass = users[userIdx].Password;
+    if (storedPass && storedPass !== currentHashed && currentPassword !== storedPass) {
+      return res.status(400).json({ error: 'Incorrect current password.' });
+    }
+    users[userIdx].Password = newHashed;
+    writeExcelDb(usersDbPath, 'Users', users);
+
+    const token = req.headers['authorization'] ? req.headers['authorization'].split(' ')[1] : (parseCookies(req).homzo_auth_session || '');
+    const maskedCred = setAuthCookies(res, token, users[userIdx].Email, newPassword);
+    logAction(users[userIdx].Email, req.user.role, 'change_password', 'Password updated successfully via Settings', req);
+    return res.json({ success: true, message: 'Password updated successfully!', maskedCredential: maskedCred });
+  }
+
+  // Fallback to Partners table
+  const partners = readExcelDb(partnersDbPath);
+  const partnerIndex = partners.findIndex(p => parseInt(p.ID) === req.user.partnerId || String(p.Email || '').toLowerCase().trim() === emailLower);
+  if (partnerIndex === -1) {
+    return res.status(404).json({ error: 'Account not found.' });
+  }
   if (partners[partnerIndex].Password !== currentHashed) {
     return res.status(400).json({ error: 'Incorrect current password.' });
   }
-  
-  partners[partnerIndex].Password = hashPassword(newPassword);
+  partners[partnerIndex].Password = newHashed;
   writeExcelDb(partnersDbPath, 'Partners', partners);
-  
+
+  const token = req.headers['authorization'] ? req.headers['authorization'].split(' ')[1] : (parseCookies(req).homzo_auth_session || '');
+  const maskedCred = setAuthCookies(res, token, partners[partnerIndex].Email, newPassword);
   logAction(req.user.email, 'partner', 'change_password', 'Password changed successfully', req);
-  res.json({ success: true, message: 'Password updated successfully!' });
+  res.json({ success: true, message: 'Password updated successfully!', maskedCredential: maskedCred });
+});
+
+app.put('/api/auth/profile', authenticateToken, (req, res) => {
+  const { name, email, phone } = req.body;
+  const emailLower = String(req.user.email || 'rishabh@homzo.co.in').toLowerCase().trim();
+
+  const users = readExcelDb(usersDbPath);
+  let userIdx = users.findIndex(u => String(u.Email || '').toLowerCase().trim() === emailLower);
+  if (userIdx === -1 && req.user.role === 'super_admin') {
+    userIdx = users.findIndex(u => String(u.Email || '').toLowerCase().trim() === 'rishabh@homzo.co.in');
+  }
+
+  if (userIdx !== -1) {
+    if (name) users[userIdx].Name = name.trim();
+    if (email) users[userIdx].Email = email.trim();
+    if (phone) users[userIdx].Phone = phone.trim();
+    writeExcelDb(usersDbPath, 'Users', users);
+
+    // Also update Employees table
+    const employees = readExcelDb(employeesDbPath);
+    const empIdx = employees.findIndex(e => String(e.Email || '').toLowerCase().trim() === emailLower || String(e.Email || '').toLowerCase().trim() === 'rishabh@homzo.co.in');
+    if (empIdx !== -1) {
+      if (name) employees[empIdx].Name = name.trim();
+      if (email) employees[empIdx].Email = email.trim();
+      if (phone) employees[empIdx].Phone = phone.trim();
+      writeExcelDb(employeesDbPath, 'Employees', employees);
+    }
+
+    return res.json({
+      success: true,
+      message: 'Profile settings saved!',
+      user: {
+        name: users[userIdx].Name,
+        email: users[userIdx].Email,
+        phone: users[userIdx].Phone,
+        role: req.user.role
+      }
+    });
+  }
+
+  res.status(404).json({ error: 'User profile not found.' });
 });
 
 app.get('/api/auth/session', authenticateToken, (req, res) => {
   const userObj = { ...req.user };
   const em = String(userObj.email || '').toLowerCase().trim();
+  const users = readExcelDb(usersDbPath);
+  const dbUser = users.find(u => String(u.Email || '').toLowerCase().trim() === (em.endsWith('@homzo.in') ? 'rishabh@homzo.co.in' : em));
   if (userObj.role === 'super_admin' || String(userObj.role || '').toLowerCase() === 'ceo' || em.endsWith('@homzo.in') || em === 'rishabh@homzo.co.in') {
-    userObj.name = 'Rishabh Kumar Modanwal';
-    userObj.email = 'rishabh@homzo.co.in';
+    userObj.name = (dbUser && dbUser.Name && dbUser.Name !== 'Super Admin / CEO') ? dbUser.Name : 'Rishabh Kumar Modanwal';
+    userObj.email = (dbUser && dbUser.Email && !dbUser.Email.endsWith('@homzo.in')) ? dbUser.Email : 'rishabh@homzo.co.in';
+    userObj.phone = (dbUser && dbUser.Phone) ? dbUser.Phone : '+91 78870 90020';
     userObj.role = 'super_admin';
+  } else if (dbUser) {
+    userObj.name = dbUser.Name || userObj.name;
+    userObj.phone = dbUser.Phone || '';
   }
   res.json({ user: userObj });
 });

@@ -466,17 +466,17 @@
         <div class="settings-grid">
           <div class="settings-section card">
             <h4><i class="fa-solid fa-user-gear"></i> Profile Settings</h4>
-            <div class="form-group"><label>Admin Name</label><input type="text" class="form-control" value="Admin User"></div>
-            <div class="form-group"><label>Email</label><input type="email" class="form-control" value="admin@homzo.in"></div>
-            <div class="form-group"><label>Phone</label><input type="tel" class="form-control" value="+91 98765 43210"></div>
-            <button class="btn btn-primary btn-sm" onclick="showToast('Profile updated!','success')"><i class="fa-solid fa-save"></i> Save Changes</button>
+            <div class="form-group"><label>Admin Name</label><input type="text" class="form-control" id="settingsAdminName" value="Rishabh Kumar Modanwal"></div>
+            <div class="form-group"><label>Email</label><input type="email" class="form-control" id="settingsAdminEmail" value="rishabh@homzo.co.in"></div>
+            <div class="form-group"><label>Phone</label><input type="tel" class="form-control" id="settingsAdminPhone" value="+91 78870 90020"></div>
+            <button class="btn btn-primary btn-sm" onclick="saveAdminProfileSettings()"><i class="fa-solid fa-save"></i> Save Changes</button>
           </div>
           <div class="settings-section card">
             <h4><i class="fa-solid fa-lock"></i> Change Password</h4>
-            <div class="form-group"><label>Current Password</label><input type="password" class="form-control" placeholder="••••••••"></div>
-            <div class="form-group"><label>New Password</label><input type="password" class="form-control" placeholder="••••••••"></div>
-            <div class="form-group"><label>Confirm New Password</label><input type="password" class="form-control" placeholder="••••••••"></div>
-            <button class="btn btn-primary btn-sm" onclick="showToast('Password updated!','success')"><i class="fa-solid fa-key"></i> Update Password</button>
+            <div class="form-group"><label>Current Password</label><input type="password" class="form-control" id="settingsCurrPass" placeholder="••••••••"></div>
+            <div class="form-group"><label>New Password</label><input type="password" class="form-control" id="settingsNewPass" placeholder="••••••••"></div>
+            <div class="form-group"><label>Confirm New Password</label><input type="password" class="form-control" id="settingsConfPass" placeholder="••••••••"></div>
+            <button class="btn btn-primary btn-sm" onclick="updateAdminPasswordSettings()"><i class="fa-solid fa-key"></i> Update Password</button>
           </div>
           <div class="settings-section card">
             <h4><i class="fa-solid fa-bell"></i> Notifications</h4>
@@ -4340,6 +4340,6 @@
 
 <div id="toast-container"></div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="admin.js?v=7"></script>
+<script src="admin.js?v=8"></script>
 </body>
 </html>
