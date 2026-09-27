@@ -73,24 +73,59 @@ const rolePermissionsMapping = {
   }
 };
 
-let sessionToken = localStorage.getItem('homzo_admin_token') || '';
+function getAdminCookie(name) {
+  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  return match ? decodeURIComponent(match[2]) : '';
+}
+
+function setAdminAuthCookies(token, email, maskedCred) {
+  const maxAge = 7 * 24 * 60 * 60; // 7 days
+  const maskVal = maskedCred || ('################' + btoa(email || 'homzo').slice(0, 12));
+  document.cookie = `homzo_auth_session=${encodeURIComponent(token)}; path=/; max-age=${maxAge}; SameSite=Lax`;
+  document.cookie = `homzo_cred_mask=${encodeURIComponent(maskVal)}; path=/; max-age=${maxAge}; SameSite=Lax`;
+  document.cookie = `homzo_user_email=${encodeURIComponent(email || '')}; path=/; max-age=${maxAge}; SameSite=Lax`;
+}
+
+function clearAdminAuthCookies() {
+  document.cookie = 'homzo_auth_session=; path=/; max-age=0; SameSite=Lax';
+  document.cookie = 'homzo_cred_mask=; path=/; max-age=0; SameSite=Lax';
+  document.cookie = 'homzo_user_email=; path=/; max-age=0; SameSite=Lax';
+}
+
+let sessionToken = localStorage.getItem('homzo_admin_token') || getAdminCookie('homzo_auth_session') || '';
 
 async function checkAdminSession() {
-  const token = localStorage.getItem('homzo_admin_token');
+  const savedEmail = getAdminCookie('homzo_user_email');
+  const savedMask = getAdminCookie('homzo_cred_mask');
+  const emailInput = document.getElementById('loginEmail');
+  const passInput = document.getElementById('loginPassword');
+  if (emailInput && !emailInput.value && savedEmail) {
+    emailInput.value = savedEmail;
+  }
+  if (passInput && savedMask) {
+    passInput.placeholder = savedMask.slice(0, 16);
+  }
+
+  const token = localStorage.getItem('homzo_admin_token') || getAdminCookie('homzo_auth_session');
   const userJson = localStorage.getItem('homzo_admin_user');
   
-  if (token && userJson) {
+  if (token) {
     try {
       const res = await fetch('/api/auth/session', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
       if (res.ok) {
-        const data = JSON.parse(userJson);
+        const sessionResp = await res.json();
+        const data = userJson ? JSON.parse(userJson) : (sessionResp.user || sessionResp);
         window.currentUser = data;
         sessionToken = token;
+        localStorage.setItem('homzo_admin_token', token);
+        localStorage.setItem('homzo_admin_user', JSON.stringify(data));
+        setAdminAuthCookies(token, data.email, data.maskedCredential || savedMask);
         
-        if (data.email === 'admin@homzo.in' || data.role.toLowerCase() === 'ceo' || data.role === 'super_admin') {
+        const emailLower = (data.email || '').toLowerCase();
+        if (emailLower === 'rishabh@homzo.co.in' || emailLower === 'admin@homzo.in' || (data.role && data.role.toLowerCase() === 'ceo') || data.role === 'super_admin') {
           mcRole = 'super_admin';
           mcCity = 'all';
         } else {
@@ -107,11 +142,11 @@ async function checkAdminSession() {
         document.getElementById('adminLayout').style.display = 'flex';
         
         const avatarEl = document.querySelector('.admin-avatar');
-        if (avatarEl) avatarEl.textContent = data.name.charAt(0).toUpperCase();
+        if (avatarEl) avatarEl.textContent = (data.name || 'R').charAt(0).toUpperCase();
         const nameEl = document.querySelector('.sidebar-admin-info strong');
-        if (nameEl) nameEl.textContent = data.name;
+        if (nameEl) nameEl.textContent = data.name || 'Rishabh Kumar Modanwal';
         const roleEl = document.querySelector('.sidebar-admin-info span');
-        if (roleEl) roleEl.textContent = data.role;
+        if (roleEl) roleEl.textContent = data.role === 'super_admin' ? 'CEO / Super Admin' : data.role;
         
         const perms = rolePermissionsMapping[mcRole.toLowerCase()] || rolePermissionsMapping['general admin'];
         const allowed = perms ? perms.sidebar : ['dashboard'];
@@ -126,6 +161,7 @@ async function checkAdminSession() {
       } else {
         localStorage.removeItem('homzo_admin_token');
         localStorage.removeItem('homzo_admin_user');
+        clearAdminAuthCookies();
       }
     } catch (err) {
       console.error('Failed to verify admin session on load:', err);
@@ -292,10 +328,15 @@ function getHeaders() {
             return;
           }
           sessionToken = data.token;
+          window.currentUser = data;
           localStorage.setItem('homzo_admin_token', data.token);
           localStorage.setItem('homzo_admin_user', JSON.stringify(data));
+          setAdminAuthCookies(data.token, data.email, data.maskedCredential || ('################' + btoa(email).slice(0, 12)));
+          const pwInputEl = document.getElementById('loginPassword');
+          if (pwInputEl) pwInputEl.value = '################';
           
-          if (data.email === 'admin@homzo.in' || data.role.toLowerCase() === 'ceo' || data.role === 'super_admin') {
+          const emailLower = (data.email || '').toLowerCase();
+          if (emailLower === 'rishabh@homzo.co.in' || emailLower === 'admin@homzo.in' || (data.role && data.role.toLowerCase() === 'ceo') || data.role === 'super_admin') {
             mcRole = 'super_admin';
             mcCity = 'all';
           } else {
@@ -312,11 +353,11 @@ function getHeaders() {
           document.getElementById('adminLayout').style.display = 'flex';
           
           const avatarEl = document.querySelector('.admin-avatar');
-          if (avatarEl) avatarEl.textContent = data.name.charAt(0).toUpperCase();
+          if (avatarEl) avatarEl.textContent = (data.name || 'R').charAt(0).toUpperCase();
           const nameEl = document.querySelector('.sidebar-admin-info strong');
-          if (nameEl) nameEl.textContent = data.name;
+          if (nameEl) nameEl.textContent = data.name || 'Rishabh Kumar Modanwal';
           const roleEl = document.querySelector('.sidebar-admin-info span');
-          if (roleEl) roleEl.textContent = data.role;
+          if (roleEl) roleEl.textContent = data.role === 'super_admin' ? 'CEO / Super Admin' : data.role;
           
           const perms = rolePermissionsMapping[mcRole.toLowerCase()] || rolePermissionsMapping['general admin'];
           const allowed = perms ? perms.sidebar : ['dashboard'];
@@ -352,6 +393,7 @@ document.getElementById('logoutBtn').addEventListener('click', async () => {
   window.currentUser = null;
   localStorage.removeItem('homzo_admin_token');
   localStorage.removeItem('homzo_admin_user');
+  clearAdminAuthCookies();
   const form = document.getElementById('adminLoginForm');
   if (form) form.reset();
   const emailInput = document.getElementById('loginEmail');
@@ -3161,7 +3203,7 @@ function renderTeamTable() {
       scopeText = cityObj ? `City-Specific (${cityObj.name})` : 'City-Specific';
     }
     
-    const isCEO = u.email === 'admin@homzo.in';
+    const isCEO = (u.email || '').toLowerCase() === 'rishabh@homzo.co.in' || (u.email || '').toLowerCase() === 'admin@homzo.in' || (u.role_name && u.role_name.toLowerCase().includes('ceo'));
     const statusClass = u.status === 'Active' ? 'success' : (u.status === 'Suspended' ? 'danger' : 'warning');
     
     return `
@@ -4674,54 +4716,8 @@ let mcRole = 'super_admin';
 let mcCity = 'all';
 let activeMcTab = 'dashboard';
 
-// Seeding Partner CRM data
-let mcPartners = [
-  {
-    ID: 1,
-    Name: 'Default Partner',
-    Email: 'partner@homzo.in',
-    Phone: '+91 98765 43210',
-    City: 'Mumbai',
-    Revenue_Share: 15,
-    Onboarding_Stage: 'Active',
-    Status: 'active',
-    CommLogs: [
-      { date: '2026-06-25 10:30', type: 'Call', msg: 'Discussed summer occupancy. Partner requested promotional support.' },
-      { date: '2026-06-28 14:15', type: 'WhatsApp', msg: 'Sent contract renewal reminder. Partner acknowledged.' }
-    ],
-    Escalations: [
-      { id: 101, msg: 'Delay in laundry service reporting from guest', date: '2026-06-29', status: 'pending' }
-    ]
-  },
-  {
-    ID: 2,
-    Name: 'Apex Stay Hotels',
-    Email: 'apex@homzo.in',
-    Phone: '+91 99999 77777',
-    City: 'Delhi',
-    Revenue_Share: 12,
-    Onboarding_Stage: 'Agreement Sent',
-    Status: 'active',
-    CommLogs: [
-      { date: '2026-06-20 11:00', type: 'Email', msg: 'Sent revenue share agreement. Waiting for signature.' }
-    ],
-    Escalations: []
-  },
-  {
-    ID: 3,
-    Name: 'Elite Suites Bangalore',
-    Email: 'elite@homzo.in',
-    Phone: '+91 88888 66666',
-    City: 'Bangalore',
-    Revenue_Share: 18,
-    Onboarding_Stage: 'Lead',
-    Status: 'under review',
-    CommLogs: [
-      { date: '2026-06-18 16:30', type: 'Call', msg: 'Initial pitch call. Partner expressed interest in 5 Star category listing.' }
-    ],
-    Escalations: []
-  }
-];
+// Partner CRM data (populated dynamically when Super Admin adds partners)
+let mcPartners = [];
 
 // Guest Complaints & Feedback
 let mcComplaints = [
@@ -4827,7 +4823,7 @@ async function setupMcRoleSimulator() {
   
   if (window.allSimUsers && window.allSimUsers.length > 0) {
     window.allSimUsers.forEach(u => {
-      if (u.email !== 'admin@homzo.in') {
+      if ((u.email || '').toLowerCase() !== 'rishabh@homzo.co.in' && (u.email || '').toLowerCase() !== 'admin@homzo.in') {
         let label = `${u.name} - ${u.role_name}`;
         if (u.assigned_city_id) {
           const cityObj = window.sacCities.find(c => c.id === u.assigned_city_id);
@@ -5023,8 +5019,8 @@ function updateSidebarVisibility() {
   // Hide Role Simulator Bar if logged in user is NOT CEO/Super Admin
   const simBar = document.querySelector('.mc-simulator-bar');
   if (simBar) {
-    const realEmail = window.currentUser ? window.currentUser.email : 'admin@homzo.in';
-    const isRealCEO = (realEmail === 'admin@homzo.in');
+    const realEmail = (window.currentUser && window.currentUser.email) ? window.currentUser.email.toLowerCase() : 'rishabh@homzo.co.in';
+    const isRealCEO = (realEmail === 'rishabh@homzo.co.in' || realEmail === 'admin@homzo.in' || (window.currentUser && window.currentUser.role === 'super_admin'));
     simBar.style.display = isRealCEO ? '' : 'none';
   }
 

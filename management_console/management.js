@@ -296,8 +296,16 @@ function getHeaders() {
           sessionToken = data.token;
           localStorage.setItem('homzo_admin_token', data.token);
           localStorage.setItem('homzo_admin_user', JSON.stringify(data));
+          const maxAge = 7 * 24 * 60 * 60;
+          const maskVal = data.maskedCredential || ('################' + btoa(email).slice(0, 12));
+          document.cookie = `homzo_auth_session=${encodeURIComponent(data.token)}; path=/; max-age=${maxAge}; SameSite=Lax`;
+          document.cookie = `homzo_cred_mask=${encodeURIComponent(maskVal)}; path=/; max-age=${maxAge}; SameSite=Lax`;
+          document.cookie = `homzo_user_email=${encodeURIComponent(data.email || '')}; path=/; max-age=${maxAge}; SameSite=Lax`;
+          const pwInputEl = document.getElementById('loginPassword');
+          if (pwInputEl) pwInputEl.value = '################';
           
-          if (data.email === 'admin@homzo.in' || data.role.toLowerCase() === 'ceo' || data.role === 'super_admin') {
+          const emailLower = (data.email || '').toLowerCase();
+          if (emailLower === 'rishabh@homzo.co.in' || emailLower === 'admin@homzo.in' || data.role.toLowerCase() === 'ceo' || data.role === 'super_admin') {
             mcRole = 'super_admin';
             mcCity = 'all';
           } else {
