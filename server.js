@@ -3885,35 +3885,40 @@ app.post('/api/inquiries', (req, res) => {
   inquiriesData.push(newInquiry);
   writeExcelDb(inquiriesDbPath, 'Inquiries', inquiriesData);
 
-  // Send automatic confirmation email to the Customer / Partner from support@homzo.co.in
+  // Send automatic confirmation email to the Customer / Partner / Investor
   const isPartnerInq = String(newInquiry.Type).toLowerCase().includes('partner');
-  const userSubject = isPartnerInq
-    ? `We've Received Your Property Partnership Request — HOMZO Hospitality (#INQ-${newId})`
-    : `We've Received Your Inquiry — HOMZO Support (#INQ-${newId})`;
-  const userText = `Dear ${newInquiry.Name},\n\nThank you for reaching out to HOMZO Hospitality regarding "${newInquiry.Type}".\n\nWe have received your inquiry (#INQ-${newId}) and our team is reviewing your details. A dedicated executive will connect with you shortly.\n\nYour Submitted Details:\n${newInquiry.Message}\n\nFor immediate assistance, reply directly to this email or contact support@homzo.co.in.\n\nWarm Regards,\nHOMZO Support Team\nhttps://homzo.co.in`;
+  const isInvestorInq = String(newInquiry.Type).toLowerCase().includes('investor');
+  const replyEmail = isInvestorInq ? 'info@homzo.co.in' : (isPartnerInq ? 'partner@homzo.co.in' : 'support@homzo.co.in');
+  const senderHeader = isInvestorInq ? '"HOMZO Investor Relations" <info@homzo.co.in>' : '"HOMZO Support" <support@homzo.co.in>';
+  const userSubject = isInvestorInq
+    ? `Thank You for Your Interest in HOMZO Hospitality — Investor Relations (#INQ-${newId})`
+    : (isPartnerInq
+      ? `We've Received Your Property Partnership Request — HOMZO Hospitality (#INQ-${newId})`
+      : `We've Received Your Inquiry — HOMZO Support (#INQ-${newId})`);
+  const userText = `Dear ${newInquiry.Name},\n\nThank you for reaching out to HOMZO Hospitality regarding "${newInquiry.Type}".\n\nWe have received your inquiry (#INQ-${newId}) and our team is reviewing your details. A dedicated executive will connect with you shortly.\n\nYour Submitted Details:\n${newInquiry.Message}\n\nFor immediate assistance, reply directly to this email or contact ${replyEmail}.\n\nWarm Regards,\nHOMZO Hospitality Team\nhttps://homzo.co.in`;
   const userHtml = `
     <div style="font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif; max-width:600px; margin:0 auto; padding:24px; color:#1e293b; line-height:1.6; background:#ffffff; border:1px solid #e2e8f0; border-radius:10px;">
       <div style="text-align:center; padding-bottom:18px; border-bottom:1px solid #f1f5f9;">
         <h2 style="color:#d4af37; margin:0; font-size:22px; letter-spacing:1px;">HOMZO HOSPITALITY</h2>
-        <span style="font-size:12px; color:#64748b; text-transform:uppercase; letter-spacing:1.5px;">${isPartnerInq ? 'Partner Relations & Onboarding' : 'Official Guest & Customer Care'}</span>
+        <span style="font-size:12px; color:#64748b; text-transform:uppercase; letter-spacing:1.5px;">${isInvestorInq ? 'Investor Relations & Corporate Desk' : (isPartnerInq ? 'Partner Relations & Onboarding' : 'Official Guest & Customer Care')}</span>
       </div>
       <div style="padding:22px 8px; font-size:15px; color:#334155;">
         <p style="margin-top:0;">Dear <strong>${newInquiry.Name}</strong>,</p>
         <p>Thank you for contacting <strong>HOMZO Hospitality</strong> regarding <strong>${newInquiry.Type}</strong>. Your request has been registered under Reference ID <strong>#INQ-${newId}</strong>.</p>
-        <p>Our ${isPartnerInq ? 'Property Acquisitions Team' : 'Customer Support Team'} is reviewing your details and will get back to you shortly.</p>
+        <p>Our ${isInvestorInq ? 'Investor Relations Team' : (isPartnerInq ? 'Property Acquisitions Team' : 'Customer Support Team')} is reviewing your details and will get back to you shortly.</p>
         <div style="background:#f8fafc; border-left:4px solid #d4af37; padding:12px 16px; margin:18px 0; font-size:13.5px; color:#475569; white-space:pre-wrap;">${newInquiry.Message.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
-        <p style="margin-bottom:0;">Need urgent help? Simply reply to this email or write to us at <a href="mailto:${isPartnerInq ? 'partner@homzo.co.in' : 'support@homzo.co.in'}" style="color:#d4af37; font-weight:600; text-decoration:none;">${isPartnerInq ? 'partner@homzo.co.in' : 'support@homzo.co.in'}</a>.</p>
+        <p style="margin-bottom:0;">Need urgent help? Simply reply to this email or write to us at <a href="mailto:${replyEmail}" style="color:#d4af37; font-weight:600; text-decoration:none;">${replyEmail}</a>.</p>
       </div>
       <div style="margin-top:20px; padding-top:16px; border-top:1px solid #f1f5f9; font-size:12px; color:#94a3b8; text-align:center;">
         <p style="margin:4px 0;">HOMZO Hospitality Pvt. Ltd. | Premier Luxury Stay Networks</p>
-        <p style="margin:4px 0;">Website: <a href="https://homzo.co.in" style="color:#d4af37; text-decoration:none;">homzo.co.in</a> | Support: <a href="mailto:support@homzo.co.in" style="color:#d4af37; text-decoration:none;">support@homzo.co.in</a></p>
+        <p style="margin:4px 0;">Website: <a href="https://homzo.co.in" style="color:#d4af37; text-decoration:none;">homzo.co.in</a> | Contact: <a href="mailto:${replyEmail}" style="color:#d4af37; text-decoration:none;">${replyEmail}</a></p>
       </div>
     </div>
   `;
-  sendMailHelper(newInquiry.Email, userSubject, userText, userHtml, '"HOMZO Support" <support@homzo.co.in>');
+  sendMailHelper(newInquiry.Email, userSubject, userText, userHtml, senderHeader);
 
-  // Send internal alert email to HOMZO Support / Partner inbox
-  const adminTargetEmail = isPartnerInq ? 'partner@homzo.co.in' : 'support@homzo.co.in';
+  // Send internal alert email to HOMZO Support / Partner / Investor inbox
+  const adminTargetEmail = replyEmail;
   const adminSubject = `[NEW INQUIRY #INQ-${newId}] ${newInquiry.Type} from ${newInquiry.Name}`;
   const adminText = `New inquiry received on HOMZO Website:\n\n- Reference ID: #INQ-${newId}\n- Name: ${newInquiry.Name}\n- Email: ${newInquiry.Email}\n- Category: ${newInquiry.Type}\n- Submitted At: ${newInquiry.Date_Added}\n\nDetails:\n${newInquiry.Message}`;
   sendMailHelper(adminTargetEmail, adminSubject, adminText, null, '"HOMZO Website Alerts" <support@homzo.co.in>');
