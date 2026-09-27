@@ -3417,7 +3417,16 @@ app.post('/api/guests', (req, res) => {
 
 // Get all guests (for Admin Panel)
 app.get('/api/guests', (req, res) => {
-  const clientsData = readExcelDb(clientsDbPath);
+  const rawClients = readExcelDb(clientsDbPath);
+  const clientsData = rawClients.filter(c => {
+    const nm = String(c.Name || '').toLowerCase();
+    const em = String(c.Email || '').toLowerCase();
+    const pr = String(c.Property || '').toLowerCase();
+    return !(nm.includes('qa test') || nm.includes('test guest') || nm === 'david miller' || pr.includes('qa admin') || pr.startsWith('qa ') || em.includes('@test.com') || em === 'qa_guest@homzo.in');
+  });
+  if (clientsData.length !== rawClients.length) {
+    writeExcelDb(clientsDbPath, 'Clients', clientsData);
+  }
   // Map back to JSON expected by admin.js
   const formattedData = clientsData.map(c => ({
     id: c.ID,

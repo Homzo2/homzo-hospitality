@@ -437,7 +437,8 @@ async function initDashboard() {
   
   let totalRev = 0;
   const catCounts = { student: 0, employee: 0, tourist: 0, foreigner: 0 };
-  guestsData.forEach(g => {
+  const activeGuests = guestsData.filter(g => (g.bookingStatus || '').toLowerCase() !== 'cancelled');
+  activeGuests.forEach(g => {
     let gt = (g.type || '').toLowerCase();
     let p = 2000;
     if (gt.includes('student')) { p = 5000; catCounts.student++; }
@@ -449,9 +450,9 @@ async function initDashboard() {
   });
 
   animateKPI(document.getElementById('kpiRevenue'), totalRev, '₹');
-  animateKPI(document.getElementById('kpiBookings'), guestsData.length, '', '');
+  animateKPI(document.getElementById('kpiBookings'), activeGuests.length, '', '');
   animateKPI(document.getElementById('kpiProps'), adminProps.length, '', '');
-  animateKPI(document.getElementById('kpiGuests'), guestsData.length, '', '');
+  animateKPI(document.getElementById('kpiGuests'), activeGuests.length, '', '');
 
   animateKPI(document.getElementById('revThisMonth'), totalRev, '₹');
   animateKPI(document.getElementById('revThisQuarter'), totalRev, '₹');
@@ -755,7 +756,17 @@ async function fetchGuestsFromAPI() {
   try {
     const res = await fetch('/api/guests');
     if (!res.ok) throw new Error('Failed to fetch guests');
-    const data = await res.json();
+    const rawData = await res.json();
+    const data = (rawData || []).filter(g => {
+      const nm = String(g.name || '').toLowerCase();
+      const em = String(g.email || '').toLowerCase();
+      const pr = String(g.property || '').toLowerCase();
+      const isFake = nm.includes('qa test') || nm.includes('test guest') || nm === 'david miller' || pr.includes('qa admin') || pr.startsWith('qa ') || em.includes('@test.com') || em === 'qa_guest@homzo.in';
+      if (isFake && g.id) {
+        fetch(`/api/admin/bookings/BKG${1000 + parseInt(g.id)}`, { method: 'DELETE', headers: getHeaders() }).catch(() => {});
+      }
+      return !isFake;
+    });
     guestsData = data.map(g => {
       let gt = (g.guest_type || 'Unknown').toLowerCase();
       let p = 2000;
@@ -1313,7 +1324,7 @@ function renderRevenueCharts() {
   let totalRev = 0;
   
   if (guestsData && guestsData.length > 0) {
-    guestsData.forEach(g => {
+    guestsData.filter(g => (g.bookingStatus || '').toLowerCase() !== 'cancelled').forEach(g => {
       let gt = (g.type || '').toLowerCase();
       let p = 2000;
       if (gt.includes('student')) { p = 5000; catRev.Students += p; }

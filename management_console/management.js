@@ -736,7 +736,13 @@ async function fetchGuestsFromAPI() {
   try {
     const res = await fetch('/api/guests');
     if (!res.ok) throw new Error('Failed to fetch guests');
-    const data = await res.json();
+    const rawData = await res.json();
+    const data = (rawData || []).filter(g => {
+      const nm = String(g.name || '').toLowerCase();
+      const em = String(g.email || '').toLowerCase();
+      const pr = String(g.property || '').toLowerCase();
+      return !(nm.includes('qa test') || nm.includes('test guest') || nm === 'david miller' || pr.includes('qa admin') || pr.startsWith('qa ') || em.includes('@test.com') || em === 'qa_guest@homzo.in');
+    });
     guestsData = data.map(g => {
       let gt = (g.guest_type || 'Unknown').toLowerCase();
       let p = 2000;
