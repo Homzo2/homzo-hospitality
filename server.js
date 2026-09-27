@@ -73,7 +73,7 @@ const sheetToHeadersMap = {
   'ApprovalQueue': ['ID', 'City_ID', 'Proposed_Status', 'Reason', 'Submitted_By', 'Submitted_At', 'Status', 'Comment', 'Handled_By', 'Handled_At'],
   'Roles': ['ID', 'Name', 'Description', 'Console_Type', 'Is_System_Default', 'Created_By', 'Created_At'],
   'Permissions': ['ID', 'Role_ID', 'Module_ID', 'Can_View', 'Can_Add', 'Can_Edit', 'Can_Delete', 'Can_Approve', 'Scope'],
-  'Users': ['ID', 'Name', 'Email', 'Password', 'Phone', 'Role_ID', 'Assigned_City_ID', 'Status', 'Created_By', 'Last_Login'],
+  'Users': ['ID', 'Name', 'Email', 'Password', 'Phone', 'Role_ID', 'Assigned_City_ID', 'Status', 'Created_By', 'Last_Login', 'Avatar', 'Profile_Meta'],
   'Changelogs': ['ID', 'Changed_By', 'Target_User_ID', 'Old_Permissions', 'New_Permissions', 'Reason_Note', 'Timestamp'],
   'Employees': ['ID', 'EmployeeID', 'Name', 'Email', 'Role', 'Cities', 'Status', 'Documents'],
   'Jobs': ['ID', 'Title', 'Department', 'Location', 'Employment_Type', 'Experience_Level', 'Salary', 'Vacancies', 'Description', 'Responsibilities', 'Skills', 'Qualifications', 'Benefits', 'Work_Mode', 'Deadline', 'Status', 'Date_Added'],
@@ -1381,9 +1381,21 @@ app.post('/api/auth/login', (req, res) => {
     user.Last_Login = new Date().toISOString();
     writeExcelDb(usersDbPath, 'Users', users);
     
+    let meta = {};
+    try { meta = user.Profile_Meta ? JSON.parse(user.Profile_Meta) : {}; } catch (e) { meta = {}; }
     const maskedCred = setAuthCookies(res, token, user.Email, password);
     logAction(user.Email, roleName, 'login_success', `${roleName} (${user.Name}) logged in successfully`, req);
-    return res.json({ token, role: roleName, name: user.Name, email: user.Email, assignedCityId: user.Assigned_City_ID, maskedCredential: maskedCred });
+    return res.json({
+      token,
+      role: roleName,
+      name: user.Name,
+      email: user.Email,
+      phone: user.Phone || '+91 78870 90020',
+      assignedCityId: user.Assigned_City_ID,
+      maskedCredential: maskedCred,
+      avatar: user.Avatar || meta.avatar || '',
+      ...meta
+    });
   }
   
   // Partner check
@@ -1614,7 +1626,11 @@ app.post('/api/auth/change-password', authenticateToken, (req, res) => {
 });
 
 app.put('/api/auth/profile', authenticateToken, (req, res) => {
-  const { name, email, phone } = req.body;
+  const {
+    name, email, phone, avatar,
+    designation, employeeId, altEmail, whatsapp,
+    dob, gender, bloodGroup, address, city, bio
+  } = req.body;
   const emailLower = String(req.user.email || 'rishabh@homzo.co.in').toLowerCase().trim();
 
   const users = readExcelDb(usersDbPath);
@@ -1624,9 +1640,29 @@ app.put('/api/auth/profile', authenticateToken, (req, res) => {
   }
 
   if (userIdx !== -1) {
-    if (name) users[userIdx].Name = name.trim();
-    if (email) users[userIdx].Email = email.trim();
-    if (phone) users[userIdx].Phone = phone.trim();
+    if (name !== undefined) users[userIdx].Name = name.trim();
+    if (email !== undefined) users[userIdx].Email = email.trim();
+    if (phone !== undefined) users[userIdx].Phone = phone.trim();
+    if (avatar !== undefined) users[userIdx].Avatar = avatar;
+
+    let meta = {};
+    try {
+      meta = users[userIdx].Profile_Meta ? JSON.parse(users[userIdx].Profile_Meta) : {};
+    } catch (e) { meta = {}; }
+
+    if (designation !== undefined) meta.designation = designation.trim();
+    if (employeeId !== undefined) meta.employeeId = employeeId.trim();
+    if (altEmail !== undefined) meta.altEmail = altEmail.trim();
+    if (whatsapp !== undefined) meta.whatsapp = whatsapp.trim();
+    if (dob !== undefined) meta.dob = dob;
+    if (gender !== undefined) meta.gender = gender;
+    if (bloodGroup !== undefined) meta.bloodGroup = bloodGroup;
+    if (address !== undefined) meta.address = address.trim();
+    if (city !== undefined) meta.city = city.trim();
+    if (bio !== undefined) meta.bio = bio.trim();
+    if (avatar !== undefined) meta.avatar = avatar;
+
+    users[userIdx].Profile_Meta = JSON.stringify(meta);
     writeExcelDb(usersDbPath, 'Users', users);
 
     // Also update Employees table
@@ -1636,17 +1672,21 @@ app.put('/api/auth/profile', authenticateToken, (req, res) => {
       if (name) employees[empIdx].Name = name.trim();
       if (email) employees[empIdx].Email = email.trim();
       if (phone) employees[empIdx].Phone = phone.trim();
+      if (designation) employees[empIdx].Role = designation.trim();
+      if (employeeId) employees[empIdx].EmployeeID = employeeId.trim();
       writeExcelDb(employeesDbPath, 'Employees', employees);
     }
 
     return res.json({
       success: true,
-      message: 'Profile settings saved!',
+      message: 'Personal profile updated successfully!',
       user: {
         name: users[userIdx].Name,
         email: users[userIdx].Email,
         phone: users[userIdx].Phone,
-        role: req.user.role
+        role: req.user.role,
+        avatar: users[userIdx].Avatar || meta.avatar || '',
+        ...meta
       }
     });
   }
@@ -1659,14 +1699,24 @@ app.get('/api/auth/session', authenticateToken, (req, res) => {
   const em = String(userObj.email || '').toLowerCase().trim();
   const users = readExcelDb(usersDbPath);
   const dbUser = users.find(u => String(u.Email || '').toLowerCase().trim() === (em.endsWith('@homzo.in') ? 'rishabh@homzo.co.in' : em));
+  let meta = {};
+  if (dbUser && dbUser.Profile_Meta) {
+    try { meta = JSON.parse(dbUser.Profile_Meta); } catch (e) { meta = {}; }
+  }
   if (userObj.role === 'super_admin' || String(userObj.role || '').toLowerCase() === 'ceo' || em.endsWith('@homzo.in') || em === 'rishabh@homzo.co.in') {
     userObj.name = (dbUser && dbUser.Name && dbUser.Name !== 'Super Admin / CEO') ? dbUser.Name : 'Rishabh Kumar Modanwal';
     userObj.email = (dbUser && dbUser.Email && !dbUser.Email.endsWith('@homzo.in')) ? dbUser.Email : 'rishabh@homzo.co.in';
     userObj.phone = (dbUser && dbUser.Phone) ? dbUser.Phone : '+91 78870 90020';
     userObj.role = 'super_admin';
+    userObj.avatar = (dbUser && dbUser.Avatar) || meta.avatar || '';
+    Object.assign(userObj, meta);
+    if (!userObj.designation) userObj.designation = 'CEO / Super Admin';
+    if (!userObj.employeeId) userObj.employeeId = 'EMP-2026-0001';
   } else if (dbUser) {
     userObj.name = dbUser.Name || userObj.name;
     userObj.phone = dbUser.Phone || '';
+    userObj.avatar = dbUser.Avatar || meta.avatar || '';
+    Object.assign(userObj, meta);
   }
   res.json({ user: userObj });
 });

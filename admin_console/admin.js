@@ -148,19 +148,7 @@ async function checkAdminSession() {
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('adminLayout').style.display = 'flex';
         
-        const avatarEl = document.querySelector('.admin-avatar');
-        if (avatarEl) avatarEl.textContent = (data.name || 'R').charAt(0).toUpperCase();
-        const nameEl = document.querySelector('.sidebar-admin-info strong');
-        if (nameEl) nameEl.textContent = data.name || 'Rishabh Kumar Modanwal';
-        const roleEl = document.querySelector('.sidebar-admin-info span');
-        if (roleEl) roleEl.textContent = data.role === 'super_admin' ? 'CEO / Super Admin' : data.role;
-
-        const setNameInput = document.getElementById('settingsAdminName');
-        const setEmailInput = document.getElementById('settingsAdminEmail');
-        const setPhoneInput = document.getElementById('settingsAdminPhone');
-        if (setNameInput) setNameInput.value = data.name || 'Rishabh Kumar Modanwal';
-        if (setEmailInput) setEmailInput.value = data.email || 'rishabh@homzo.co.in';
-        if (setPhoneInput) setPhoneInput.value = data.phone || '+91 78870 90020';
+        renderSidebarProfileUI(data);
         
         const perms = rolePermissionsMapping[mcRole.toLowerCase()] || rolePermissionsMapping['general admin'];
         const allowed = perms ? perms.sidebar : ['dashboard'];
@@ -182,6 +170,213 @@ async function checkAdminSession() {
     }
   }
 }
+
+let pendingPersonalAvatarData = null;
+
+function renderSidebarProfileUI(userObj) {
+  if (!userObj) return;
+  const displayName = userObj.name || 'Rishabh Kumar Modanwal';
+  const displayRole = userObj.designation || (userObj.role === 'super_admin' ? 'CEO / Super Admin' : (userObj.role || 'CEO / Super Admin'));
+  const avatarSrc = userObj.avatar || localStorage.getItem('homzo_admin_avatar') || '';
+
+  const avatarEl = document.querySelector('.admin-avatar');
+  if (avatarEl) {
+    if (avatarSrc) {
+      avatarEl.innerHTML = `<img src="${avatarSrc}" alt="${displayName}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;">`;
+      avatarEl.style.padding = '0';
+    } else {
+      avatarEl.innerHTML = '';
+      avatarEl.textContent = displayName.charAt(0).toUpperCase();
+    }
+  }
+
+  const nameEl = document.querySelector('.sidebar-admin-info strong');
+  if (nameEl) nameEl.textContent = displayName;
+  const roleEl = document.querySelector('.sidebar-admin-info span');
+  if (roleEl) roleEl.textContent = displayRole;
+
+  const setNameInput = document.getElementById('settingsAdminName');
+  const setEmailInput = document.getElementById('settingsAdminEmail');
+  const setPhoneInput = document.getElementById('settingsAdminPhone');
+  if (setNameInput) setNameInput.value = displayName;
+  if (setEmailInput) setEmailInput.value = userObj.email || 'rishabh@homzo.co.in';
+  if (setPhoneInput) setPhoneInput.value = userObj.phone || '+91 78870 90020';
+}
+
+window.openPersonalProfileModal = function() {
+  const u = window.currentUser || JSON.parse(localStorage.getItem('homzo_admin_user') || '{}');
+  const name = u.name || 'Rishabh Kumar Modanwal';
+  const designation = u.designation || (u.role === 'super_admin' ? 'CEO / Super Admin' : (u.role || 'CEO / Super Admin'));
+  const empId = u.employeeId || 'EMP-2026-0001';
+  const avatarSrc = u.avatar || localStorage.getItem('homzo_admin_avatar') || '';
+  pendingPersonalAvatarData = avatarSrc;
+
+  const prevEl = document.getElementById('epAvatarPreview');
+  if (prevEl) {
+    if (avatarSrc) {
+      prevEl.innerHTML = `<img src="${avatarSrc}" alt="DP" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;">`;
+    } else {
+      prevEl.innerHTML = '';
+      prevEl.textContent = name.charAt(0).toUpperCase();
+    }
+  }
+
+  const headerName = document.getElementById('epHeaderName');
+  const headerRole = document.getElementById('epHeaderRole');
+  if (headerName) headerName.textContent = name;
+  if (headerRole) headerRole.textContent = `${designation} • ${empId}`;
+
+  const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+  setVal('epName', name);
+  setVal('epDesignation', designation);
+  setVal('epEmail', u.email || 'rishabh@homzo.co.in');
+  setVal('epAltEmail', u.altEmail || '');
+  setVal('epPhone', u.phone || '+91 78870 90020');
+  setVal('epWhatsapp', u.whatsapp || u.phone || '+91 78870 90020');
+  setVal('epDob', u.dob || '');
+  setVal('epGender', u.gender || '');
+  setVal('epBloodGroup', u.bloodGroup || '');
+  setVal('epEmployeeId', empId);
+  setVal('epCity', u.city || '');
+  setVal('epAddress', u.address || '');
+  setVal('epBio', u.bio || '');
+
+  openModal('personalProfileModal');
+};
+
+window.handlePersonalAvatarUpload = function(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    showToast('Please select a valid image file (JPG, PNG, WebP).', 'error');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      const size = 320;
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      const minSide = Math.min(img.width, img.height);
+      const sx = (img.width - minSide) / 2;
+      const sy = (img.height - minSide) / 2;
+      ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, size, size);
+      const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      pendingPersonalAvatarData = compressedDataUrl;
+      const prevEl = document.getElementById('epAvatarPreview');
+      if (prevEl) {
+        prevEl.innerHTML = `<img src="${compressedDataUrl}" alt="DP" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;">`;
+      }
+      showToast('DP selected! Click "Save Personal Profile" to apply.', 'info');
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+};
+
+window.removePersonalAvatar = function() {
+  pendingPersonalAvatarData = '';
+  const prevEl = document.getElementById('epAvatarPreview');
+  const nameVal = document.getElementById('epName')?.value.trim() || 'R';
+  if (prevEl) {
+    prevEl.innerHTML = '';
+    prevEl.textContent = nameVal.charAt(0).toUpperCase();
+  }
+  const fileInput = document.getElementById('epAvatarInput');
+  if (fileInput) fileInput.value = '';
+  showToast('DP cleared. Click "Save Personal Profile" to confirm.', 'info');
+};
+
+window.savePersonalProfileModal = async function() {
+  const payload = {
+    name: document.getElementById('epName')?.value.trim() || 'Rishabh Kumar Modanwal',
+    designation: document.getElementById('epDesignation')?.value.trim() || 'CEO / Super Admin',
+    email: document.getElementById('epEmail')?.value.trim() || 'rishabh@homzo.co.in',
+    altEmail: document.getElementById('epAltEmail')?.value.trim() || '',
+    phone: document.getElementById('epPhone')?.value.trim() || '+91 78870 90020',
+    whatsapp: document.getElementById('epWhatsapp')?.value.trim() || '',
+    dob: document.getElementById('epDob')?.value || '',
+    gender: document.getElementById('epGender')?.value || '',
+    bloodGroup: document.getElementById('epBloodGroup')?.value || '',
+    employeeId: document.getElementById('epEmployeeId')?.value.trim() || 'EMP-2026-0001',
+    city: document.getElementById('epCity')?.value.trim() || '',
+    address: document.getElementById('epAddress')?.value.trim() || '',
+    bio: document.getElementById('epBio')?.value.trim() || '',
+    avatar: pendingPersonalAvatarData !== null ? pendingPersonalAvatarData : (window.currentUser?.avatar || '')
+  };
+
+  const btn = document.getElementById('epSaveProfileBtn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...'; }
+
+  try {
+    const res = await fetch('/api/auth/profile', {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(payload)
+    });
+    const out = await res.json();
+    if (res.ok) {
+      window.currentUser = { ...(window.currentUser || {}), ...payload, ...(out.user || {}) };
+      localStorage.setItem('homzo_admin_user', JSON.stringify(window.currentUser));
+      if (payload.avatar) {
+        localStorage.setItem('homzo_admin_avatar', payload.avatar);
+      } else {
+        localStorage.removeItem('homzo_admin_avatar');
+      }
+      renderSidebarProfileUI(window.currentUser);
+      closeModal('personalProfileModal');
+      showToast('Personal profile & DP updated successfully!', 'success');
+    } else {
+      showToast(out.error || 'Failed to update personal profile.', 'error');
+    }
+  } catch (err) {
+    showToast('Network error while saving profile.', 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Personal Profile'; }
+  }
+};
+
+window.updatePasswordFromProfileModal = async function() {
+  const currentPassword = document.getElementById('epCurrPass')?.value;
+  const newPassword = document.getElementById('epNewPass')?.value;
+  const confirmPassword = document.getElementById('epConfPass')?.value;
+  if (!currentPassword || !newPassword || !confirmPassword) {
+    showToast('Please fill in Current, New, and Confirm password fields.', 'error');
+    return;
+  }
+  if (newPassword !== confirmPassword) {
+    showToast('New password and Confirm password do not match.', 'error');
+    return;
+  }
+  if (newPassword.length < 6) {
+    showToast('New password must be at least 6 characters.', 'error');
+    return;
+  }
+  try {
+    const res = await fetch('/api/auth/change-password', {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ currentPassword, newPassword })
+    });
+    const out = await res.json();
+    if (res.ok) {
+      if (out.maskedCredential) {
+        setAdminAuthCookies(sessionToken, window.currentUser?.email || 'rishabh@homzo.co.in', out.maskedCredential);
+      }
+      document.getElementById('epCurrPass').value = '';
+      document.getElementById('epNewPass').value = '';
+      document.getElementById('epConfPass').value = '';
+      showToast('Password updated & saved in encrypted cookie (####)!', 'success');
+    } else {
+      showToast(out.error || 'Failed to update password.', 'error');
+    }
+  } catch (err) {
+    showToast('Network error while updating password.', 'error');
+  }
+};
 
 window.saveAdminProfileSettings = async function() {
   const name = document.getElementById('settingsAdminName')?.value.trim();
@@ -205,10 +400,7 @@ window.saveAdminProfileSettings = async function() {
         window.currentUser.phone = phone;
         localStorage.setItem('homzo_admin_user', JSON.stringify(window.currentUser));
       }
-      const avatarEl = document.querySelector('.admin-avatar');
-      if (avatarEl) avatarEl.textContent = name.charAt(0).toUpperCase();
-      const nameEl = document.querySelector('.sidebar-admin-info strong');
-      if (nameEl) nameEl.textContent = name;
+      renderSidebarProfileUI(window.currentUser);
       showToast('Profile settings saved successfully!', 'success');
     } else {
       showToast(out.error || 'Failed to update profile.', 'error');
@@ -440,12 +632,7 @@ function getHeaders() {
           document.getElementById('loginScreen').style.display = 'none';
           document.getElementById('adminLayout').style.display = 'flex';
           
-          const avatarEl = document.querySelector('.admin-avatar');
-          if (avatarEl) avatarEl.textContent = (data.name || 'R').charAt(0).toUpperCase();
-          const nameEl = document.querySelector('.sidebar-admin-info strong');
-          if (nameEl) nameEl.textContent = data.name || 'Rishabh Kumar Modanwal';
-          const roleEl = document.querySelector('.sidebar-admin-info span');
-          if (roleEl) roleEl.textContent = data.role === 'super_admin' ? 'CEO / Super Admin' : data.role;
+          renderSidebarProfileUI(data);
           
           const perms = rolePermissionsMapping[mcRole.toLowerCase()] || rolePermissionsMapping['general admin'];
           const allowed = perms ? perms.sidebar : ['dashboard'];

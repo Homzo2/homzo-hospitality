@@ -78,12 +78,13 @@
       <img src="/homzo_logo.png" alt="HOMZO Logo" class="brand-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
       <span style="display: none; font-family: 'Sora', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--primary); letter-spacing: 1px;">HOMZO</span>
     </div>
-    <div class="sidebar-admin-info">
-      <div class="admin-avatar">R</div>
-      <div>
-        <strong>Rishabh Kumar Modanwal</strong>
-        <span>CEO / Super Admin</span>
+    <div class="sidebar-admin-info" id="sidebarProfileCard" onclick="openPersonalProfileModal()" title="Click to view & edit your personal profile & DP" style="cursor:pointer; transition:background 0.2s; border-radius:10px;">
+      <div class="admin-avatar" id="sidebarAdminAvatar" style="overflow:hidden; position:relative; flex-shrink:0;">R</div>
+      <div style="flex:1; min-width:0;">
+        <strong id="sidebarAdminName">Rishabh Kumar Modanwal</strong>
+        <span id="sidebarAdminRole">CEO / Super Admin</span>
       </div>
+      <i class="fa-solid fa-user-pen" style="font-size:12px; color:var(--primary); opacity:0.8; margin-left:4px;" title="Edit Personal Profile"></i>
     </div>
     <nav class="sidebar-nav">
       <div class="nav-group-label">Main</div>
@@ -4338,8 +4339,146 @@
   </div>
 </div>
 
+<!-- ── EXECUTIVE PERSONAL PROFILE & DP MODAL ── -->
+<div class="modal-overlay" id="personalProfileModal" style="display:none; z-index:9999;">
+  <div class="modal-box" style="position:relative; max-width:680px; width:95%; text-align:left; max-height:90vh; overflow-y:auto; padding:28px; border-radius:16px;">
+    <button class="modal-close" onclick="closeModal('personalProfileModal')"><i class="fa-solid fa-xmark"></i></button>
+    <h2 style="margin-bottom:4px; display:flex; align-items:center; gap:10px;">
+      <i class="fa-solid fa-id-card-clip" style="color:var(--primary);"></i> My Personal Profile
+    </h2>
+    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:20px;">Manage your display picture (DP), personal identity, contact information, and security settings.</p>
+
+    <!-- DP Upload Header Card -->
+    <div style="display:flex; align-items:center; gap:20px; padding:18px; border-radius:12px; border:1px solid var(--border); background:rgba(217,119,6,0.05); margin-bottom:22px; flex-wrap:wrap;">
+      <div onclick="document.getElementById('epAvatarInput').click()" title="Click to upload DP" style="width:84px; height:84px; border-radius:50%; background:var(--primary); color:#fff; font-size:2rem; font-weight:700; display:flex; align-items:center; justify-content:center; overflow:hidden; cursor:pointer; border:3px solid var(--primary); box-shadow:0 4px 14px rgba(217,119,6,0.25); position:relative; flex-shrink:0;" id="epAvatarPreview">
+        R
+      </div>
+      <div style="flex:1; min-width:200px;">
+        <h4 id="epHeaderName" style="margin:0 0 4px 0; font-size:1.1rem;">Rishabh Kumar Modanwal</h4>
+        <div id="epHeaderRole" style="font-size:0.82rem; color:var(--primary); font-weight:600; margin-bottom:10px;">CEO / Super Admin • EMP-2026-0001</div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <input type="file" id="epAvatarInput" accept="image/*" style="display:none;" onchange="handlePersonalAvatarUpload(event)">
+          <button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('epAvatarInput').click()">
+            <i class="fa-solid fa-camera"></i> Upload / Change DP
+          </button>
+          <button type="button" class="btn btn-ghost btn-sm" id="epRemoveAvatarBtn" onclick="removePersonalAvatar()" style="color:#ef4444; border-color:rgba(239,68,68,0.3);">
+            <i class="fa-solid fa-trash-can"></i> Remove DP
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Personal Details Form -->
+    <form id="personalProfileForm" onsubmit="event.preventDefault(); savePersonalProfileModal();">
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:14px;">
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input type="text" class="form-control" id="epName" placeholder="Rishabh Kumar Modanwal" required>
+        </div>
+        <div class="form-group">
+          <label>Designation / Display Title *</label>
+          <input type="text" class="form-control" id="epDesignation" placeholder="CEO / Super Admin" required>
+        </div>
+        <div class="form-group">
+          <label>Official Login Email *</label>
+          <input type="email" class="form-control" id="epEmail" placeholder="rishabh@homzo.co.in" required>
+        </div>
+        <div class="form-group">
+          <label>Personal / Alternate Email</label>
+          <input type="email" class="form-control" id="epAltEmail" placeholder="e.g. personal@gmail.com">
+        </div>
+        <div class="form-group">
+          <label>Primary Mobile Number *</label>
+          <input type="tel" class="form-control" id="epPhone" placeholder="+91 78870 90020">
+        </div>
+        <div class="form-group">
+          <label>WhatsApp / Alternate Number</label>
+          <input type="tel" class="form-control" id="epWhatsapp" placeholder="+91 78870 90020">
+        </div>
+        <div class="form-group">
+          <label>Date of Birth (DOB)</label>
+          <input type="date" class="form-control" id="epDob">
+        </div>
+        <div class="form-group">
+          <label>Gender</label>
+          <select class="form-control" id="epGender">
+            <option value="">Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Blood Group</label>
+          <select class="form-control" id="epBloodGroup">
+            <option value="">Select Blood Group</option>
+            <option value="A+">A+</option>
+            <option value="A-">A-</option>
+            <option value="B+">B+</option>
+            <option value="B-">B-</option>
+            <option value="O+">O+</option>
+            <option value="O-">O-</option>
+            <option value="AB+">AB+</option>
+            <option value="AB-">AB-</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Employee ID</label>
+          <input type="text" class="form-control" id="epEmployeeId" placeholder="EMP-2026-0001">
+        </div>
+        <div class="form-group">
+          <label>City / Hometown</label>
+          <input type="text" class="form-control" id="epCity" placeholder="e.g. Mumbai / Varanasi">
+        </div>
+        <div class="form-group">
+          <label>Residential / Office Address</label>
+          <input type="text" class="form-control" id="epAddress" placeholder="Full address">
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top:14px;">
+        <label>About Me / Executive Bio</label>
+        <textarea class="form-control" id="epBio" rows="2" placeholder="Founder & CEO at Homzo Hospitality India..."></textarea>
+      </div>
+
+      <!-- Optional Password Change Section inside Profile Modal -->
+      <details style="margin-top:16px; border:1px solid var(--border); border-radius:10px; padding:12px 16px;">
+        <summary style="cursor:pointer; font-weight:600; color:var(--primary); font-size:0.9rem;">
+          <i class="fa-solid fa-key"></i> Change Login Password (Optional)
+        </summary>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-top:14px;">
+          <div class="form-group" style="margin:0;">
+            <label>Current Password</label>
+            <input type="password" class="form-control" id="epCurrPass" placeholder="••••••••">
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label>New Password</label>
+            <input type="password" class="form-control" id="epNewPass" placeholder="Min 6 chars">
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label>Confirm Password</label>
+            <input type="password" class="form-control" id="epConfPass" placeholder="Repeat password">
+          </div>
+        </div>
+        <div style="margin-top:10px; display:flex; justify-content:flex-end;">
+          <button type="button" class="btn btn-ghost btn-sm" onclick="updatePasswordFromProfileModal()">
+            <i class="fa-solid fa-shield-halved"></i> Update Password Now
+          </button>
+        </div>
+      </details>
+
+      <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:22px; padding-top:16px; border-top:1px solid var(--border);">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('personalProfileModal')">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="epSaveProfileBtn">
+          <i class="fa-solid fa-floppy-disk"></i> Save Personal Profile
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <div id="toast-container"></div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="admin.js?v=8"></script>
+<script src="admin.js?v=9"></script>
 </body>
 </html>

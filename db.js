@@ -323,7 +323,9 @@ const User = sequelize.define('User', {
   Assigned_City_ID: { type: DataTypes.INTEGER },
   Status: { type: DataTypes.STRING, defaultValue: 'Active' },
   Created_By: { type: DataTypes.STRING },
-  Last_Login: { type: DataTypes.STRING }
+  Last_Login: { type: DataTypes.STRING },
+  Avatar: { type: DataTypes.TEXT },
+  Profile_Meta: { type: DataTypes.TEXT }
 }, { tableName: 'Users', timestamps: false });
 
 const Changelog = sequelize.define('Changelog', {
@@ -573,6 +575,13 @@ async function initDb() {
       for (const [col, colType] of newCols) {
         if (!colNames.includes(col)) {
           await sequelize.query(`ALTER TABLE Partners ADD COLUMN ${col} ${colType};`).catch(() => {});
+        }
+      }
+      const [uCols] = await sequelize.query("PRAGMA table_info(Users);");
+      const uColNames = uCols.map(c => c.name);
+      for (const [col, colType] of [['Avatar', 'TEXT'], ['Profile_Meta', 'TEXT']]) {
+        if (!uColNames.includes(col)) {
+          await sequelize.query(`ALTER TABLE Users ADD COLUMN ${col} ${colType};`).catch(() => {});
         }
       }
     }
