@@ -209,7 +209,7 @@
             <div class="kpi-info">
               <span>Total Revenue</span>
               <strong id="kpiRevenue">₹0</strong>
-              <div class="kpi-change positive"><i class="fa-solid fa-arrow-up"></i> 18.4% vs last month</div>
+              <div class="kpi-change positive"><i class="fa-solid fa-circle-check"></i> Live Revenue</div>
             </div>
           </div>
           <div class="kpi-card">
@@ -217,7 +217,7 @@
             <div class="kpi-info">
               <span>Total Bookings</span>
               <strong id="kpiBookings">0</strong>
-              <div class="kpi-change positive"><i class="fa-solid fa-arrow-up"></i> 12.1% vs last month</div>
+              <div class="kpi-change positive"><i class="fa-solid fa-circle-check"></i> Active Reservations</div>
             </div>
           </div>
           <div class="kpi-card">
@@ -225,7 +225,7 @@
             <div class="kpi-info">
               <span>Active Properties</span>
               <strong id="kpiProps">0</strong>
-              <div class="kpi-change positive"><i class="fa-solid fa-arrow-up"></i> 5 new this month</div>
+              <div class="kpi-change positive"><i class="fa-solid fa-circle-check"></i> Listed Properties</div>
             </div>
           </div>
           <div class="kpi-card">
@@ -233,7 +233,7 @@
             <div class="kpi-info">
               <span>Total Guests</span>
               <strong id="kpiGuests">0</strong>
-              <div class="kpi-change positive"><i class="fa-solid fa-arrow-up"></i> 8.7% vs last month</div>
+              <div class="kpi-change positive"><i class="fa-solid fa-circle-check"></i> Registered Guests</div>
             </div>
           </div>
         </div>
@@ -252,7 +252,9 @@
                   <th>Guest</th><th>Type</th><th>Property</th><th>Check-In</th><th>Status</th><th>Amount</th>
                 </tr>
               </thead>
-              <tbody id="recentBookingsTbody"></tbody>
+              <tbody id="recentBookingsTbody">
+                <tr><td colspan="6" style="text-align:center; padding:24px; color:var(--text-muted);">No recent bookings yet.</td></tr>
+              </tbody>
             </table>
           </div>
           <div class="occupancy-card card">
@@ -261,16 +263,16 @@
               <svg viewBox="0 0 120 120">
                 <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="12"/>
                 <circle cx="60" cy="60" r="50" fill="none" stroke="var(--primary)" stroke-width="12"
-                  stroke-dasharray="314" stroke-dashoffset="78" stroke-linecap="round"
+                  stroke-dasharray="314" stroke-dashoffset="314" stroke-linecap="round"
                   transform="rotate(-90 60 60)" id="occupancyRing"/>
               </svg>
-              <div class="occ-label"><strong>75%</strong><span>Occupied</span></div>
+              <div class="occ-label"><strong id="dashOccPercent">0%</strong><span>Occupied</span></div>
             </div>
             <div class="occ-breakdown">
-              <div class="occ-item"><span class="occ-dot" style="background:var(--primary)"></span>Students <strong>82%</strong></div>
-              <div class="occ-item"><span class="occ-dot" style="background:var(--info)"></span>Employees <strong>91%</strong></div>
-              <div class="occ-item"><span class="occ-dot" style="background:var(--success)"></span>Tourists <strong>68%</strong></div>
-              <div class="occ-item"><span class="occ-dot" style="background:#a855f7"></span>Foreigners <strong>55%</strong></div>
+              <div class="occ-item"><span class="occ-dot" style="background:var(--primary)"></span>Students <strong id="dashOccStudents">0%</strong></div>
+              <div class="occ-item"><span class="occ-dot" style="background:var(--info)"></span>Employees <strong id="dashOccEmployees">0%</strong></div>
+              <div class="occ-item"><span class="occ-dot" style="background:var(--success)"></span>Tourists <strong id="dashOccTourists">0%</strong></div>
+              <div class="occ-item"><span class="occ-dot" style="background:#a855f7"></span>Foreigners <strong id="dashOccForeigners">0%</strong></div>
             </div>
           </div>
         </div>

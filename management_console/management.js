@@ -444,7 +444,7 @@ async function initDashboard() {
   
   let totalRev = 0;
   guestsData.forEach(g => {
-    let gt = g.type.toLowerCase();
+    let gt = (g.type || '').toLowerCase();
     let p = 2000;
     if (gt.includes('student')) p = 5000;
     else if (gt.includes('employee')) p = 12000;
@@ -454,15 +454,17 @@ async function initDashboard() {
     totalRev += p;
   });
 
+  const realOcc = (adminProps.length > 0 && guestsData.length > 0) ? Math.min(100, Math.round((guestsData.length / (adminProps.length * 2)) * 100)) : 0;
+
   animateKPI(document.getElementById('kpiRevenue'), totalRev, '₹');
   animateKPI(document.getElementById('kpiBookings'), guestsData.length, '', '');
   animateKPI(document.getElementById('kpiProps'), adminProps.length, '', '');
   animateKPI(document.getElementById('kpiGuests'), guestsData.length, '', '');
 
   animateKPI(document.getElementById('revThisMonth'), totalRev, '₹');
-  animateKPI(document.getElementById('revThisQuarter'), totalRev * 3, '₹');
-  animateKPI(document.getElementById('revThisYear'), totalRev * 12, '₹');
-  animateKPI(document.getElementById('revOccupancy'), 75, '', '%');
+  animateKPI(document.getElementById('revThisQuarter'), totalRev, '₹');
+  animateKPI(document.getElementById('revThisYear'), totalRev, '₹');
+  animateKPI(document.getElementById('revOccupancy'), realOcc, '', '%');
 
   renderRecentBookings();
 }
@@ -470,6 +472,11 @@ async function initDashboard() {
 // ─── Recent Bookings Table ────────────────────────────
 function renderRecentBookings() {
   const tbody = document.getElementById('recentBookingsTbody');
+  if (!tbody) return;
+  if (!bookingsData || bookingsData.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:24px; color:var(--text-muted);">No recent bookings yet.</td></tr>';
+    return;
+  }
   tbody.innerHTML = bookingsData.slice(0,5).map(b => `
     <tr>
       <td><div class="guest-name-cell"><div class="guest-mini-avatar" style="background:${b.color}">${b.guest[0]}</div>${b.guest}</div></td>

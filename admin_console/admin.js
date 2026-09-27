@@ -436,13 +436,14 @@ async function initDashboard() {
   if (adminProps.length === 0) await fetchPropertiesFromAPI();
   
   let totalRev = 0;
+  const catCounts = { student: 0, employee: 0, tourist: 0, foreigner: 0 };
   guestsData.forEach(g => {
-    let gt = g.type.toLowerCase();
+    let gt = (g.type || '').toLowerCase();
     let p = 2000;
-    if (gt.includes('student')) p = 5000;
-    else if (gt.includes('employee')) p = 12000;
-    else if (gt.includes('tourist')) p = 3000;
-    else if (gt.includes('foreigner')) p = 4000;
+    if (gt.includes('student')) { p = 5000; catCounts.student++; }
+    else if (gt.includes('employee')) { p = 12000; catCounts.employee++; }
+    else if (gt.includes('tourist')) { p = 3000; catCounts.tourist++; }
+    else if (gt.includes('foreigner')) { p = 4000; catCounts.foreigner++; }
     else if (gt.includes('couple')) p = 4500;
     totalRev += p;
   });
@@ -453,9 +454,24 @@ async function initDashboard() {
   animateKPI(document.getElementById('kpiGuests'), guestsData.length, '', '');
 
   animateKPI(document.getElementById('revThisMonth'), totalRev, '₹');
-  animateKPI(document.getElementById('revThisQuarter'), totalRev * 3, '₹');
+  animateKPI(document.getElementById('revThisQuarter'), totalRev, '₹');
   const realOcc = (adminProps.length > 0 && guestsData.length > 0) ? Math.min(100, Math.round((guestsData.length / (adminProps.length * 2)) * 100)) : 0;
   animateKPI(document.getElementById('revOccupancy'), realOcc, '', '%');
+
+  // Update Dashboard Occupancy Card dynamically
+  const occPctEl = document.getElementById('dashOccPercent');
+  const occRingEl = document.getElementById('occupancyRing');
+  if (occPctEl) occPctEl.textContent = `${realOcc}%`;
+  if (occRingEl) occRingEl.setAttribute('stroke-dashoffset', String(Math.round(314 - (314 * realOcc) / 100)));
+  const totalG = guestsData.length;
+  const setOccId = (id, count) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = totalG > 0 ? `${Math.round((count / totalG) * 100)}%` : '0%';
+  };
+  setOccId('dashOccStudents', catCounts.student);
+  setOccId('dashOccEmployees', catCounts.employee);
+  setOccId('dashOccTourists', catCounts.tourist);
+  setOccId('dashOccForeigners', catCounts.foreigner);
 
   if (typeof renderRevenueCharts === 'function') {
     renderRevenueCharts();
@@ -467,6 +483,11 @@ async function initDashboard() {
 // ─── Recent Bookings Table ────────────────────────────
 function renderRecentBookings() {
   const tbody = document.getElementById('recentBookingsTbody');
+  if (!tbody) return;
+  if (!bookingsData || bookingsData.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:24px; color:var(--text-muted);">No recent bookings yet.</td></tr>';
+    return;
+  }
   tbody.innerHTML = bookingsData.slice(0,5).map(b => `
     <tr>
       <td><div class="guest-name-cell"><div class="guest-mini-avatar" style="background:${b.color}">${b.guest[0]}</div>${b.guest}</div></td>
@@ -484,7 +505,13 @@ function renderBookings(filter='all', statusF='all', search='') {
   if (filter !== 'all') data = data.filter(b => b.type === filter);
   if (statusF !== 'all') data = data.filter(b => b.status === statusF);
   if (search) data = data.filter(b => b.guest.toLowerCase().includes(search) || b.property.toLowerCase().includes(search));
-  document.getElementById('bookingsTbody').innerHTML = data.map(b => `
+  const tbody = document.getElementById('bookingsTbody');
+  if (!tbody) return;
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:24px; color:var(--text-muted);">No bookings found.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map(b => `
     <tr>
       <td style="font-weight:700;color:var(--primary)">${b.id}</td>
       <td><div class="guest-name-cell"><div class="guest-mini-avatar" style="background:${b.color}">${b.guest[0]}</div>${b.guest}</div></td>
@@ -5089,8 +5116,9 @@ function renderMcDashboard() {
     const isFilteredOut = mcRole === 'city_manager' && city.toLowerCase() !== mcCity.toLowerCase();
     const props = adminProps.filter(p => p.location.toLowerCase() === city.toLowerCase());
     
-    let totalRooms = props.length * 45; // Simulated rooms
-    let occRate = props.length > 0 ? (city === 'Mumbai' ? 82 : (city === 'Delhi' ? 68 : 75)) : 0;
+    let totalRooms = props.reduce((sum, p) => sum + (parseInt(p.inventory || p.beds) || 0), 0);
+    const cityBookings = activeBookings.filter(b => (b.propertyCity || '').toLowerCase() === city.toLowerCase());
+    let occRate = (totalRooms > 0 && cityBookings.length > 0) ? Math.min(100, Math.round((cityBookings.length / totalRooms) * 100)) : 0;
     
     if (isFilteredOut) {
       return `<tr style="opacity: 0.4;">

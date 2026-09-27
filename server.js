@@ -6358,22 +6358,22 @@ async function seedSystemDefaults() {
     console.error('Failed to seed default partner:', e);
   }
 
-  // Seed default payout if empty
+  // Purge any legacy dummy/fake bookings (e.g., David Miller) and fake seeded payouts (ID 401)
   try {
+    const clientsData = readExcelDb(clientsDbPath);
+    const cleanClients = clientsData.filter(c => !(c.Email && c.Email.toLowerCase() === 'david.miller@gmail.com') && !(c.Name && c.Name === 'David Miller'));
+    if (cleanClients.length !== clientsData.length) {
+      writeExcelDb(clientsDbPath, 'Clients', cleanClients);
+      console.log('Removed legacy dummy bookings (David Miller)');
+    }
     const payoutsData = readExcelDb(payoutsDbPath);
-    if (!payoutsData.some(p => String(p.ID) === '401')) {
-      payoutsData.push({
-        ID: 401,
-        Partner: 'Default Partner',
-        Amount: 45000,
-        Date: new Date().toISOString(),
-        Status: 'pending'
-      });
-      writeExcelDb(payoutsDbPath, 'Payouts', payoutsData);
-      console.log('Seeded default payout');
+    const cleanPayouts = payoutsData.filter(p => String(p.ID) !== '401');
+    if (cleanPayouts.length !== payoutsData.length) {
+      writeExcelDb(payoutsDbPath, 'Payouts', cleanPayouts);
+      console.log('Removed legacy dummy payout (ID 401)');
     }
   } catch (e) {
-    console.error('Failed to seed default payout:', e);
+    console.error('Error cleaning legacy dummy records:', e);
   }
 }
 
