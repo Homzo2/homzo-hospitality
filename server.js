@@ -53,7 +53,8 @@ const fileToSheetMap = {
   'jobs_database.csv': 'Jobs',
   'applications_database.csv': 'Applications',
   'customers_database.csv': 'Customers',
-  'payouts_database.csv': 'Payouts'
+  'payouts_database.csv': 'Payouts',
+  'blogs_database.csv': 'Blogs'
 };
 
 const sheetToHeadersMap = {
@@ -79,7 +80,8 @@ const sheetToHeadersMap = {
   'Jobs': ['ID', 'Title', 'Department', 'Location', 'Employment_Type', 'Experience_Level', 'Salary', 'Vacancies', 'Description', 'Responsibilities', 'Skills', 'Qualifications', 'Benefits', 'Work_Mode', 'Deadline', 'Status', 'Date_Added'],
   'Applications': ['ID', 'Job_ID', 'Name', 'Email', 'Phone', 'Resume', 'Cover_Letter', 'Status', 'Applied_At'],
   'Customers': ['ID', 'Name', 'Email', 'Password', 'Phone', 'Status', 'Date_Created'],
-  'Payouts': ['ID', 'Partner', 'Amount', 'Date', 'Status']
+  'Payouts': ['ID', 'Partner', 'Amount', 'Date', 'Status'],
+  'Blogs': ['ID', 'Type', 'Title', 'Author', 'Badge', 'Description', 'Article_Body', 'Photo_Url', 'Video_Url', 'Thumbnail_Url', 'Likes', 'Created_At']
 };
 
 function initGoogleSheets() {
@@ -279,7 +281,8 @@ async function syncAllGoogleToLocal() {
 }
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '25mb' }));
+app.use(express.urlencoded({ limit: '25mb', extended: true }));
 
 // Redirects to correct HTML files
 app.get('/admin_console', (req, res) => {
@@ -368,6 +371,7 @@ const cityStatusHistoryDbPath = path.resolve(__dirname, 'city_status_history_dat
 const cityApprovalQueueDbPath = path.resolve(__dirname, 'city_approval_queue_database.csv');
 const customersDbPath = path.resolve(__dirname, 'customers_database.csv');
 const payoutsDbPath = path.resolve(__dirname, 'payouts_database.csv');
+const blogsDbPath = path.resolve(__dirname, 'blogs_database.csv');
 
 // Utility to parse Excel serial dates or Date objects to YYYY-MM-DD strings
 function parseExcelDate(val) {
@@ -450,7 +454,8 @@ const {
   Job,
   Application,
   Customer,
-  Payout
+  Payout,
+  Blog
 } = require('./db');
 
 const jwt = require('jsonwebtoken');
@@ -833,7 +838,8 @@ const fileToModelMap = {
   'jobs_database.csv': Job,
   'applications_database.csv': Application,
   'customers_database.csv': Customer,
-  'payouts_database.csv': Payout
+  'payouts_database.csv': Payout,
+  'blogs_database.csv': Blog
 };
 
 const writeQueue = {};
@@ -891,6 +897,10 @@ async function saveToSqlite(fileBasename, data) {
             const parsed = parseInt(clean.Property_ID);
             clean.Property_ID = isNaN(parsed) ? null : parsed;
           }
+          if (clean.Likes !== undefined) {
+            const parsed = parseInt(clean.Likes);
+            clean.Likes = isNaN(parsed) ? 0 : parsed;
+          }
           
           if (clean.Price !== undefined && typeof clean.Price === 'string') {
             const num = parseInt(clean.Price.replace(/[^0-9]/g, ''));
@@ -947,6 +957,87 @@ function writeExcelDbSync(filePath, sheetName, data) {
   });
   return true;
 }
+
+// --- Official Homzo Blog Permanent Database Endpoints ---
+app.get('/api/blogs', (req, res) => {
+  try {
+    const blogs = readExcelDb(blogsDbPath) || [];
+    const sorted = [...blogs].sort((a, b) => (parseInt(b.ID) || 0) - (parseInt(a.ID) || 0));
+    res.json(sorted);
+  } catch (err) {
+    console.error('Error fetching blogs:', err);
+    res.status(500).json({ error: 'Failed to load blogs' });
+  }
+});
+
+app.post('/api/blogs', (req, res) => {
+  try {
+    const { type, title, author, badge, description, articleBody, photoUrl, videoUrl, thumbnailUrl } = req.body;
+    if (!title || !author) {
+      return res.status(400).json({ error: 'Title and Author are required.' });
+    }
+    const blogs = readExcelDb(blogsDbPath) || [];
+    let newId = 1;
+    if (blogs.length > 0) {
+      newId = Math.max(...blogs.map(b => parseInt(b.ID) || 0)) + 1;
+    }
+    const newBlog = {
+      ID: newId,
+      Type: type || 'article',
+      Title: String(title).trim(),
+      Author: String(author).trim(),
+      Badge: badge || 'Official Homzo Story',
+      Description: String(description || '').trim(),
+      Article_Body: articleBody || '',
+      Photo_Url: photoUrl || '',
+      Video_Url: videoUrl || '',
+      Thumbnail_Url: thumbnailUrl || '',
+      Likes: 0,
+      Created_At: new Date().toISOString()
+    };
+    blogs.push(newBlog);
+    writeExcelDb(blogsDbPath, 'Blogs', blogs);
+    res.status(201).json({ success: true, blog: newBlog });
+  } catch (err) {
+    console.error('Error creating blog post:', err);
+    res.status(500).json({ error: 'Failed to save blog post' });
+  }
+});
+
+app.post('/api/blogs/:id/like', (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { increment } = req.body;
+    const blogs = readExcelDb(blogsDbPath) || [];
+    const blog = blogs.find(b => parseInt(b.ID) === id);
+    if (!blog) {
+      return res.status(404).json({ error: 'Blog post not found' });
+    }
+    const delta = increment === false ? -1 : 1;
+    blog.Likes = Math.max(0, (parseInt(blog.Likes) || 0) + delta);
+    writeExcelDb(blogsDbPath, 'Blogs', blogs);
+    res.json({ success: true, likes: blog.Likes });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update likes' });
+  }
+});
+
+app.delete('/api/blogs/:id', (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const blogs = readExcelDb(blogsDbPath) || [];
+    const idx = blogs.findIndex(b => parseInt(b.ID) === id);
+    if (idx === -1) {
+      return res.status(404).json({ error: 'Blog post not found' });
+    }
+    blogs.splice(idx, 1);
+    writeExcelDb(blogsDbPath, 'Blogs', blogs);
+    res.json({ success: true, message: 'Blog deleted permanently' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete blog post' });
+  }
+});
+
 
 // Password hashing helpers
 function hashPassword(password) {

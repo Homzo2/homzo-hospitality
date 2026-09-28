@@ -391,6 +391,21 @@ const Customer = sequelize.define('Customer', {
   Date_Created: { type: DataTypes.STRING }
 }, { tableName: 'Customers', timestamps: false });
 
+const Blog = sequelize.define('Blog', {
+  ID: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  Type: { type: DataTypes.STRING, defaultValue: 'article' },
+  Title: { type: DataTypes.STRING, allowNull: false },
+  Author: { type: DataTypes.STRING, defaultValue: 'Rishabh Kumar Modanwal' },
+  Badge: { type: DataTypes.STRING, defaultValue: 'Official Homzo' },
+  Description: { type: DataTypes.TEXT },
+  Article_Body: { type: DataTypes.TEXT },
+  Photo_Url: { type: DataTypes.TEXT },
+  Video_Url: { type: DataTypes.TEXT },
+  Thumbnail_Url: { type: DataTypes.TEXT },
+  Likes: { type: DataTypes.INTEGER, defaultValue: 0 },
+  Created_At: { type: DataTypes.STRING }
+}, { tableName: 'Blogs', timestamps: false });
+
 // Helper mapping for seed script
 const fileToModelMap = {
   'clients_database.csv': Client,
@@ -415,7 +430,8 @@ const fileToModelMap = {
   'jobs_database.csv': Job,
   'applications_database.csv': Application,
   'customers_database.csv': Customer,
-  'payouts_database.csv': Payout
+  'payouts_database.csv': Payout,
+  'blogs_database.csv': Blog
 };
 
 // Read Excel / CSV DB Helper (copied from server.js legacy helper)
@@ -616,5 +632,6 @@ module.exports = {
   Job,
   Application,
   Customer,
-  Payout
+  Payout,
+  Blog
 };
