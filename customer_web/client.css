@@ -24,13 +24,14 @@
 }
 
 .nav-container {
-  max-width: 1280px;
+  max-width: 1380px;
   margin: 0 auto;
-  padding: 16px 32px;
+  padding: 14px 32px;
   display: flex;
   align-items: center;
-  gap: 40px;
-  transition: padding 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  justify-content: space-between;
+  gap: 20px;
+  transition: padding 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .navbar.scrolled .nav-container {
@@ -38,9 +39,10 @@
 }
 
 .nav-logo {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 10px;
+  flex-shrink: 0;
   font-family: 'Sora', sans-serif;
   font-size: 1.6rem;
   font-weight: 700;
@@ -62,35 +64,49 @@
 }
 
 .brand-logo {
-  height: 52px;
+  height: 46px;
   width: auto;
+  min-width: 128px;
+  flex-shrink: 0;
   object-fit: contain;
   display: block;
-  transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: drop-shadow(0 1px 2px rgba(15, 23, 42, 0.06));
+  transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s ease;
+}
+
+.nav-logo:hover .brand-logo {
+  transform: scale(1.03);
 }
 
 .navbar.scrolled .brand-logo {
-  height: 42px;
+  height: 40px;
+  min-width: 112px;
 }
 
 .footer-logo {
-  height: 120px;
+  height: 62px;
+  min-width: 165px;
 }
 
 .nav-links {
   display: flex;
-  gap: 4px;
+  align-items: center;
+  gap: 2px;
   flex: 1;
   justify-content: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .nav-link {
-  padding: 8px 16px;
+  padding: 8px 12px;
   border-radius: var(--radius-sm);
-  font-size: 0.87rem;
-  font-weight: 500;
+  font-size: 0.86rem;
+  font-weight: 600;
+  white-space: nowrap;
   color: var(--text-secondary);
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .nav-link:hover,
@@ -107,7 +123,8 @@
 .nav-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  flex-shrink: 0;
 }
 
 .nav-hamburger {
@@ -117,31 +134,34 @@
   padding: 8px;
 }
 
-/* Responsive navbar for tablets and medium/small desktop viewports (769px to 1200px) */
-@media (max-width: 1200px) and (min-width: 769px) {
+/* Responsive navbar for tablets and medium/small desktop viewports (769px to 1240px) */
+@media (max-width: 1240px) and (min-width: 769px) {
   .nav-container {
-    gap: 16px;
-    padding: 12px 24px;
+    gap: 12px;
+    padding: 12px 20px;
   }
   .navbar.scrolled .nav-container {
-    padding: 8px 24px;
+    padding: 8px 20px;
   }
   .nav-link {
-    padding: 6px 10px;
-    font-size: 0.8rem;
+    padding: 6px 9px;
+    font-size: 0.79rem;
   }
   .brand-logo {
-    height: 44px;
+    height: 40px;
+    min-width: 110px;
   }
   .navbar.scrolled .brand-logo {
     height: 36px;
+    min-width: 100px;
   }
   .nav-actions {
     gap: 8px;
   }
   .nav-actions .btn {
-    padding: 8px 14px;
+    padding: 8px 12px;
     font-size: 0.75rem;
+    white-space: nowrap;
   }
 }
 
