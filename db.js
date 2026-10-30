@@ -8,40 +8,40 @@ require('dotenv').config();
 
 const databaseUrl = process.env.DATABASE_URL;
 let sequelize;
+let usingPostgres = false;
 
-if (databaseUrl) {
-  sequelize = new Sequelize(databaseUrl, {
-    dialect: 'postgres',
-    dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false
-      }
-    },
-    logging: false
-  });
-  console.log('Using PostgreSQL / Supabase Remote Database Connection.');
-} else {
+function createSQLiteConnection() {
   const dbPath = path.resolve(__dirname, process.env.DATABASE_STORAGE || 'database.sqlite');
-  sequelize = new Sequelize({
+  const sq = new Sequelize({
     dialect: 'sqlite',
     storage: dbPath,
     logging: false,
     retry: {
-      match: [
-        /SQLITE_BUSY/,
-        /database is locked/
-      ],
+      match: [/SQLITE_BUSY/, /database is locked/],
       max: 10
     },
-    pool: {
-      max: 15,
-      min: 1,
-      acquire: 30000,
-      idle: 10000
-    }
+    pool: { max: 15, min: 1, acquire: 30000, idle: 10000 }
   });
   console.log('Using SQLite Local File-based Database Connection with Concurrency Pool.');
+  return sq;
+}
+
+if (databaseUrl) {
+  try {
+    sequelize = new Sequelize(databaseUrl, {
+      dialect: 'postgres',
+      dialectOptions: { ssl: { require: true, rejectUnauthorized: false } },
+      logging: false,
+      pool: { max: 5, min: 0, acquire: 10000, idle: 5000 }
+    });
+    usingPostgres = true;
+    console.log('Using PostgreSQL / Supabase Remote Database Connection.');
+  } catch (pgInitErr) {
+    console.warn('[DB] PostgreSQL init failed, falling back to SQLite:', pgInitErr.message);
+    sequelize = createSQLiteConnection();
+  }
+} else {
+  sequelize = createSQLiteConnection();
 }
 
 
@@ -552,8 +552,37 @@ async function seedFromCSV() {
 }
 
 async function initDb() {
+  // ── Runtime PostgreSQL reachability check ──────────────────────────────
+  // If DATABASE_URL is set but the host is unreachable/deleted, silently
+  // switch to SQLite so the server never crashes on startup.
+  if (usingPostgres) {
+    try {
+      await sequelize.authenticate();
+      console.log('[DB] PostgreSQL connection verified OK.');
+    } catch (pgAuthErr) {
+      console.warn('[DB] PostgreSQL unreachable:', pgAuthErr.message);
+      console.warn('[DB] Falling back to SQLite automatically...');
+      sequelize = createSQLiteConnection();
+      usingPostgres = false;
+      // Re-bind all models to the new SQLite connection
+      const modelNames = Object.keys(sequelize.models);
+      if (modelNames.length === 0) {
+        // Models not yet defined on new connection — restart is cleanest,
+        // but we patch by reassigning the sequelize instance on each model.
+        [Client, Property, Inquiry, Review, Partner, AuditLog, Ticket,
+         Notification, PartnerMeta, Task, City, Pipeline, StatusHistory,
+         ApprovalQueue, Role, Permission, User, Changelog, Employee,
+         Job, Application, Customer, Payout, Blog].forEach(m => {
+          if (m && m.sequelize) {
+            Object.defineProperty(m, 'sequelize', { value: sequelize, configurable: true });
+          }
+        });
+      }
+    }
+  }
+  // ──────────────────────────────────────────────────────────────────────
   try {
-    if (databaseUrl) {
+    if (usingPostgres) {
       await sequelize.sync({ alter: true });
     } else {
       try {
